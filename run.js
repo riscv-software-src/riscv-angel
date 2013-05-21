@@ -6,10 +6,11 @@ RISCV = new CPU();
 
 
 // need to load program into memory
-
+// (first instruction goes in 0x2000)
 
 
 //while(true){
+    var inst = RISCV.memory[RISCV.pc];
     //runInstruction(inst, CPU);
     // grab inst from current PC
 
