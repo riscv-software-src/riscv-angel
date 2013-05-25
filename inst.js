@@ -140,6 +140,45 @@ function runInstruction(inst, RISCV){
                     }
                     RISCV.pc += 4;
                     break;
+
+                // SLTIU, need to check signExt here
+                case 0x3:
+                    if (RISCV.gen_reg[inst.get_rs1()] < signExt(inst.get_imm(), 11)){
+                        RISCV.gen_reg[inst.get_rd()] = 0x00000001;
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = 0x00000000;
+                    }
+                    RISCV.pc += 4;
+                    break;
+                
+                // XORI
+                case 0x4:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) ^ (signExt(inst.get_imm(), 11)|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // SRLI and SRAI
+                case 0x5:
+                    if ((inst.get_imm() >>> 5) != 0){
+                        //this is a bad inst, causes illegal instruction trap
+                        //according to page 11 in ISA doc
+                        console.log("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
+                        break;
+                    }
+                    var aldiff = (inst.get_imm() >>> 6);
+                    if (aldiff === 0) {
+                        // SRLI
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >>> (inst.get_imm() & 0x003F);
+                    } else if (aldiff === 1) {
+                        // SRAI
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >> (inst.get_imm() & 0x003F);
+                    } else {
+                        // bad
+                        console.log("Bad inst");
+                        break;
+                    }
+                    RISCV.pc += 4;
+                    break;
             }
 
 
