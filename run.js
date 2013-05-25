@@ -10,9 +10,8 @@ RISCV = new CPU();
 
 
 //while(true){
-    var inst = RISCV.memory[RISCV.pc];
-    //runInstruction(inst, CPU);
-    // grab inst from current PC
+    var inst = new instruction(RISCV.memory[RISCV.pc]);
+    runInstruction(inst, RISCV);
 
 
 //}
