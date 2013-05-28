@@ -179,6 +179,19 @@ function runInstruction(inst, RISCV){
                     }
                     RISCV.pc += 4;
                     break;
+
+                // ORI 
+                case 0x6:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) | (signExt(inst.get_imm(), 11)|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // ANDI
+                case 0x7:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) & (signExt(inst.get_imm(), 11)|0);
+                    RISCV.pc += 4;
+                    break;
+
             }
 
 
