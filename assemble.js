@@ -100,12 +100,15 @@ function R4type(){
     this.to_bin = to_bin;
 }
 
+
+
+
 // assume that program will be loaded at 0x2000
 function assemble(userProg){
     userProg = userProg.split("\n");
     var labels = {}
 
-    // CURRENTLY DOES NOT HANDLE LABELS
+    // CURRENTLY DOES NOT HANDLE LABELS ON SAME LINE AS INSTRUCTION
     for (var i = 0; i < userProg.length; i++){
         // handle ", " and ",", convert to " "
         userProg[i] = userProg[i].replace(/, /g, " ");
@@ -115,12 +118,24 @@ function assemble(userProg){
     }
 
 
-    //first pass, simple stuff
+    //first pass, basic assembly, find and document labels
     for (var i = 0; i < userProg.length; i++){
+        if (userProg[i][0].indexOf(":") != -1){
+            // this line is a label
+            l = userProg[i][0].replace(":", "");
+            labels[l] = i;
+        } else {
+            // this line is an instruction
+            makeObj = insts[userProg[i][0]];
+            instObj = makeObj();
 
 
 
 
 
 
+
+        }
     }
+    return userProg;
+}
