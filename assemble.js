@@ -167,7 +167,7 @@ function assemble(userProg){
     for (var i = 0; i < userProg.length; i++){
         // this line is an instruction
         makeObj = inst_to_type[userProg[i][0]];
-        instObj = makeObj();
+        instObj = new makeObj();
         instObj.set_from_tokens(userProg[i]);
         userProg[i] = instObj.to_bin();
     }
