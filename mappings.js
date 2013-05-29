@@ -84,3 +84,35 @@ var inst_to_type = {
     // System Instructions
 
 };
+
+function cItype(opcode, funct3, specialimm, specialrs1){
+    this.opcode = opcode;
+    this.funct3 = funct3;
+    this.specialimm = specialimm;
+    this.specialrs1 = specialrs1;
+} 
+
+var Ifields = {
+    "jalr.c": new cItype(0x6B, 0x0),
+    "jalr.r": new cItype(0x6B, 0x1),
+    "jalr.j": new cItype(0x6B, 0x2),
+    "rdnpc": new cItype(0x6B, 0x4, 0, 0),
+
+    "lb": new cItype(0x03, 0x0),
+    "lh": new cItype(0x03, 0x1),
+    "lw": new cItype(0x03, 0x2),
+    "ld": new cItype(0x03, 0x3),
+    "lbu": new cItype(0x03, 0x4),
+    "lhu": new cItype(0x03, 0x5),
+    "lwu": new cItype(0x03, 0x6),
+
+    "addi": new cItype(0x13, 0x0),
+    "slli": new cItype(0x13, 0x1, 0), // needs to be or'd with shamt
+    "slti": new cItype(0x13, 0x2),
+    "sltiu": new cItype(0x13, 0x3),
+    "xori": new cItype(0x13, 0x4),
+    "srli": new cItype(0x13, 0x5, 0), // needs to be or'd with shamt
+    "srai": new cItype(0x13, 0x5, 0x40), // needs to be or'd with shamt
+    "ori": new cItype(0x13, 0x6),
+    "andi": new cItype(0x13, 0x7),
+}; 
