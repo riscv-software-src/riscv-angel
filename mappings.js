@@ -116,3 +116,46 @@ var Ifields = {
     "ori": new cItype(0x13, 0x6),
     "andi": new cItype(0x13, 0x7),
 }; 
+
+function cRtype(opcode, funct10){
+    this.opcode = opcode;
+    this.funct10 = funct10;
+}
+
+var Rfields = {
+    "amoadd.w": new cRtype(0x2B, 0x2),
+    "amoswap.w": new cRtype(0x2B, 0xA),
+    "amoand.w": new cRtype(0x2B, 0x12),
+    "amoor.w": new cRtype(0x2B, 0x1A),
+    "amomin.w": new cRtype(0x2B, 0x22),
+    "amomax.w": new cRtype(0x2B, 0x2A),
+    "amominu.w": new cRtype(0x2B, 0x32),
+    "amomaxu.w": new cRtype(0x2B, 0x3A),
+    "amoadd.d": new cRtype(0x2B, 0x3),
+    "amoswap.d": new cRtype(0x2B, 0xB),
+    "amoand.d": new cRtype(0x2B, 0x13),
+    "amoor.d": new cRtype(0x2B, 0x1B),
+    "amomin.d": new cRtype(0x2B, 0x23),
+    "amomax.d": new cRtype(0x2B, 0x2B),
+    "amominu.d": new cRtype(0x2B, 0x33),
+    "amomaxu.d": new cRtype(0x2B, 0x3B),
+
+    "add": new cRtype(0x33, 0x0),
+    "sub": new cRtype(0x33, 0x200),
+    "sll": new cRtype(0x33, 0x1),
+    "slt": new cRtype(0x33, 0x2),
+    "sltu": new cRtype(0x33, 0x3),
+    "xor": new cRtype(0x33, 0x4),
+    "srl": new cRtype(0x33, 0x5),
+    "sra": new cRtype(0x33, 0x205),
+    "or": new cRtype(0x33, 0x6),
+    "and": new cRtype(0x33, 0x7),
+    "mul": new cRtype(0x33, 0x8),
+    "mulh": new cRtype(0x33, 0x9),
+    "mulhsu": new cRtype(0x33, 0xA),
+    "mulhu": new cRtype(0x33, 0xB), 
+    "div": new cRtype(0x33, 0xC),
+    "divu": new cRtype(0x33, 0xD),
+    "rem": new cRtype(0x33, 0xE),
+    "remu": new cRtype(0x33, 0xF),
+}; 

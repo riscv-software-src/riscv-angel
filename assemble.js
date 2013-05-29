@@ -13,7 +13,7 @@ function Jtype(){
 
     function to_bin(){
         // convert to binary
-        binned = 0;
+        var binned = 0;
 
         return binned;
     }
@@ -34,7 +34,7 @@ function LUItype(){
 
     function to_bin(){
         // convert to binary
-        binned = 0;
+        var binned = 0;
 
         return binned;
     }
@@ -52,7 +52,7 @@ function Itype(){
 
     // set fields from input and labels obj
     function set_from_tokens(instArr){
-        cinst = Ifields[instArr[0]];
+        var cinst = Ifields[instArr[0]];
 
         // set this.rd from input instruction
         this.rd = parseInt(instArr[1].replace( /^\D+/g, ""));
@@ -87,7 +87,7 @@ function Itype(){
 
     function to_bin(){
         // convert to binary
-        binned = 0;
+        var binned = 0;
         binned = binned | this.opcode;
         binned = binned | (this.funct3 << 7);
         // TODO: edge cases with immediates / sign ext
@@ -115,7 +115,7 @@ function Btype(){
 
     function to_bin(){
         // convert to binary
-        binned = 0;
+        var binned = 0;
 
         return binned;
     }
@@ -133,13 +133,26 @@ function Rtype(){
 
     function set_from_tokens(instArr){
         // set fields from input and labels obj
+        var cinst = Rfields[instArr[0]];
 
+        // set rd,rs1,rs2 from input instruction
+        this.rd = parseInt(instArr[1].replace( /^\D+/g, ""));
+        this.rs1 = parseInt(instArr[2].replace( /^\D+/g, ""));
+        this.rs2 = parseInt(instArr[3].replace( /^\D+/g, ""));
+
+        // set funct10, opcode from cinst
+        this.funct10 = cinst.funct10;
+        this.opcode = cinst.opcode;
     }
 
     function to_bin(){
         // convert to binary
-        binned = 0;
-
+        var binned = 0;
+        binned = binned | this.opcode;
+        binned = binned | (this.funct10 << 7);
+        binned = binned | (this.rs2 << 17);
+        binned = binned | (this.rs1 << 22);
+        binned = binned | (this.rd << 27);
         return binned;
     }
 
@@ -162,7 +175,7 @@ function R4type(){
 
     function to_bin(){
         // convert to binary
-        binned = 0;
+        var binned = 0;
 
         return binned;
     }
