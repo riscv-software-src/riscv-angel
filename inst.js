@@ -114,8 +114,6 @@ function runInstruction(inst, RISCV){
                 // ADDI
                 case 0x0:
                     RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
-                    console.log(inst.get_imm("I") | 0);
-                    console.log(signExt(inst.get_imm("I"), 11)|0);
                     RISCV.pc += 4;
                     break;
 
