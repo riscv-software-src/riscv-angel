@@ -196,11 +196,145 @@ function runInstruction(inst, RISCV){
                     break;
 
             }
+            break;
+
+        // R-TYPE, opcode: 0b0110011
+        case 0x33:
+            var funct10 = inst.get_funct10();
+
+            switch(funct10){
+
+                // ADD
+                case 0x0:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) + (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // SUB
+                case 0x200:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) - (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // SLL
+                case 0x1:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) << (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // SLT
+                case 0x2:
+                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (RISCV.gen_reg[inst.get_rs2()]|0)){
+                        RISCV.gen_reg[inst.get_rd()] = 0x1;
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = 0x0;
+                    }
+                    RISCV.pc += 4;
+                    break;
+
+                // SLTU
+                case 0x3:
+                    if (RISCV.gen_reg[inst.get_rs1()] < RISCV.gen_reg[inst.get_rs2()]){
+                        RISCV.gen_reg[inst.get_rd()] = 0x1;
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = 0x0;
+                    }
+                    RISCV.pc += 4;
+                    break;
+
+                // XOR
+                case 0x4:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) ^ (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // SRL
+                case 0x5:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) >>> (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // SRA
+                case 0x205:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) >> (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // OR
+                case 0x6:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) | (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // AND
+                case 0x7:
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) & (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.pc += 4;
+                    break;
+
+                // MUL
+                case 0x8:
+                    var rs1 = RISCV.gen_reg[inst.get_rs1()];
+                    var rs2 = RISCV.gen_reg[inst.get_rs2()];
+                    var rs1_64;
+                    var rs2_64;
+
+                    if ((rs1|0) < 0){
+                        rs1_64 = new goog.math.Long(rs1, 0xFFFFFFFF);
+                    } else {
+                        rs1_64 = new goog.math.Long(rs1, 0x0);
+                    }
+                    if ((rs2|0) < 0){
+                        rs2_64 = new goog.math.Long(rs2, 0xFFFFFFFF);
+                    } else {
+                        rs2_64 = new goog.math.Long(rs2, 0x0);
+                    }
+                    var result = rs1_64.multiply(rs2_64);
+                    result = result.getLowBits();
+                    RISCV.gen_reg[inst.get_rd()] = result | 0;
+                    RISCV.pc += 4;
+                    break;
+
+                // MULH
+                case 0x9:
+                    var rs1 = RISCV.gen_reg[inst.get_rs1()];
+                    var rs2 = RISCV.gen_reg[inst.get_rs2()];
+                    var rs1_64;
+                    var rs2_64; 
+
+                   if ((rs1|0) < 0){
+                        rs1_64 = new goog.math.Long(rs1, 0xFFFFFFFF);
+                    } else {
+                        rs1_64 = new goog.math.Long(rs1, 0x0);
+                    }
+                    if ((rs2|0) < 0){
+                        rs2_64 = new goog.math.Long(rs2, 0xFFFFFFFF);
+                    } else {
+                        rs2_64 = new goog.math.Long(rs2, 0x0);
+                    }
+                    var result = rs1_64.multiply(rs2_64);
+                    result = result.getHighBits();
+                    RISCV.gen_reg[inst.get_rd()] = result | 0;
+                    RISCV.pc += 4;
+                    break;
+
+//TODO:         // MULHSU
+                case 0xA:
+                    throw new Error("MULHSU not yet implemented");
+                    RISCV.pc += 4;
+                    break;
+
+//TODO:         // MULHU
+                case 0xB:
+                    throw new Error("MULHU not yet implemented");
+                    RISCV.pc += 4;
+                    break;
+ 
 
 
 
 
-
+            }
             break;
     }
 }
