@@ -124,10 +124,10 @@ function runInstruction(inst, RISCV){
                         console.log("ERR IN SLLI");
                         break;
                     }
-                    if ((inst.get_imm("I") >>> 5) != 0){
+                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
-                        console.log("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
+                        throw new Error("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
                         break;
                     }
                     RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] << (inst.get_imm("I") & 0x003F);
@@ -162,10 +162,10 @@ function runInstruction(inst, RISCV){
 
                 // SRLI and SRAI
                 case 0x5:
-                    if ((inst.get_imm("I") >>> 5) != 0){
+                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
-                        console.log("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
+                        throw new Error("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
                         break;
                     }
                     var aldiff = (inst.get_imm("I") >>> 6);

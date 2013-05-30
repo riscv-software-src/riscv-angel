@@ -73,7 +73,7 @@ function Itype(){
             } else {
                 // handles slli, srli, srai 
                 // shamt is 6 bits, but shamt[5] must equal 0
-                var shamt = instArr[3] | 0x01F;
+                var shamt = instArr[3] & 0x01F;
                 this.imm = cinst.specialimm | shamt; 
             }
         } else {
