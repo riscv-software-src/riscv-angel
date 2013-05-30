@@ -50,6 +50,9 @@ function instruction(instVal){
 
     // inst type should be I or B
     function get_imm(inst_type){
+        if (inst_type === undefined){
+            console.log("ERR NO TYPE PROVIDED FOR IMMEDIATE FETCH");
+        }
         return ((this.get_imm11_7(inst_type) << 7) | this.get_imm6_0());
     }
 
@@ -110,30 +113,32 @@ function runInstruction(inst, RISCV){
                 
                 // ADDI
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm(), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    console.log(inst.get_imm("I") | 0);
+                    console.log(signExt(inst.get_imm("I"), 11)|0);
                     RISCV.pc += 4;
                     break;
 
                 // SLLI                   
                 case 0x1:
-                    if ((inst.get_imm() >>> 6) != 0) {
+                    if ((inst.get_imm("I") >>> 6) != 0) {
                         //this is a bad inst, but not a trap, according to ISA doc
                         console.log("ERR IN SLLI");
                         break;
                     }
-                    if ((inst.get_imm() >>> 5) != 0){
+                    if ((inst.get_imm("I") >>> 5) != 0){
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
                         console.log("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
                         break;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] << (inst.get_imm() & 0x003F);
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] << (inst.get_imm("I") & 0x003F);
                     RISCV.pc += 4;
                     break;
 
                 // SLTI 
                 case 0x2:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (signExt(inst.get_imm(), 11)|0)){
+                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (signExt(inst.get_imm("I"), 11)|0)){
                         RISCV.gen_reg[inst.get_rd()] = 0x00000001;
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = 0x00000000;
@@ -143,7 +148,7 @@ function runInstruction(inst, RISCV){
 
                 // SLTIU, need to check signExt here
                 case 0x3:
-                    if (RISCV.gen_reg[inst.get_rs1()] < signExt(inst.get_imm(), 11)){
+                    if (RISCV.gen_reg[inst.get_rs1()] < signExt(inst.get_imm("I"), 11)){
                         RISCV.gen_reg[inst.get_rd()] = 0x00000001;
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = 0x00000000;
@@ -153,25 +158,25 @@ function runInstruction(inst, RISCV){
                 
                 // XORI
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) ^ (signExt(inst.get_imm(), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) ^ (signExt(inst.get_imm("I"), 11)|0);
                     RISCV.pc += 4;
                     break;
 
                 // SRLI and SRAI
                 case 0x5:
-                    if ((inst.get_imm() >>> 5) != 0){
+                    if ((inst.get_imm("I") >>> 5) != 0){
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
                         console.log("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
                         break;
                     }
-                    var aldiff = (inst.get_imm() >>> 6);
+                    var aldiff = (inst.get_imm("I") >>> 6);
                     if (aldiff === 0) {
                         // SRLI
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >>> (inst.get_imm() & 0x003F);
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >>> (inst.get_imm("I") & 0x003F);
                     } else if (aldiff === 1) {
                         // SRAI
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >> (inst.get_imm() & 0x003F);
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >> (inst.get_imm("I") & 0x003F);
                     } else {
                         // bad
                         console.log("Bad inst");
@@ -182,13 +187,13 @@ function runInstruction(inst, RISCV){
 
                 // ORI 
                 case 0x6:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) | (signExt(inst.get_imm(), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) | (signExt(inst.get_imm("I"), 11)|0);
                     RISCV.pc += 4;
                     break;
 
                 // ANDI
                 case 0x7:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) & (signExt(inst.get_imm(), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) & (signExt(inst.get_imm("I"), 11)|0);
                     RISCV.pc += 4;
                     break;
 

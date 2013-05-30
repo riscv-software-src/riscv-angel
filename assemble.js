@@ -188,6 +188,7 @@ function R4type(){
 
 // assume that program will be loaded at 0x2000
 function assemble(userProg){
+    userProg = userProg.toLowerCase();
     userProg = userProg.split("\n");
     labels = {} //make this non-global after testing
 
