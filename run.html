@@ -5,7 +5,7 @@
 <script src="cpu.js"></script>
 <script src="assemble.js"></script>
 <script src="mappings.js"></script>
-<script src="run.js"></script>
+<!-- <script src="run.js"></script> -->
 
 
 <!-- bootstrap -->
@@ -28,10 +28,33 @@
 
 function runCode() {
     userIn = document.getElementById("userCode").value;
+    tab = document.getElementById("regtable");
     console.log(userIn);
     //return userIn;
-}
 
+    userIn = assemble(userIn);
+
+    RISCV = new CPU();
+
+    // load program into memory
+    RISCV.load_to_mem([[0, 0], userIn]);
+
+    // run
+    var instVal = RISCV.load_word_from_mem(RISCV.pc);
+    while(instVal != 0){
+        // run instruction
+        var inst = new instruction(instVal);
+        runInstruction(inst, RISCV);
+
+        // update output
+        for (var i = 0; i < RISCV.gen_reg.length; i++){
+            tab.rows[i+1].cells[1].innerHTML = RISCV.gen_reg[i].toString();    
+        }
+
+        // load next instruction
+        instVal = RISCV.load_word_from_mem(RISCV.pc);
+    }
+}
 </script>
 
 </head>
@@ -49,7 +72,141 @@ function runCode() {
             <a class="btn btn-large btn-success" onclick="runCode()">Run</a>
         </div>
         <div class="span6">
-            Output here
+            Output:
+            <table id="regtable" class="table">
+                <tr>
+                    <td>Register</td>
+                    <td>Value (dec)</td>
+                </tr>
+                <tr>
+                    <td>x0</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x1</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x2</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x3</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x4</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x5</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x6</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x7</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x8</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x9</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x10</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x11</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x12</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x13</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x14</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x15</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x16</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x17</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x18</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x19</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x20</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x21</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x22</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x23</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x24</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x25</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x26</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x27</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x28</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x29</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x30</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>x31</td>
+                    <td></td>
+                </tr>
+            </table>
         </div>
 
     </div>

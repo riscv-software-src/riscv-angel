@@ -160,6 +160,7 @@ function Rtype(){
     this.to_bin = to_bin;
 }
 
+//TODO: need to implement this when the rest of the FP stuff is implemented
 function R4type(){
     this.rd = 0;
     this.rs1 = 0;
