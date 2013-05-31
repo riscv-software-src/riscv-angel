@@ -85,6 +85,14 @@ var inst_to_type = {
 
 };
 
+function cLtype(opcode){
+    this.opcode = opcode;
+}
+
+var Lfields = {
+    "lui": new cLtype(0x37),
+};
+
 function cItype(opcode, funct3, specialimm, specialrs1){
     this.opcode = opcode;
     this.funct3 = funct3;

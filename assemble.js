@@ -29,13 +29,23 @@ function LUItype(){
 
     function set_from_tokens(instArr){
         // set fields from input and labels obj
+        var cinst = Lfields[instArr[0]];
 
+        // set this.rd from input instruction
+        this.rd = parseInt(instArr[1].replace( /^\D+/g, ""));
+
+        // set this.LUIimm from input instruction
+        this.LUIimm = parseInt(instArr[2]) & 0xFFFFF;
+
+        this.opcode = cinst.opcode;
     }
 
     function to_bin(){
         // convert to binary
         var binned = 0;
-
+        binned = binned | this.opcode;
+        binned = binned | (this.LUIimm << 7);
+        binned = binned | (this.rd << 27);
         return binned;
     }
 

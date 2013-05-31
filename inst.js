@@ -356,5 +356,12 @@ function runInstruction(inst, RISCV){
 
             }
             break;
+
+        // L-TYPE (LUI only) - opcode: 0b0110111
+        case 0x37:
+            RISCV.gen_reg[inst.get_rd()] = (inst.get_lui_imm() << 12);
+            RISCV.pc += 4;
+            break;
+
     }
 }
