@@ -17,7 +17,6 @@ function CPU(memamt){
     // processor.cc
     this.pc = 0x2000;
 
-    // TODO: make zero-register const-zero
     // general-purpose registers, gen_reg[0] is x0, etc.
     this.gen_reg = new Uint32Array(32);
 
@@ -35,6 +34,15 @@ function CPU(memamt){
         this.memory[addr+3] = (val) & 0xFF;
     }
 
+    function store_half_to_mem(addr, val){
+        this.memory[addr] = (val >>> 8) & 0xFF;
+        this.memory[addr+1] = val & 0xFF;
+    }
+
+    function store_byte_to_mem(addr, val){
+        this.memory[addr] = val & 0xFF;
+    }
+
     function load_word_from_mem(addr){
         var retval = 0;
         retval = retval | this.memory[addr] << 24;
@@ -43,6 +51,22 @@ function CPU(memamt){
         retval = retval | this.memory[addr+3];
         return retval;
     }
+
+    function load_half_from_mem(addr){
+        var retval = 0;
+        retval = retval | this.memory[addr] << 8;
+        retval = retval | this.memory[addr+1];
+        return retval;
+    }
+
+    function load_byte_from_mem(addr){
+        var retval = 0;
+        retval = retval | this.memory[addr];
+        return retval;
+    }
+
+
+
 
     // vals[0] is loaded into 0x0000, vals[1] is program, loaded into 0x2000
     function load_to_mem(vals){
@@ -53,6 +77,10 @@ function CPU(memamt){
     }
 
     this.store_word_to_mem = store_word_to_mem;
+    this.store_half_to_mem = store_half_to_mem;
+    this.store_byte_to_mem = store_byte_to_mem;
     this.load_word_from_mem = load_word_from_mem;
+    this.load_half_from_mem = load_half_from_mem;
+    this.load_byte_from_mem = load_byte_from_mem;
     this.load_to_mem = load_to_mem;
 }

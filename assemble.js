@@ -73,6 +73,12 @@ function Itype(){
         // set this.rs1
         if (cinst.specialrs1 != undefined){
             this.rs1 = cinst.specialrs1;
+        } else if (cinst.opcode == 0x3){
+            // special handling for load inst
+            var rs1imm = instArr[2];
+            rs1imm = rs1imm.replace(")", "");
+            rs1imm = rs1imm.split("(")[1];
+            this.rs1 = parseInt(rs1imm.replace( /^\D+/g, ""));
         } else {
             // process from input instruction
             this.rs1 = parseInt(instArr[2].replace( /^\D+/g, ""));
@@ -89,6 +95,12 @@ function Itype(){
                 var shamt = instArr[3] & 0x01F;
                 this.imm = cinst.specialimm | shamt; 
             }
+        } else if (cinst.opcode == 0x3){
+            // special handling for load inst
+            var rs1imm = instArr[2];
+            rs1imm = rs1imm.replace(")", "");
+            rs1imm = rs1imm.split("(")[0];
+            this.imm = parseInt(rs1imm) & 0x0FFF; 
         } else {
             // process imm from input inst
             this.imm = parseInt(instArr[3]) & 0x0FFF;
@@ -135,7 +147,12 @@ function Btype(){
             this.imm = instArr[3];
         } else if (cinst.opcode == 0x23) {
             // handle stores (note, special notation: sb x0, 0(x1))
-
+            this.rs2 = parseInt(instArr[1].replace( /^\D+/g, ""));
+            var rs1imm = instArr[2];
+            rs1imm = rs1imm.replace(")", "");
+            rs1imm = rs1imm.split("(");
+            this.imm = parseInt(rs1imm[0]) & 0x0FFF; 
+            this.rs1 = parseInt(rs1imm[1].replace( /^\D+/g, "")); 
         }
     }
 
