@@ -134,6 +134,25 @@ var Ifields = {
     "andi": new cItype(0x13, 0x7),
 }; 
 
+function cBtype(opcode, funct3){
+    this.opcode = opcode;
+    this.funct3 = funct3;
+}
+
+var Bfields = {
+    "beq": new cBtype(0x63, 0x0),
+    "bne": new cBtype(0x63, 0x1),
+    "blt": new cBtype(0x63, 0x4),
+    "bge": new cBtype(0x63, 0x5),
+    "bltu": new cBtype(0x63, 0x6),
+    "bgeu": new cBtype(0x63, 0x7),
+
+    "sb": new cBtype(0x23, 0x0),
+    "sh": new cBtype(0x23, 0x1),
+    "sw": new cBtype(0x23, 0x2),
+    // sd is not implemented for 32 bit arch
+};
+
 function cRtype(opcode, funct10){
     this.opcode = opcode;
     this.funct10 = funct10;

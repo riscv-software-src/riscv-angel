@@ -123,13 +123,34 @@ function Btype(){
 
     function set_from_tokens(instArr){
         // set fields from input and labels obj
+        var cinst = Bfields[instArr[0]];
 
+        this.opcode = cinst.opcode;
+        this.funct3 = cinst.funct3;
+
+        if (cinst.opcode == 0x63) {
+            // handle conditional branches
+            this.rs1 = parseInt(instArr[1].replace( /^\D+/g, ""));
+            this.rs2 = parseInt(instArr[2].replace( /^\D+/g, ""));
+            this.imm = instArr[3];
+        } else if (cinst.opcode == 0x23) {
+            // handle stores (note, special notation: sb x0, 0(x1))
+
+        }
     }
 
     function to_bin(){
         // convert to binary
         var binned = 0;
-
+        // handle splitting the immediate
+        var imm12hi = this.imm >>> 7;
+        var imm12lo = this.imm & 0x07F;
+        binned = binned | this.opcode;
+        binned = binned | (this.funct3 << 7);
+        binned = binned | (imm12lo << 10);
+        binned = binned | (this.rs2 << 17);
+        binned = binned | (this.rs1 << 22);
+        binned = binned | (this.imm12hi << 27);
         return binned;
     }
 
@@ -231,7 +252,6 @@ function assemble(userProg){
         // this line is an instruction
         makeObj = inst_to_type[userProg[i][0]];
         instObj = new makeObj();
-//TODO: I-Type jump instrs like JALR
         if ((makeObj === Btype) || (makeObj === Jtype)){
             var labelLoc = labels[userProg[i][userProg[i].length-1]];
             if (makeObj === Jtype){
@@ -242,10 +262,14 @@ function assemble(userProg){
                 userProg[i][userProg[i].length-1] = labelLoc;
             } else {
                 // if Btype
-
-
-
-
+                var cinst = Bfields[userProg[i]]; // need opcode
+                if (cinst.opcode == 0x63) {
+                    labelLoc = ((labelLoc|0) - (i|0))*4;
+                    labelLoc = labelLoc >>> 1;
+                    labelLoc = labelLoc & 0x0FFF;
+                    userProg[i][userProg[i].length-1] = labelLoc;
+                }
+                // don't need to do anything special here for stores
             }
         }
         instObj.set_from_tokens(userProg[i]);
