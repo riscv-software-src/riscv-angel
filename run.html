@@ -58,6 +58,9 @@ function runCode() {
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
 
+        // force x0 to zero
+        RISCV.gen_reg[0] = 0x0;
+
         // update output
         for (var i = 0; i < RISCV.gen_reg.length; i++){
             tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
@@ -92,11 +95,11 @@ function runCode() {
                     <td>Value (Signed Decimal)</td>
                 </tr>
                 <tr>
-                    <td>x0</td>
+                    <td>x0 (zero)</td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td>x1</td>
+                    <td>x1 (ra)</td>
                     <td></td>
                 </tr>
                 <tr>

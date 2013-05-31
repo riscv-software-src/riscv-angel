@@ -399,7 +399,21 @@ function runInstruction(inst, RISCV){
             RISCV.gen_reg[1] = RISCV.pc + 4;
             RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
             break;
-           
 
+        // I-TYPES (continued): JALRs and RDNPC 
+        case 0x6B:
+            var funct3 = inst.get_funct3();
+            if (funct3 == 0x0 || funct3 == 0x1 || funct3 == 0x2){
+                // JALR.C, .R, .J, all are functionally identical
+                RISCV.gen_reg[inst.get_rd()] = RISCV.pc|0 + 0x4;
+                RISCV.pc = (signExt(inst.get_imm("I"), 11)|0) + (RISCV.gen_reg[inst.get_rs1()]|0);
+            } else if (funct3 === 0x4) {
+                // RDNPC
+                RISCV.pc += 4;              
+                RISCV.gen_reg[inst.get_rd()] = RISCV.pc;
+            } else {
+                console.log("Bad Inst.");
+            }
+            break;
     }
 }
