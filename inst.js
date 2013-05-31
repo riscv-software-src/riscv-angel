@@ -394,11 +394,74 @@ function runInstruction(inst, RISCV){
             RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
             break;
 
-        // J-TYPE (JAL) - opcode: 0b110111
+        // J-TYPE (JAL) - opcode: 0b1101111
         case 0x6F:
             RISCV.gen_reg[1] = RISCV.pc + 4;
             RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
             break;
+
+        // B-TYPE (Branches) - opcode: 0b1100011
+        case 0x63:
+            var funct3 = inst.get_funct3();
+            switch(funct3){
+
+                // BEQ
+                case 0x0:
+                    if ((RISCV.gen_reg[inst.get_rs1()]|0) == (RISCV.gen_reg[inst.get_rs2()]|0)){
+                        RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
+                    } else {
+                        RISCV.pc += 4;
+                    }
+                    break;
+
+                // BNE
+                case 0x1:
+                    if ((RISCV.gen_reg[inst.get_rs1()]|0) != (RISCV.gen_reg[inst.get_rs2()]|0)){
+                        RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
+                    } else {
+                        RISCV.pc += 4;
+                    }
+                    break;
+
+                // BLT
+                case 0x4:
+                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (RISCV.gen_reg[inst.get_rs2()]|0)){
+                        RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
+                    } else {
+                        RISCV.pc += 4;
+                    }
+                    break;
+
+                // BGE
+                case 0x5:
+                    if ((RISCV.gen_reg[inst.get_rs1()]|0) >= (RISCV.gen_reg[inst.get_rs2()]|0)){
+                        RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
+                    } else {
+                        RISCV.pc += 4;
+                    }
+                    break;
+
+                // BLTU
+                case 0x6:
+                    if (RISCV.gen_reg[inst.get_rs1()] < RISCV.gen_reg[inst.get_rs2()]){
+                        RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
+                    } else {
+                        RISCV.pc += 4;
+                    }
+                    break;
+
+                // BGEU
+                case 0x7:
+                    if (RISCV.gen_reg[inst.get_rs1()] >= RISCV.gen_reg[inst.get_rs2()]){
+                        RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
+                    } else {
+                        RISCV.pc += 4;
+                    }
+                    break;
+            }
+            break;
+
+
 
         // I-TYPES (continued): JALRs and RDNPC 
         case 0x6B:

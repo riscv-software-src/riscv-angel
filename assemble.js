@@ -262,7 +262,7 @@ function assemble(userProg){
                 userProg[i][userProg[i].length-1] = labelLoc;
             } else {
                 // if Btype
-                var cinst = Bfields[userProg[i]]; // need opcode
+                var cinst = Bfields[userProg[i][0]]; // need opcode
                 if (cinst.opcode == 0x63) {
                     labelLoc = ((labelLoc|0) - (i|0))*4;
                     labelLoc = labelLoc >>> 1;
