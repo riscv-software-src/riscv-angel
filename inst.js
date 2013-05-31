@@ -389,5 +389,17 @@ function runInstruction(inst, RISCV){
             RISCV.pc += 4;
             break;
 
+        // J-TYPE (J) - opcode: 0b1100111
+        case 0x67:
+            RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
+            break;
+
+        // J-TYPE (JAL) - opcode: 0b110111
+        case 0x6F:
+            RISCV.gen_reg[1] = RISCV.pc + 4;
+            RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
+            break;
+           
+
     }
 }

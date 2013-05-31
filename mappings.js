@@ -85,6 +85,15 @@ var inst_to_type = {
 
 };
 
+function cJtype(opcode){
+    this.opcode = opcode;
+}
+
+var Jfields = {
+    "j": new cJtype(0x67),
+    "jal": new cJtype(0x6F), 
+};
+
 function cLtype(opcode){
     this.opcode = opcode;
 }

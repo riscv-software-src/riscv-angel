@@ -8,13 +8,16 @@ function Jtype(){
 
     function set_from_tokens(instArr){
         // set fields from input and labels obj
-
+        var cinst = Jfields[instArr[0]];
+        this.jumptarget = instArr[1] & 0x01FFFFFF;
+        this.opcode = cinst.opcode;
     }
 
     function to_bin(){
         // convert to binary
         var binned = 0;
-
+        binned = binned | this.opcode;
+        binned = binned | (this.jumptarget << 7);
         return binned;
     }
 
@@ -228,6 +231,23 @@ function assemble(userProg){
         // this line is an instruction
         makeObj = inst_to_type[userProg[i][0]];
         instObj = new makeObj();
+//TODO: I-Type jump instrs like JALR
+        if ((makeObj === Btype) || (makeObj === Jtype)){
+            var labelLoc = labels[userProg[i][userProg[i].length-1]];
+            if (makeObj === Jtype){
+                // if Jtype
+                labelLoc = ((labelLoc|0) - (i|0))*4;
+                labelLoc = labelLoc >>> 1;
+                labelLoc = labelLoc & 0x01FFFFFF;
+                userProg[i][userProg[i].length-1] = labelLoc;
+            } else {
+                // if Btype
+
+
+
+
+            }
+        }
         instObj.set_from_tokens(userProg[i]);
         userProg[i] = instObj.to_bin();
     }
