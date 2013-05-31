@@ -332,25 +332,51 @@ function runInstruction(inst, RISCV){
 
                 // DIV 
                 case 0xC:
-                    RISCV.gen_reg[inst.get_rd()] = ((RISCV.gen_reg[inst.get_rs1()]|0)/(RISCV.gen_reg[inst.get_rs2()]|0))|0;
+                    if (((RISCV.gen_reg[inst.get_rs1()]|0) == 0x80000000) && ((RISCV.gen_reg[inst.get_rs2()]|0) == 0xFFFFFFFF)){
+                        // signed division overflow
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
+                    } else if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
+                        // handle div by zero
+                        RISCV.gen_reg[inst.get_rd()] = 0xFFFFFFFF;
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = ((RISCV.gen_reg[inst.get_rs1()]|0)/(RISCV.gen_reg[inst.get_rs2()]|0))|0;
+                    }
                     RISCV.pc += 4;
                     break;
 
                 // DIVU
                 case 0xD:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]/RISCV.gen_reg[inst.get_rs2()])|0;
+                    if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
+                        // handle div by zero
+                        RISCV.gen_reg[inst.get_rd()] = 0xFFFFFFFF;
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]/RISCV.gen_reg[inst.get_rs2()])|0;
+                    }
                     RISCV.pc += 4;
                     break;
 
                 // REM
                 case 0xE:
-                    RISCV.gen_reg[inst.get_rd()] = ((RISCV.gen_reg[inst.get_rs1()]|0)%(RISCV.gen_reg[inst.get_rs2()]|0))|0;
+                    if (((RISCV.gen_reg[inst.get_rs1()]|0) == 0x80000000) && ((RISCV.gen_reg[inst.get_rs2()]|0) == 0xFFFFFFFF)){
+                        // signed division overflow
+                        RISCV.gen_reg[inst.get_rd()] = 0x0;
+                    } else if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
+                        // handle div by zero
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
+                    } else { 
+                        RISCV.gen_reg[inst.get_rd()] = ((RISCV.gen_reg[inst.get_rs1()]|0)%(RISCV.gen_reg[inst.get_rs2()]|0))|0;
+                    }
                     RISCV.pc += 4;
                     break;
 
                 // REMU
                 case 0xF:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]%RISCV.gen_reg[inst.get_rs2()])|0;
+                    if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
+                        // handle div by zero
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]%RISCV.gen_reg[inst.get_rs2()])|0;
+                    }
                     RISCV.pc += 4;
                     break;
 
