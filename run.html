@@ -83,7 +83,24 @@ function runCode() {
     <div class="row-fluid marketing">
         <div class="span6">
             Your code here:
-            <textarea id="userCode" class="row-fluid" rows="10"></textarea>
+            <textarea id="userCode" class="row-fluid" rows="20">
+Sample: addi $x2, $x2, -1
+sw $x2, 0($x0)
+lw $x12, 0($x0)
+lh $x13, 0($x0)
+lb $x14, 0($x0)
+lhu $x15, 0($x0)
+lbu $x16, 0($x0)
+sb $x0, 0($x0)
+sb $x0, 1($x0)
+lw $x17, 0($x0)
+sh $x2, 4($x0)
+lh $x18, 4($x0)
+jal AddOne
+j End
+AddOne: addi $x3, $x3, 1
+jalr.r $x0, $x1, 0
+End: addi $x6, $x6, 200</textarea>
             <br>
             <a class="btn btn-large btn-success" onclick="runCode()">Run</a>
         </div>
