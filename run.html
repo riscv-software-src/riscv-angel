@@ -40,8 +40,8 @@ goog.require("goog.math.Long");
 <!-- angel functions -->
 <script>
 
-function runCode() {
-    userIn = document.getElementById("userCode").value;
+function runCode(userIn) {
+    //userIn = document.getElementById("userCode").value;
     tab = document.getElementById("regtable");
     //console.log(userIn);
     //return userIn;
@@ -104,7 +104,7 @@ AddOne: addi $x3, $x3, 1
 jalr.r $x0, $x1, 0
 End: addi $x6, $x6, 200</textarea>
             <br>
-            <a class="btn btn-large btn-success" onclick="runCode()">Run</a>
+            <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a>
         </div>
         <div class="span6">
             Output:
@@ -260,6 +260,9 @@ End: addi $x6, $x6, 200</textarea>
 
     // enable bootstrap tooltips
     $('a').tooltip();
+
+    // init junk cpu to fill table
+    runCode("addi zero, zero, 0");
 </script>
 
 </html>
