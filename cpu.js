@@ -20,6 +20,9 @@ function CPU(memamt){
     // general-purpose registers, gen_reg[0] is x0, etc.
     this.gen_reg = new Uint32Array(32);
 
+    // initialize stack pointer to highest mem addr
+    this.gen_reg[reg_maps.indexOf("sp")] = memamt;
+
     //fp status register
     this.fsr = 0x0000;
 

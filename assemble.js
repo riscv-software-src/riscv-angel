@@ -262,6 +262,15 @@ function assemble(userProg){
         userProg[i] = userProg[i].replace(/,/g, " ");
 
         userProg[i] = userProg[i].split(" ");
+
+        // decode common register mappings
+        // q start at one since we always skip op
+        for (var q = 1; q < userProg[i].length; q++){
+            var indexOf = reg_maps.indexOf(userProg[i][q]);
+            if (indexOf != -1){
+                userProg[i][q] = "x" + indexOf.toString();
+            }
+        }
     }
 
     // second pass, assemble and fill in labels assuming start at 0x2000
