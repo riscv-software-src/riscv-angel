@@ -41,10 +41,7 @@ goog.require("goog.math.Long");
 <script>
 
 function runCode(userIn) {
-    //userIn = document.getElementById("userCode").value;
     tab = document.getElementById("regtable");
-    //console.log(userIn);
-    //return userIn;
 
     userIn = assemble(userIn);
 
@@ -86,23 +83,23 @@ function runCode(userIn) {
         <div class="span6">
             Your code here:
             <textarea id="userCode" class="row-fluid" rows="20">
-Sample: addi $x2, $x2, -1
-sw $x2, 0($x0)
-lw $x12, 0($x0)
-lh $x13, 0($x0)
-lb $x14, 0($x0)
-lhu $x15, 0($x0)
-lbu $x16, 0($x0)
-sb $x0, 0($x0)
-sb $x0, 1($x0)
-lw $x17, 0($x0)
-sh $x2, 4($x0)
-lh $x18, 4($x0)
+Sample: addi s0, s0, -1
+sw s0, -4(sp)
+lw s1, -4(sp)
+lh s2, -4(sp)
+lb s3, -4(sp)
+lhu s4, -4(sp)
+lbu s5, -4(sp)
+sb zero, -4(sp)
+sb zero, -3(sp)
+lw s6, -4(sp)
+sh s0, -8(sp)
+lh s7, -8(sp)
 jal AddOne
 j End
-AddOne: addi $x3, $x3, 1
-jalr.r $x0, $x1, 0
-End: addi $x6, $x6, 200</textarea>
+AddOne: addi s8, s8, 1
+jalr.r zero, ra, 0
+End: addi s9, s9, 200</textarea>
             <br>
             <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a>
         </div>
@@ -247,7 +244,8 @@ End: addi $x6, $x6, 200</textarea>
     </div>
 
     <div class="footer">
-        Based on <a href="http://inst.eecs.berkeley.edu/~cs152/sp12/handouts/riscv-spec.pdf">The RISC-V Instruction Set Manual</a>
+        Based on <a href="http://inst.eecs.berkeley.edu/~cs152/sp12/handouts/riscv-spec.pdf">The RISC-V Instruction Set Manual</a> <br>
+        Source on <a href="https://github.com/sagark/angel">Github</a>
         <!-- nothing here for now -->
 
     </div>

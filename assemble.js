@@ -1,5 +1,21 @@
 // simple assembler
-//
+
+// take in reg in some form (ex: x0, $x0, zero, $zero)
+// output reg number
+function textToReg(text){
+    // strip all non-alphanumerics:
+    text = text.replace(/\W/g, "");
+
+    // handle special mappings (eg zero -> x0)
+    var indexOf = reg_maps.indexOf(text);
+    if (indexOf != -1){
+        // for special mappings, we already know reg#
+        return parseInt(indexOf.toString());
+    }
+
+    // for x__ registers, get reg number, return
+    return parseInt(text.replace( /^\D+/g, ""));
+}
 
 // objs for different instruction types
 function Jtype(){
@@ -35,7 +51,7 @@ function LUItype(){
         var cinst = Lfields[instArr[0]];
 
         // set this.rd from input instruction
-        this.rd = parseInt(instArr[1].replace( /^\D+/g, ""));
+        this.rd = textToReg(instArr[1]);
 
         // set this.LUIimm from input instruction
         this.LUIimm = parseInt(instArr[2]) & 0xFFFFF;
@@ -68,7 +84,7 @@ function Itype(){
         var cinst = Ifields[instArr[0]];
 
         // set this.rd from input instruction
-        this.rd = parseInt(instArr[1].replace( /^\D+/g, ""));
+        this.rd = textToReg(instArr[1]);
  
         // set this.rs1
         if (cinst.specialrs1 != undefined){
@@ -78,10 +94,10 @@ function Itype(){
             var rs1imm = instArr[2];
             rs1imm = rs1imm.replace(")", "");
             rs1imm = rs1imm.split("(")[1];
-            this.rs1 = parseInt(rs1imm.replace( /^\D+/g, ""));
+            this.rs1 = textToReg(rs1imm);
         } else {
             // process from input instruction
-            this.rs1 = parseInt(instArr[2].replace( /^\D+/g, ""));
+            this.rs1 = textToReg(instArr[2]);
         }
 
         // set this.imm
@@ -142,17 +158,18 @@ function Btype(){
 
         if (cinst.opcode == 0x63) {
             // handle conditional branches
-            this.rs1 = parseInt(instArr[1].replace( /^\D+/g, ""));
-            this.rs2 = parseInt(instArr[2].replace( /^\D+/g, ""));
+            this.rs1 = textToReg(instArr[1]);
+            this.rs2 = textToReg(instArr[2]);
             this.imm = instArr[3];
         } else if (cinst.opcode == 0x23) {
             // handle stores (note, special notation: sb x0, 0(x1))
-            this.rs2 = parseInt(instArr[1].replace( /^\D+/g, ""));
+            this.rs2 = textToReg(instArr[1]);
             var rs1imm = instArr[2];
             rs1imm = rs1imm.replace(")", "");
             rs1imm = rs1imm.split("(");
             this.imm = parseInt(rs1imm[0]) & 0x0FFF; 
-            this.rs1 = parseInt(rs1imm[1].replace( /^\D+/g, "")); 
+            this.rs1 = textToReg(rs1imm[1]); 
+
         }
     }
 
@@ -167,7 +184,7 @@ function Btype(){
         binned = binned | (imm12lo << 10);
         binned = binned | (this.rs2 << 17);
         binned = binned | (this.rs1 << 22);
-        binned = binned | (this.imm12hi << 27);
+        binned = binned | (imm12hi << 27);
         return binned;
     }
 
@@ -187,9 +204,9 @@ function Rtype(){
         var cinst = Rfields[instArr[0]];
 
         // set rd,rs1,rs2 from input instruction
-        this.rd = parseInt(instArr[1].replace( /^\D+/g, ""));
-        this.rs1 = parseInt(instArr[2].replace( /^\D+/g, ""));
-        this.rs2 = parseInt(instArr[3].replace( /^\D+/g, ""));
+        this.rd = textToReg(instArr[1]);
+        this.rs1 = textToReg(instArr[2]);
+        this.rs2 = textToReg(instArr[3]);
 
         // set funct10, opcode from cinst
         this.funct10 = cinst.funct10;
@@ -263,14 +280,6 @@ function assemble(userProg){
 
         userProg[i] = userProg[i].split(" ");
 
-        // decode common register mappings
-        // q start at one since we always skip op
-        for (var q = 1; q < userProg[i].length; q++){
-            var indexOf = reg_maps.indexOf(userProg[i][q]);
-            if (indexOf != -1){
-                userProg[i][q] = "x" + indexOf.toString();
-            }
-        }
     }
 
     // second pass, assemble and fill in labels assuming start at 0x2000
