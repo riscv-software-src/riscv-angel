@@ -403,6 +403,13 @@ function runInstruction(inst, RISCV){
             RISCV.pc += 4;
             break;
 
+        // L-TYPE (AUIPC (not in spec, from isa-sim)) - opcode: 0b0010111
+        // not certain about this
+        case 0x17:
+            RISCV.gen_reg[inst.get_rd()] = (inst.get_lui_imm() << 12) + (RISCV.pc|0);
+            RISCV.pc += 4;
+            break;
+
         // J-TYPE (J) - opcode: 0b1100111
         case 0x67:
             RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
