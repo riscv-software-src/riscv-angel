@@ -84,7 +84,7 @@ var inst_to_type = {
     "rem": Rtype,
     "remu": Rtype,
     "lui": LUItype,
-
+    "auipc": LUItype,
     // 32-bit integer compute instructions here, not necessary right now
     // since this is not a 64 bit implementation
     
@@ -111,6 +111,7 @@ function cLtype(opcode){
 
 var Lfields = {
     "lui": new cLtype(0x37),
+    "auipc": new cLtype(0x17),
 };
 
 function cItype(opcode, funct3, specialimm, specialrs1){
