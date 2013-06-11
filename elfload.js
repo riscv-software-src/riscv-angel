@@ -3,10 +3,14 @@
 
 // loadElf is passed as the callback function to 
 // GetBinaryFile
+//
+// may assume access to RISCV (the processor). setup done in run.html
 function loadElf(binfile){
-    //currently ignores file_location, hard coded 'add'
     var binfile_length = binfile.ContentLength;
     var binfile = binfile.Content;
+
+    // remove line for release
+    binfiletest = binfile;
 
     // TODO: ADD var AFTER TESTING DONE
     elf = {};
@@ -28,8 +32,10 @@ function loadElf(binfile){
 
     if (elf["ei_data"] === 1){
         var end = "l";
+        RISCV.endianness = "little";
     } else if (elf["ei_data"] === 2){
         var end = "b";
+        RISCV.endianness = "big";
     } else {
         throw new Error("ELF has invalid endianness");
     }
@@ -60,6 +66,39 @@ function loadElf(binfile){
     elf["e_shnum"] = bytes_to_int(binfile, 48, 2, end);
     // section header string table index
     elf["e_shstrndx"] = bytes_to_int(binfile, 50, 2, end);
+
+    // copy program into memory
+    for (var i = 0x10000; i < 0x11450; i++){
+        RISCV.memory[i] = binfile.charCodeAt(i) & 0xFF;
+    }
+
+    // copy data into memory
+//    for (var i = 0x10fe0; i < 0x11418; i++){
+ //       RISCV.memory[i] = binfile.charCodeAt(i) & 0xFF;
+  //  }
+
+    RISCV.pc = 0x10000;
+    var instVal = RISCV.load_word_from_mem(RISCV.pc);
+
+    // currently stop on a syscall
+    while(RISCV.pc < 0x10bd5 && RISCV.pc != 0 && RISCV.pc != 0x10ac0){
+        // run instruction
+        var inst = new instruction(instVal);
+        runInstruction(inst, RISCV);
+
+        // force x0 to zero
+        RISCV.gen_reg[0] = 0x0;
+
+        // update output
+        for (var i = 0; i < RISCV.gen_reg.length; i++){
+            tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
+        }
+        console.log(RISCV.pc.toString(16));
+        // load next instruction
+        instVal = RISCV.load_word_from_mem(RISCV.pc);
+    }
+
+
 }
 
 

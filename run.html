@@ -69,6 +69,19 @@ function runCode(userIn) {
         instVal = RISCV.load_word_from_mem(RISCV.pc);
     }
 }
+
+function runCodeFile(){
+    // init CPU, make it accessible to callback fn
+
+    RISCV = new CPU();
+
+    // make first arg user selectable
+    GetBinaryFile("tests/add", loadElf);
+
+
+
+
+}
 </script>
 
 </head>
@@ -102,6 +115,9 @@ jalr.r zero, ra, 0
 End: addi s9, s9, 200</textarea>
             <br>
             <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a>
+
+            <a class="btn btn-large btn-success" onclick="runCodeFile()">Run from file</a>
+
         </div>
         <div class="span6">
             Output:

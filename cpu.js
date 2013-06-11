@@ -1,3 +1,6 @@
+// possible optimizations: choose/attach load/store methods at time of object 
+// creation instead of if/elses comparing strings at every call
+
 // assume 32 bit implementation, with 32 bit instructions
 
 // here, we define:
@@ -29,17 +32,37 @@ function CPU(memamt){
     // floating-point registers, fp_reg[0] is f0, etc.
     this.fp_reg = new Uint32Array(32);
 
+    // endianness: "big" and "little" allowed
+    this.endianness = "big";
+
+
     // big-endian
     function store_word_to_mem(addr, val){
-        this.memory[addr] = (val >>> 24) & 0xFF;
-        this.memory[addr+1] = (val >>> 16) & 0xFF;
-        this.memory[addr+2] = (val >>> 8) & 0xFF;
-        this.memory[addr+3] = (val) & 0xFF;
+        if (this.endianness === "big"){
+            this.memory[addr] = (val >>> 24) & 0xFF;
+            this.memory[addr+1] = (val >>> 16) & 0xFF;
+            this.memory[addr+2] = (val >>> 8) & 0xFF;
+            this.memory[addr+3] = (val) & 0xFF;
+        } else if (this.endianness === "little"){
+            this.memory[addr] = (val) & 0xFF;
+            this.memory[addr+1] = (val >>> 8) & 0xFF;
+            this.memory[addr+2] = (val >>> 16) & 0xFF;
+            this.memory[addr+3] = (val >>> 24) & 0xFF;
+        } else {
+            throw new Error("Invalid Endianness");
+        }
     }
 
     function store_half_to_mem(addr, val){
-        this.memory[addr] = (val >>> 8) & 0xFF;
-        this.memory[addr+1] = val & 0xFF;
+        if (this.endianness === "big"){
+            this.memory[addr] = (val >>> 8) & 0xFF;
+            this.memory[addr+1] = val & 0xFF;
+        } else if (this.endianness === "little"){
+            this.memory[addr] = val & 0xFF;
+            this.memory[addr+1] = (val >>> 8) & 0xFF;
+        } else {
+            throw new Error("Invalid Endianness");
+        }
     }
 
     function store_byte_to_mem(addr, val){
@@ -48,17 +71,35 @@ function CPU(memamt){
 
     function load_word_from_mem(addr){
         var retval = 0;
-        retval = retval | this.memory[addr] << 24;
-        retval = retval | this.memory[addr+1] << 16;
-        retval = retval | this.memory[addr+2] << 8;
-        retval = retval | this.memory[addr+3];
+        if (this.endianness === "big"){
+            retval = retval | this.memory[addr] << 24;
+            retval = retval | this.memory[addr+1] << 16;
+            retval = retval | this.memory[addr+2] << 8;
+            retval = retval | this.memory[addr+3];
+        } else if (this.endianness === "little"){
+            retval = retval | this.memory[addr+3] << 24;
+            retval = retval | this.memory[addr+2] << 16;
+            retval = retval | this.memory[addr+1] << 8;
+            retval = retval | this.memory[addr];
+        } else {
+            throw new Error("Invalid Endianness");
+        }
+
         return retval;
     }
 
     function load_half_from_mem(addr){
         var retval = 0;
-        retval = retval | this.memory[addr] << 8;
-        retval = retval | this.memory[addr+1];
+        if (this.endianness === "big"){
+            retval = retval | this.memory[addr] << 8;
+            retval = retval | this.memory[addr+1];
+        } else if (this.endianness === "little"){
+            retval = retval | this.memory[addr+1] << 8;
+            retval = retval | this.memory[addr];
+        } else {
+            throw new Error("Invalid Endianness");
+        }
+
         return retval;
     }
 
@@ -67,9 +108,6 @@ function CPU(memamt){
         retval = retval | this.memory[addr];
         return retval;
     }
-
-
-
 
     // vals[0] is loaded into 0x0000, vals[1] is program, loaded into 0x2000
     function load_to_mem(vals){
