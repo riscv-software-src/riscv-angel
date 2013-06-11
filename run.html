@@ -70,6 +70,28 @@ function runCode(userIn) {
     }
 }
 
+function handle_file(file){
+    file = file.target.files[0];
+
+    var reader = new FileReader();
+
+    RISCV = new CPU();
+
+
+    reader.onload = (function(theFile) {
+        return function(e) {
+            console.log(e.target.result.charCodeAt(0x10000)&0xFF);
+            // this is super hacky, fix this once everything works
+            makeglob = e.target.result;
+            loadElf({"Content": e.target.result});
+            //console.log(new Uint8Array(e.target.result)[0x10000]);
+        };
+    })(file);
+
+    //reader.readAsArrayBuffer(file);
+    reader.readAsBinaryString(file);
+}
+
 function runCodeFile(){
     // init CPU, make it accessible to callback fn
 
@@ -117,6 +139,9 @@ End: addi s9, s9, 200</textarea>
             <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a>
 
             <a class="btn btn-large btn-success" onclick="runCodeFile()">Run from file</a>
+
+            <input type="file" id="files" name="files[]" multiple />
+
 
         </div>
         <div class="span6">
@@ -277,6 +302,9 @@ End: addi s9, s9, 200</textarea>
 
     // init junk cpu to fill table
     runCode("addi zero, zero, 0");
+
+
+    document.getElementById("files").addEventListener('change', handle_file, false);
 </script>
 
 </html>
