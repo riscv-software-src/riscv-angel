@@ -195,6 +195,13 @@ function runInstruction(inst, RISCV){
                     RISCV.pc += 4;
                     break;
 
+                default:
+                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
+
+
+
             }
             break;
 
@@ -380,6 +387,13 @@ function runInstruction(inst, RISCV){
                     RISCV.pc += 4;
                     break;
 
+                default:
+                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
+
+
+
             }
             break;
 
@@ -458,6 +472,15 @@ function runInstruction(inst, RISCV){
                         RISCV.pc += 4;
                     }
                     break;
+
+                default:
+                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
+
+
+
+
             }
             break;
 
@@ -524,6 +547,11 @@ function runInstruction(inst, RISCV){
 
                 // No LWU in 32 bit arch
 
+                default:
+                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
+
             }
             break;
 
@@ -555,7 +583,15 @@ function runInstruction(inst, RISCV){
 
                 // No SD in 32 bit arch
 
+                default:
+                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
             }
+            break;
+
+        default:
+            throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;
     }
 }

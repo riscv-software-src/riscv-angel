@@ -81,7 +81,7 @@ function loadElf(binfile){
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
 
     // currently stop on a syscall
-    while(RISCV.pc < 0x10bd5 && RISCV.pc != 0 && RISCV.pc != 0x10ac0){
+    while(RISCV.pc < 0x10bd5){
         // run instruction
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
