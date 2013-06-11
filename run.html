@@ -2,7 +2,6 @@
 <head> 
 
 <!-- load js libraries required for angel core ops -->
-<script src="lib/binfile/binfile.js"></script>
 <script src="lib/goog/base.js"></script>
 <script>
 
@@ -17,8 +16,6 @@ goog.require("goog.math.Long");
 <script src="cpu.js"></script>
 <script src="assemble.js"></script>
 <script src="mappings.js"></script>
-<!-- <script src="run.js"></script> -->
-
 
 <!-- bootstrap -->
 <link href="style/css/bootstrap.css" rel="stylesheet">
@@ -72,37 +69,17 @@ function runCode(userIn) {
 
 function handle_file(file){
     file = file.target.files[0];
-
     var reader = new FileReader();
-
     RISCV = new CPU();
-
 
     reader.onload = (function(theFile) {
         return function(e) {
-            console.log(e.target.result.charCodeAt(0x10000)&0xFF);
             // this is super hacky, fix this once everything works
-            makeglob = e.target.result;
             loadElf({"Content": e.target.result});
-            //console.log(new Uint8Array(e.target.result)[0x10000]);
         };
     })(file);
 
-    //reader.readAsArrayBuffer(file);
     reader.readAsBinaryString(file);
-}
-
-function runCodeFile(){
-    // init CPU, make it accessible to callback fn
-
-    RISCV = new CPU();
-
-    // make first arg user selectable
-    GetBinaryFile("tests/fib", loadElf);
-
-
-
-
 }
 </script>
 
@@ -116,8 +93,16 @@ function runCodeFile(){
 
     <div class="row-fluid marketing">
         <div class="span6">
-            Your code here:
-            <textarea id="userCode" class="row-fluid" rows="20">
+
+            <div class="tabbable">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab1" data-toggle="tab">Type Assembly</a></li>
+                    <li><a href="#tab2" data-toggle="tab">Run from File</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab1">
+                        Your code here:
+                        <textarea id="userCode" class="row-fluid" rows="20">
 Sample: addi s0, s0, -1
 sw s0, -4(sp)
 lw s1, -4(sp)
@@ -135,13 +120,14 @@ j End
 AddOne: addi s8, s8, 1
 jalr.r zero, ra, 0
 End: addi s9, s9, 200</textarea>
-            <br>
-            <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a>
-
-            <a class="btn btn-large btn-success" onclick="runCodeFile()">Run from file</a>
-
-            <input type="file" id="files" name="files[]" multiple />
-
+                        <br>
+                        <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a> <br>
+                    </div>
+                    <div class="tab-pane" id="tab2">
+                        <input type="file" id="files" name="files[]" multiple />
+                    </div>
+                </div>
+            </div>
 
         </div>
         <div class="span6">
