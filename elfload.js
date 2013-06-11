@@ -67,21 +67,39 @@ function loadElf(binfile){
     // section header string table index
     elf["e_shstrndx"] = bytes_to_int(binfile, 50, 2, end);
 
-    // copy program into memory
-    for (var i = 0x10000; i < 0x11450; i++){
-        RISCV.memory[i] = binfile.charCodeAt(i) & 0xFF;
+
+    // step through section headers, build up array
+    section_headers = [];
+
+    for (var i = 0; i < elf["e_shnum"]; i++){
+        var addr = elf["e_shoff"] + i*elf["e_shentsize"];
+        var section = {};
+        section["flags"] = bytes_to_int(binfile, addr+8, 4, end);
+        section["addr"] = bytes_to_int(binfile, addr+12, 4, end);
+        section["offs"] = bytes_to_int(binfile, addr+16, 4, end);
+        section["size"] = bytes_to_int(binfile, addr+20, 4, end);
+        section_headers.push(section);
     }
 
-    // copy data into memory
-//    for (var i = 0x10fe0; i < 0x11418; i++){
- //       RISCV.memory[i] = binfile.charCodeAt(i) & 0xFF;
-  //  }
+    // copy necessary data into memory
+    for (var i = 0; i < section_headers.length; i++){
+        // check for allocate flag (bit #1)
+        console.log(section_headers[i]);
+        if (((section_headers[i]["flags"] >> 1) & 0x1) == 0x1){
 
-    RISCV.pc = 0x10000;
+            for (var j = 0; j < section_headers[i]["size"]; j++){
+                RISCV.memory[(section_headers[i]["addr"]|0) + j] = binfile.charCodeAt((section_headers[i]["offs"]|0)+j) & 0xFF;
+            }
+
+        }
+    }
+
+    // start running program
+    RISCV.pc = elf["e_entry"];
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
 
     // currently stop on a syscall
-    while(RISCV.pc < 0x10bd5){
+    while(RISCV.pc != 0){
         // run instruction
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
