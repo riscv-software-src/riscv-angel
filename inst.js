@@ -597,6 +597,20 @@ function runInstruction(inst, RISCV){
             }
             break;
 
+        // I-TYPES (continued): Misc Mem instructions
+        case 0x2F:
+            var funct3 = inst.get_funct3();
+            if (funct3 == 0x1){
+                console.log("fence.i is no-op in this implementation");
+                RISCV.pc += 4;
+            } else if (funct3 = 0x2){
+                console.log("fence is no-op in this implementation");
+                RISCV.pc += 4;
+            } else {
+                throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+            }
+            break;
+
         default:
             throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;
