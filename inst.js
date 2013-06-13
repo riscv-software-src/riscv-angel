@@ -128,7 +128,7 @@ function runInstruction(inst, RISCV){
                     if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
-                        throw new Error("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
+                        throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
                         break;
                     }
                     RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] << (inst.get_imm("I") & 0x003F);
@@ -166,7 +166,7 @@ function runInstruction(inst, RISCV){
                     if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
-                        throw new Error("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
+                        throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
                         break;
                     }
                     var aldiff = (inst.get_imm("I") >>> 6);
@@ -197,7 +197,7 @@ function runInstruction(inst, RISCV){
                     break;
 
                 default:
-                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
 
@@ -328,13 +328,13 @@ function runInstruction(inst, RISCV){
 
 //TODO:         // MULHSU
                 case 0xA:
-                    throw new Error("MULHSU not yet implemented");
+                    throw new RISCVError("MULHSU not yet implemented");
                     RISCV.pc += 4;
                     break;
 
 //TODO:         // MULHU
                 case 0xB:
-                    throw new Error("MULHU not yet implemented");
+                    throw new RISCVError("MULHU not yet implemented");
                     RISCV.pc += 4;
                     break;
 
@@ -389,7 +389,7 @@ function runInstruction(inst, RISCV){
                     break;
 
                 default:
-                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
 
@@ -482,7 +482,7 @@ function runInstruction(inst, RISCV){
                     break;
 
                 default:
-                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
 
@@ -556,7 +556,7 @@ function runInstruction(inst, RISCV){
                 // No LWU in 32 bit arch
 
                 default:
-                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
 
@@ -592,7 +592,7 @@ function runInstruction(inst, RISCV){
                 // No SD in 32 bit arch
 
                 default:
-                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
             }
@@ -612,7 +612,7 @@ function runInstruction(inst, RISCV){
                 console.log("fence is no-op in this implementation");
                 RISCV.pc += 4;
             } else {
-                throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             }
             break;
 
@@ -623,7 +623,8 @@ function runInstruction(inst, RISCV){
 
                 // SYSCALL
                 case 0x0:
-                    console.log("syscall currently does nothing");
+                    // currently need to halt at syscall for elfs to work properly
+                    throw new RISCVError("SYSCALL NOT IMPLEMENTED");
                     RISCV.pc += 4;
                     break;
 
@@ -660,7 +661,8 @@ function runInstruction(inst, RISCV){
                     break;
 
                 default:
-                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    // need to manually update regtable
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
             }
@@ -668,7 +670,9 @@ function runInstruction(inst, RISCV){
 
 
         default:
-            throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+            // need to manually update regtable
+            update_html_regtable(RISCV, tab);
+            throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;
     }
 
