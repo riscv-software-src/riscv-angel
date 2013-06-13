@@ -96,6 +96,10 @@ function loadElf(binfile){
 
     // start running program
     RISCV.pc = elf["e_entry"];
+
+    // reset clock
+    RISCV.reset_wall_clock();
+
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
 
     // currently stop on a syscall

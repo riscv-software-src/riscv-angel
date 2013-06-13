@@ -40,6 +40,18 @@ function CPU(memamt){
     // therefore, if first instruction is rdcycle, the dest will be set to zero
     this.cycle_count = 0x0;
 
+    // record cpu boot time (in ms since jan 1, 1970) for rdtime instruction
+    // for better measurement, this should be reset right before first instruction
+    // is exec'd
+    var start = new Date();
+    this.boot_time = start.getTime();
+
+    function reset_wall_clock(){
+        // this should be called once, right before exec of first instruction
+        var start = new Date();
+        this.boot_time = start.getTime();
+    }
+
     // big-endian
     function store_word_to_mem(addr, val){
         if (this.endianness === "big"){
@@ -121,6 +133,7 @@ function CPU(memamt){
         } 
     }
 
+    this.reset_wall_clock = reset_wall_clock;
     this.store_word_to_mem = store_word_to_mem;
     this.store_half_to_mem = store_half_to_mem;
     this.store_byte_to_mem = store_byte_to_mem;

@@ -51,6 +51,8 @@ function runCode(userIn) {
     // load program into memory
     RISCV.load_to_mem([[0, 0], userIn]);
 
+    RISCV.reset_wall_clock();
+
     // run
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
     while(instVal != 0){

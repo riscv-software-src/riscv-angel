@@ -641,12 +641,22 @@ function runInstruction(inst, RISCV){
 
                 // RDTIME
                 case 0xC:
-
+                    // places #ms since cpu boot in rd. against spec 
+                    // but the best we can reasonably do with js
+                    var nowtime = new Date();
+                    nowtime = nowtime.getTime();
+                    // need to be careful here: the subtraction needs to be
+                    // done as a float to cut down to reasonable number of
+                    // bits, then or with zero to get close by int value
+                    var result = (nowtime - RISCV.boot_time) | 0;
+                    RISCV.gen_reg[inst.get_rd()] = result;
+                    RISCV.pc += 4;
                     break;
 
                 // RDINSTRET
                 case 0x14:
-        
+                    // for our purposes, this is the same as RDCYCLE:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.cycle_count|0;
                     break;
 
                 default:
