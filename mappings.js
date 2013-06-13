@@ -92,7 +92,15 @@ var inst_to_type = {
     // TODO: add:
     // FP instructions
     // Miscellaneous Memory Instructions
+    "fence.i": Itype,
+    "fence": Itype,
+
     // System Instructions
+    "syscall": Rtype,
+    "break": Rtype,
+    "rdcycle": Rtype,
+    "rdtime": Rtype,
+    "rdinstret": Rtype,
 
 };
 
@@ -144,6 +152,9 @@ var Ifields = {
     "srai": new cItype(0x13, 0x5, 0x40), // needs to be or'd with shamt
     "ori": new cItype(0x13, 0x6),
     "andi": new cItype(0x13, 0x7),
+
+    "fence.i": new cItype(0x2F, 0x1),
+    "fence": new cItype(0x2F, 0x2),
 }; 
 
 function cBtype(opcode, funct3){
@@ -165,9 +176,12 @@ var Bfields = {
     // sd is not implemented for 32 bit arch
 };
 
-function cRtype(opcode, funct10){
+function cRtype(opcode, funct10, specialrs1, specialrs2, specialrd){
     this.opcode = opcode;
     this.funct10 = funct10;
+    this.specialrs1 = specialrs1;
+    this.specialrs2 = specialrs2;
+    this.specialrd = specialrd;
 }
 
 var Rfields = {
@@ -206,4 +220,10 @@ var Rfields = {
     "divu": new cRtype(0x33, 0xD),
     "rem": new cRtype(0x33, 0xE),
     "remu": new cRtype(0x33, 0xF),
+
+    "syscall": new cRtype(0x77, 0x0, 0x0, 0x0, 0x0),
+    "break": new cRtype(0x77, 0x1, 0x0, 0x0, 0x0),
+    "rdcycle": new cRtype(0x77, 0x4, 0x0, 0x0),
+    "rdtime": new cRtype(0x77, 0xC, 0x0, 0x0),
+    "rdinstret": new cRtype(0x77, 0x14, 0x0, 0x0),
 }; 

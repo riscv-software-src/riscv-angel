@@ -204,9 +204,21 @@ function Rtype(){
         var cinst = Rfields[instArr[0]];
 
         // set rd,rs1,rs2 from input instruction
-        this.rd = textToReg(instArr[1]);
-        this.rs1 = textToReg(instArr[2]);
-        this.rs2 = textToReg(instArr[3]);
+        if (cinst.specialrd != undefined){
+            this.rd = cinst.specialrd;
+        } else {
+            this.rd = textToReg(instArr[1]);
+        }
+        if (cinst.specialrs1 != undefined){
+            this.rs1 = cinst.specialrs1;
+        } else {
+            this.rs1 = textToReg(instArr[2]);
+        }
+        if (cinst.specialrs2 != undefined){
+            this.rs2 = cinst.specialrs2;
+        } else {
+            this.rs2 = textToReg(instArr[3]);
+        }
 
         // set funct10, opcode from cinst
         this.funct10 = cinst.funct10;
