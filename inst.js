@@ -102,6 +102,7 @@ function signExt(quantity, bit){
 // To get javascript to perform Number ops as 32 bit signed, do (num|0)
 // To perform Number ops as 32 bit unsigned, just do the 64 bit FP ops
 function runInstruction(inst, RISCV){
+
     var op = inst.get_opcode();
 
     switch(op){
@@ -601,9 +602,13 @@ function runInstruction(inst, RISCV){
         case 0x2F:
             var funct3 = inst.get_funct3();
             if (funct3 == 0x1){
+                // FENCE.I
+
                 console.log("fence.i is no-op in this implementation");
                 RISCV.pc += 4;
             } else if (funct3 = 0x2){
+                // FENCE
+
                 console.log("fence is no-op in this implementation");
                 RISCV.pc += 4;
             } else {
@@ -611,8 +616,53 @@ function runInstruction(inst, RISCV){
             }
             break;
 
+        // R-TYPES (continued): System instructions
+        case 0x77:
+            var funct10 = inst.get_funct10();
+            switch(funct10){
+
+                // SYSCALL
+                case 0x0:
+                    console.log("syscall currently does nothing");
+                    RISCV.pc += 4;
+                    break;
+
+                // BREAK
+                case 0x1:
+                    console.log("break currently does nothing");
+                    RISCV.pc += 4;
+                    break;
+
+                // RDCYCLE
+                case 0x4:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.cycle_count|0;
+                    RISCV.pc += 4;
+                    break;
+
+                // RDTIME
+                case 0xC:
+
+                    break;
+
+                // RDINSTRET
+                case 0x14:
+        
+                    break;
+
+                default:
+                    throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
+            }
+            break;
+
+
         default:
             throw new Error("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;
     }
+
+    // finally, increment cycle counter:
+    RISCV.cycle_count = (RISCV.cycle_count|0) + 1;
+
 }

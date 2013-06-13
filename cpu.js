@@ -35,6 +35,10 @@ function CPU(memamt){
     // endianness: "big" and "little" allowed
     this.endianness = "big";
 
+    // cycle counter : this should only be incremented by inst.runInstruction
+    // it is the number of cycles already executed (completed)
+    // therefore, if first instruction is rdcycle, the dest will be set to zero
+    this.cycle_count = 0x0;
 
     // big-endian
     function store_word_to_mem(addr, val){
