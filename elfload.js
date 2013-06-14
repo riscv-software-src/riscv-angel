@@ -108,9 +108,6 @@ function loadElf(binfile){
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
 
-        // force x0 to zero
-        RISCV.gen_reg[0] = 0x0;
-
         // update output. see note about this in run.html
         //for (var i = 0; i < RISCV.gen_reg.length; i++){
         //    tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
@@ -122,10 +119,7 @@ function loadElf(binfile){
         instVal = RISCV.load_word_from_mem(RISCV.pc);
     }
 
-    for (var i = 0; i < RISCV.gen_reg.length; i++){
-        tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
-    }
-
+    update_html_regtable(RISCV, tab);
 }
 
 

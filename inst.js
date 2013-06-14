@@ -96,12 +96,34 @@ function signExt(quantity, bit){
     }
 }
 
+// "sign extend" the quantity based on bit
+// input is a 32 bit quantity (as a normal javascript Number)
+// output is a 64 bit Long, correctly sign extended
+function signExtLT32_64(quantity, bit){
+    // bits numbered 31, 30, .... 2, 1, 0
+    bitval = ((quantity|0) >> bit) & 0x00000001;
+    if (bitval === 0){
+        return new Long(quantity|0, 0x00000000);
+    } else if (bitval === 1){
+        mask = 0x80000000;
+        mask = mask >> (31-bit) 
+        return new Long((quantity | mask), 0xFFFFFFFF);
+    } else {
+        console.log("ERR in signext");
+    }
+}
+
+
+
 // takes instruction obj and CPU obj as args
 // perform computation on given CPU
 //
 // To get javascript to perform Number ops as 32 bit signed, do (num|0)
 // To perform Number ops as 32 bit unsigned, just do the 64 bit FP ops
 function runInstruction(inst, RISCV){
+
+    // force x0 (zero) to zero
+    RISCV.gen_reg[0] = new Long(0x0, 0x0);
 
     var op = inst.get_opcode();
 
@@ -114,7 +136,7 @@ function runInstruction(inst, RISCV){
                 
                 // ADDI
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].add(signExtLT32_64(inst.get_imm("I"), 11));
                     RISCV.pc += 4;
                     break;
 
@@ -675,6 +697,10 @@ function runInstruction(inst, RISCV){
             throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;
     }
+
+
+    // force x0 (zero) to zero
+    RISCV.gen_reg[0] = new Long(0x0, 0x0);
 
     // finally, increment cycle counter:
     RISCV.cycle_count = (RISCV.cycle_count|0) + 1;

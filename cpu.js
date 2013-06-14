@@ -21,16 +21,21 @@ function CPU(memamt){
     this.pc = 0x2000;
 
     // general-purpose registers, gen_reg[0] is x0, etc.
-    this.gen_reg = new Uint32Array(32);
+    this.gen_reg = [];
+    
+    for (var i = 0; i < 32; i++){
+        this.gen_reg[i] = new Long(0x0, 0x0);
+    }
 
     // initialize stack pointer to highest mem addr
-    this.gen_reg[reg_maps.indexOf("sp")] = memamt;
+    // needs to be modified if > 4GiB mem
+    this.gen_reg[reg_maps.indexOf("sp")] = new Long(memamt, 0x0);
 
-    //fp status register
-    this.fsr = 0x0000;
+    //UNUSED: fp status register
+    //this.fsr = 0x0000;
 
-    // floating-point registers, fp_reg[0] is f0, etc.
-    this.fp_reg = new Uint32Array(32);
+    //UNUSED: floating-point registers, fp_reg[0] is f0, etc.
+    //this.fp_reg = new Uint32Array(32);
 
     // endianness: "big" and "little" allowed
     this.endianness = "big";
@@ -38,11 +43,12 @@ function CPU(memamt){
     // cycle counter : this should only be incremented by inst.runInstruction
     // it is the number of cycles already executed (completed)
     // therefore, if first instruction is rdcycle, the dest will be set to zero
-    this.cycle_count = 0x0;
+    this.cycle_count = new Long(0x0, 0x0);
 
     // record cpu boot time (in ms since jan 1, 1970) for rdtime instruction
     // for better measurement, this should be reset right before first instruction
     // is exec'd
+    // TODO: what to do with 64 bit here?
     var start = new Date();
     this.boot_time = start.getTime();
 
@@ -51,6 +57,8 @@ function CPU(memamt){
         var start = new Date();
         this.boot_time = start.getTime();
     }
+
+    // this and below has not been adjusted for RV64
 
     // big-endian
     function store_word_to_mem(addr, val){

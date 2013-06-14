@@ -4,10 +4,13 @@
 <!-- load js libraries required for angel core ops -->
 <script src="lib/goog/base.js"></script>
 <script>
-
 goog.require("goog.math");
 goog.require("goog.math.Long");
+</script>
 
+<!-- map to Long for convenience -->
+<script>
+Long = goog.math.Long;
 </script>
 
 <!-- load angel -->
@@ -61,9 +64,6 @@ function runCode(userIn) {
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
 
-        // force x0 to zero
-        RISCV.gen_reg[0] = 0x0;
-
         // update output (this doesn't actually update every cycle, need 
         // to find a better way
         // for (var i = 0; i < RISCV.gen_reg.length; i++){
@@ -75,9 +75,7 @@ function runCode(userIn) {
     }
 
     // update output
-    for (var i = 0; i < RISCV.gen_reg.length; i++){
-        tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
-    }
+    update_html_regtable(RISCV, tab);
 
 }
 
@@ -149,7 +147,7 @@ End: addi s9, s9, 200</textarea>
             <table id="regtable" class="table table-striped table-hover table-condensed table-bordered">
                 <tr>
                     <td>Register</td>
-                    <td>Value (Signed Decimal)</td>
+                    <td>Value (Hex)</td>
                 </tr>
                 <tr>
                     <td>x0 (zero)</td>
