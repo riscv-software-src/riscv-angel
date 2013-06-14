@@ -301,6 +301,7 @@ function runInstruction(inst, RISCV){
 
                 // MUL
                 case 0x8:
+                    throw new RISCVError("MUL not yet implemented");
                     var rs1 = RISCV.gen_reg[inst.get_rs1()];
                     var rs2 = RISCV.gen_reg[inst.get_rs2()];
                     var rs1_64;
@@ -324,6 +325,7 @@ function runInstruction(inst, RISCV){
 
                 // MULH
                 case 0x9:
+                    throw new RISCVError("MULH not yet implemented");
                     var rs1 = RISCV.gen_reg[inst.get_rs1()];
                     var rs2 = RISCV.gen_reg[inst.get_rs2()];
                     var rs1_64;
@@ -359,6 +361,7 @@ function runInstruction(inst, RISCV){
 
                 // DIV 
                 case 0xC:
+                    throw new RISCVError("DIV not yet implemented");
                     if (((RISCV.gen_reg[inst.get_rs1()]|0) == 0x80000000) && ((RISCV.gen_reg[inst.get_rs2()]|0) == 0xFFFFFFFF)){
                         // signed division overflow
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
@@ -373,6 +376,7 @@ function runInstruction(inst, RISCV){
 
                 // DIVU
                 case 0xD:
+                    throw new RISCVError("DIVU not yet implemented");
                     if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
                         // handle div by zero
                         RISCV.gen_reg[inst.get_rd()] = 0xFFFFFFFF;
@@ -384,6 +388,7 @@ function runInstruction(inst, RISCV){
 
                 // REM
                 case 0xE:
+                    throw new RISCVError("REM not yet implemented");
                     if (((RISCV.gen_reg[inst.get_rs1()]|0) == 0x80000000) && ((RISCV.gen_reg[inst.get_rs2()]|0) == 0xFFFFFFFF)){
                         // signed division overflow
                         RISCV.gen_reg[inst.get_rd()] = 0x0;
@@ -398,6 +403,7 @@ function runInstruction(inst, RISCV){
 
                 // REMU
                 case 0xF:
+                    throw new RISCVError("REMU not yet implemented");
                     if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
                         // handle div by zero
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
@@ -411,22 +417,19 @@ function runInstruction(inst, RISCV){
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
-
-
-
             }
             break;
 
         // L-TYPE (LUI only) - opcode: 0b0110111
         case 0x37:
-            RISCV.gen_reg[inst.get_rd()] = (inst.get_lui_imm() << 12);
+            RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(inst.get_lui_imm() << 12, 31);
             RISCV.pc += 4;
             break;
 
         // L-TYPE (AUIPC (not in spec, from isa-sim)) - opcode: 0b0010111
         // not certain about this
         case 0x17:
-            RISCV.gen_reg[inst.get_rd()] = (inst.get_lui_imm() << 12) + (RISCV.pc|0);
+            RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((inst.get_lui_imm() << 12) + (RISCV.pc|0), 31);
             RISCV.pc += 4;
             break;
 
@@ -437,7 +440,7 @@ function runInstruction(inst, RISCV){
 
         // J-TYPE (JAL) - opcode: 0b1101111
         case 0x6F:
-            RISCV.gen_reg[1] = RISCV.pc + 4;
+            RISCV.gen_reg[1] = signExtLT32_64(RISCV.pc + 4, 31);
             RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
             break;
 
@@ -448,7 +451,7 @@ function runInstruction(inst, RISCV){
 
                 // BEQ
                 case 0x0:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) == (RISCV.gen_reg[inst.get_rs2()]|0)){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).equals(RISCV.gen_reg[inst.get_rs2()])){
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -457,7 +460,7 @@ function runInstruction(inst, RISCV){
 
                 // BNE
                 case 0x1:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) != (RISCV.gen_reg[inst.get_rs2()]|0)){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).notEquals(RISCV.gen_reg[inst.get_rs2()])){
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -466,7 +469,7 @@ function runInstruction(inst, RISCV){
 
                 // BLT
                 case 0x4:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (RISCV.gen_reg[inst.get_rs2()]|0)){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])){
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -475,7 +478,7 @@ function runInstruction(inst, RISCV){
 
                 // BGE
                 case 0x5:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) >= (RISCV.gen_reg[inst.get_rs2()]|0)){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).greaterThanOrEqual(RISCV.gen_reg[inst.get_rs2()])){
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -484,7 +487,7 @@ function runInstruction(inst, RISCV){
 
                 // BLTU
                 case 0x6:
-                    if (RISCV.gen_reg[inst.get_rs1()] < RISCV.gen_reg[inst.get_rs2()]){
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])){
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -493,7 +496,7 @@ function runInstruction(inst, RISCV){
 
                 // BGEU
                 case 0x7:
-                    if (RISCV.gen_reg[inst.get_rs1()] >= RISCV.gen_reg[inst.get_rs2()]){
+                    if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])){
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -518,12 +521,12 @@ function runInstruction(inst, RISCV){
             var funct3 = inst.get_funct3();
             if (funct3 == 0x0 || funct3 == 0x1 || funct3 == 0x2){
                 // JALR.C, .R, .J, all are functionally identical
-                RISCV.gen_reg[inst.get_rd()] = RISCV.pc + 4;
-                RISCV.pc = (signExt(inst.get_imm("I"), 11)|0) + (RISCV.gen_reg[inst.get_rs1()]|0);
+                RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
+                RISCV.pc = (signExt(inst.get_imm("I"), 11)|0) + (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0);
             } else if (funct3 === 0x4) {
                 // RDNPC
                 RISCV.pc += 4;              
-                RISCV.gen_reg[inst.get_rd()] = RISCV.pc;
+                RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc, 31);
             } else {
                 console.log("Bad Inst.");
             }

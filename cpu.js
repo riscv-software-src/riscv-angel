@@ -18,7 +18,10 @@ function CPU(memamt){
     
     // PC, defaults to 0x2000 according to the ISA, documented in 
     // processor.cc
-    // TODO: make this a long
+    // Even in RV64, this must remain as a Number (not a Long) because
+    // of Array indexing requirements.
+    // Possibly improve on this later by nesting arrays, but trying to address/
+    // store more than ~4GiB is probably not a good idea anyways 
     this.pc = 0x2000;
 
     // general-purpose registers, gen_reg[0] is x0, etc.
