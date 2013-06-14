@@ -153,33 +153,33 @@ function runInstruction(inst, RISCV){
                         throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
                         break;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] << (inst.get_imm("I") & 0x003F);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft(inst.get_imm("I") & 0x003F);
                     RISCV.pc += 4;
                     break;
 
                 // SLTI 
                 case 0x2:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (signExt(inst.get_imm("I"), 11)|0)){
-                        RISCV.gen_reg[inst.get_rd()] = 0x00000001;
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_imm("I"), 11))){
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = 0x00000000;
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
                     }
                     RISCV.pc += 4;
                     break;
 
                 // SLTIU, need to check signExt here
                 case 0x3:
-                    if (RISCV.gen_reg[inst.get_rs1()] < signExt(inst.get_imm("I"), 11)){
-                        RISCV.gen_reg[inst.get_rd()] = 0x00000001;
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], signExtLT32_64(inst.get_imm("I"), 11))){
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = 0x00000000;
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
                     }
                     RISCV.pc += 4;
                     break;
                 
                 // XORI
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) ^ (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).xor(signExtLT32_64(inst.get_imm("I"), 11));
                     RISCV.pc += 4;
                     break;
 
@@ -194,10 +194,10 @@ function runInstruction(inst, RISCV){
                     var aldiff = (inst.get_imm("I") >>> 6);
                     if (aldiff === 0) {
                         // SRLI
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >>> (inst.get_imm("I") & 0x003F);
+                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRightUnsigned(inst.get_imm("I") & 0x003F);
                     } else if (aldiff === 1) {
                         // SRAI
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()] >> (inst.get_imm("I") & 0x003F);
+                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRight(inst.get_imm("I") & 0x003F);
                     } else {
                         // bad
                         console.log("Bad inst");
@@ -208,22 +208,19 @@ function runInstruction(inst, RISCV){
 
                 // ORI 
                 case 0x6:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) | (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).or(signExtLT32_64(inst.get_imm("I"), 11));
                     RISCV.pc += 4;
                     break;
 
                 // ANDI
                 case 0x7:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) & (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).and(signExtLT32_64(inst.get_imm("I"), 11));
                     RISCV.pc += 4;
                     break;
 
                 default:
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
-
-
-
 
             }
             break;
