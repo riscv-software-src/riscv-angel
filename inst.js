@@ -233,69 +233,69 @@ function runInstruction(inst, RISCV){
 
                 // ADD
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) + (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).add(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
 
                 // SUB
                 case 0x200:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) - (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).subtract(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
 
                 // SLL
                 case 0x1:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) << (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft((RISCV.gen_reg[inst.get_rs2()]).toInt());
                     RISCV.pc += 4;
                     break;
 
                 // SLT
                 case 0x2:
-                    if ((RISCV.gen_reg[inst.get_rs1()]|0) < (RISCV.gen_reg[inst.get_rs2()]|0)){
-                        RISCV.gen_reg[inst.get_rd()] = 0x1;
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = 0x0;
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
                     }
                     RISCV.pc += 4;
                     break;
 
                 // SLTU
                 case 0x3:
-                    if (RISCV.gen_reg[inst.get_rs1()] < RISCV.gen_reg[inst.get_rs2()]){
-                        RISCV.gen_reg[inst.get_rd()] = 0x1;
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])){
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = 0x0;
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
                     }
                     RISCV.pc += 4;
                     break;
 
                 // XOR
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) ^ (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).xor(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
 
                 // SRL
                 case 0x5:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) >>> (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRightUnsigned((RISCV.gen_reg[inst.get_rs2()]).toInt());
                     RISCV.pc += 4;
                     break;
 
                 // SRA
                 case 0x205:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) >> (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRight((RISCV.gen_reg[inst.get_rs2()]).toInt());
                     RISCV.pc += 4;
                     break;
 
                 // OR
                 case 0x6:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) | (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).or(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
 
                 // AND
                 case 0x7:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]|0) & (RISCV.gen_reg[inst.get_rs2()]|0);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).and(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
 

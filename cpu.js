@@ -18,6 +18,7 @@ function CPU(memamt){
     
     // PC, defaults to 0x2000 according to the ISA, documented in 
     // processor.cc
+    // TODO: make this a long
     this.pc = 0x2000;
 
     // general-purpose registers, gen_reg[0] is x0, etc.
