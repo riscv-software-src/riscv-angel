@@ -540,42 +540,55 @@ function runInstruction(inst, RISCV){
 
                 // LB
                 case 0x0:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
-                    RISCV.gen_reg[inst.get_rd()] = signExt(RISCV.load_byte_from_mem(addr), 7);
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_byte_from_mem(addr), 7);
                     RISCV.pc += 4;
                     break;
 
                 // LH
                 case 0x1:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
-                    RISCV.gen_reg[inst.get_rd()] = signExt(RISCV.load_half_from_mem(addr), 15);
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_half_from_mem(addr), 15);
                     RISCV.pc += 4;
                     break;
 
                 // LW
                 case 0x2:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_word_from_mem(addr);
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(addr), 31);
                     RISCV.pc += 4;
                     break;
 
-                // No LD in 32 bit arch
+                // LD 
+                case 0x3:
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    // unlike load_half/byte/word_from_mem, double returns Long
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(addr);
+                    RISCV.pc += 4;
+                    break;
 
                 // LBU
                 case 0x4:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_byte_from_mem(addr) & 0x000000FF;
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+
+                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.load_byte_from_mem(addr) & 0x000000FF, 0x0);
                     RISCV.pc += 4;
                     break;
 
                 // LHU
                 case 0x5:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("I"), 11)|0);
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_half_from_mem(addr) & 0x0000FFFF;
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+
+                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.load_half_from_mem(addr) & 0x0000FFFF, 0x0);
                     RISCV.pc += 4;
                     break;
 
-                // No LWU in 32 bit arch
+                // LWU
+                case 0x6:
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0);
+                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.load_word_from_mem(addr), 0x0);
+                    RISCV.pc += 4;
+                    break;
 
                 default:
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
@@ -592,26 +605,34 @@ function runInstruction(inst, RISCV){
                 
                 // SB
                 case 0x0:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("B"), 11)|0);
-                    RISCV.store_byte_to_mem(addr, RISCV.gen_reg[inst.get_rs2()]);
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("B"), 11)|0);
+
+                    RISCV.store_byte_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     RISCV.pc += 4;
                     break;
 
                 // SH
                 case 0x1:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("B"), 11)|0);
-                    RISCV.store_half_to_mem(addr, RISCV.gen_reg[inst.get_rs2()]);
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("B"), 11)|0);
+
+                    RISCV.store_half_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     RISCV.pc += 4;
                     break;
 
                 // SW
                 case 0x2:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]|0) + (signExt(inst.get_imm("B"), 11)|0);
-                    RISCV.store_word_to_mem(addr, RISCV.gen_reg[inst.get_rs2()]);
+                    var addr = ((RISCV.gen_reg[inst.get_rs1()]).getLowBits()) + (signExt(inst.get_imm("B"), 11)|0);
+                    RISCV.store_word_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     RISCV.pc += 4;
                     break;
 
-                // No SD in 32 bit arch
+                // SD
+                case 0x3:
+                    var addr = (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("B"), 11)|0);
+
+                    RISCV.store_double_to_mem(addr, RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.pc += 4;
+                    break;
 
                 default:
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));

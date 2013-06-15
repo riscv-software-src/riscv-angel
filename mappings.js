@@ -173,7 +173,7 @@ var Bfields = {
     "sb": new cBtype(0x23, 0x0),
     "sh": new cBtype(0x23, 0x1),
     "sw": new cBtype(0x23, 0x2),
-    // sd is not implemented for 32 bit arch
+    "sd": new cBtype(0x23, 0x3),
 };
 
 function cRtype(opcode, funct10, specialrs1, specialrs2, specialrd){

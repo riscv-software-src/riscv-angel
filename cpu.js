@@ -62,9 +62,35 @@ function CPU(memamt){
         this.boot_time = start.getTime();
     }
 
-    // this and below has not been adjusted for RV64
+    // unlike word, half, byte, the val arg here is a Long
+    function store_double_to_mem(addr, val){
+        var lowbits = val.getLowBits()|0;
+        var highbits = val.getHighBits()|0;
+        if (this.endianness === "big"){
+            this.memory[addr] = (highbits >>> 24) & 0xFF;
+            this.memory[addr+1] = (highbits >>> 16) & 0xFF;
+            this.memory[addr+2] = (highbits >>> 8) & 0xFF;
+            this.memory[addr+3] = (highbits) & 0xFF;
 
-    // big-endian
+            this.memory[addr+4] = (lowbits >>> 24) & 0xFF;
+            this.memory[addr+5] = (lowbits >>> 16) & 0xFF;
+            this.memory[addr+6] = (lowbits >>> 8) & 0xFF;
+            this.memory[addr+7] = (lowbits) & 0xFF;
+        } else if (this.endianness === "little"){
+            this.memory[addr] = (lowbits) & 0xFF;
+            this.memory[addr+1] = (lowbits >>> 8) & 0xFF;
+            this.memory[addr+2] = (lowbits >>> 16) & 0xFF;
+            this.memory[addr+3] = (lowbits >>> 24) & 0xFF;
+
+            this.memory[addr+4] = (highbits) & 0xFF;
+            this.memory[addr+5] = (highbits >>> 8) & 0xFF;
+            this.memory[addr+6] = (highbits >>> 16) & 0xFF;
+            this.memory[addr+7] = (highbits >>> 24) & 0xFF;
+        } else {
+            throw new Error("Invalid Endianness");
+        }
+    }
+
     function store_word_to_mem(addr, val){
         if (this.endianness === "big"){
             this.memory[addr] = (val >>> 24) & 0xFF;
@@ -95,6 +121,40 @@ function CPU(memamt){
 
     function store_byte_to_mem(addr, val){
         this.memory[addr] = val & 0xFF;
+    }
+
+    function load_double_from_mem(addr){
+        var retvalhigh = 0;
+        var retvallow = 0;
+        if (this.endianness === "big"){
+            retvalhigh = retvalhigh | this.memory[addr] << 24;
+            retvalhigh = retvalhigh | this.memory[addr+1] << 16;
+            retvalhigh = retvalhigh | this.memory[addr+2] << 8;
+            retvalhigh = retvalhigh | this.memory[addr+3];
+
+            retvallow = retvallow | this.memory[addr+4] << 24;
+            retvallow = retvallow | this.memory[addr+5] << 16;
+            retvallow = retvallow | this.memory[addr+6] << 8;
+            retvallow = retvallow | this.memory[addr+7];
+
+            return new Long(retvallow, retvalhigh);
+
+        } else if (this.endianness === "little"){
+            retvallow = retvallow | this.memory[addr+3] << 24;
+            retvallow = retvallow | this.memory[addr+2] << 16;
+            retvallow = retvallow | this.memory[addr+1] << 8;
+            retvallow = retvallow | this.memory[addr];
+    
+            retvalhigh = retvalhigh | this.memory[addr+7] << 24;
+            retvalhigh = retvalhigh | this.memory[addr+6] << 16;
+            retvalhigh = retvalhigh | this.memory[addr+5] << 8;
+            retvalhigh = retvalhigh | this.memory[addr+4];
+
+            return new Long(retvallow, retvalhigh);
+
+        } else {
+            throw new Error("Invalid Endianness");
+        }
     }
 
     function load_word_from_mem(addr){
@@ -146,9 +206,11 @@ function CPU(memamt){
     }
 
     this.reset_wall_clock = reset_wall_clock;
+    this.store_double_to_mem = store_double_to_mem;
     this.store_word_to_mem = store_word_to_mem;
     this.store_half_to_mem = store_half_to_mem;
     this.store_byte_to_mem = store_byte_to_mem;
+    this.load_double_from_mem = load_double_from_mem;
     this.load_word_from_mem = load_word_from_mem;
     this.load_half_from_mem = load_half_from_mem;
     this.load_byte_from_mem = load_byte_from_mem;
