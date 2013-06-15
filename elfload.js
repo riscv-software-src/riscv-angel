@@ -74,12 +74,12 @@ function loadElf(binfile){
     section_headers = [];
 
     for (var i = 0; i < elf["e_shnum"]; i++){
-        var addr = elf["e_shoff"] + i*elf["e_shentsize"];
+        var addr = elf["e_shoff"].getLowBits() + i*elf["e_shentsize"];
         var section = {};
-        section["flags"] = bytes_to_int(binfile, addr+8, 4, end);
-        section["addr"] = bytes_to_int(binfile, addr+12, 4, end);
-        section["offs"] = bytes_to_int(binfile, addr+16, 4, end);
-        section["size"] = bytes_to_int(binfile, addr+20, 4, end);
+        section["flags"] = bytes_to_long(binfile, addr+8, 8, end);
+        section["addr"] = bytes_to_long(binfile, addr+16, 8, end);
+        section["offs"] = bytes_to_long(binfile, addr+24, 8, end);
+        section["size"] = bytes_to_long(binfile, addr+32, 8, end);
         section_headers.push(section);
     }
 
@@ -87,17 +87,17 @@ function loadElf(binfile){
     for (var i = 0; i < section_headers.length; i++){
         // check for allocate flag (bit #1)
         console.log(section_headers[i]);
-        if (((section_headers[i]["flags"] >> 1) & 0x1) == 0x1){
+        if (((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1){
 
-            for (var j = 0; j < section_headers[i]["size"]; j++){
-                RISCV.memory[(section_headers[i]["addr"]|0) + j] = binfile.charCodeAt((section_headers[i]["offs"]|0)+j) & 0xFF;
+            for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++){
+                RISCV.memory[(section_headers[i]["addr"].getLowBits()|0) + j] = binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF;
             }
 
         }
     }
 
     // start running program
-    RISCV.pc = elf["e_entry"];
+    RISCV.pc = elf["e_entry"].getLowBits();
 
     // reset clock
     RISCV.reset_wall_clock();
