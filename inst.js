@@ -646,12 +646,10 @@ function runInstruction(inst, RISCV){
             var funct3 = inst.get_funct3();
             if (funct3 == 0x1){
                 // FENCE.I
-
                 console.log("fence.i is no-op in this implementation");
                 RISCV.pc += 4;
             } else if (funct3 = 0x2){
                 // FENCE
-
                 console.log("fence is no-op in this implementation");
                 RISCV.pc += 4;
             } else {
@@ -679,7 +677,7 @@ function runInstruction(inst, RISCV){
 
                 // RDCYCLE
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.cycle_count|0;
+                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.cycle_count|0, 0x0);
                     RISCV.pc += 4;
                     break;
 
@@ -693,18 +691,17 @@ function runInstruction(inst, RISCV){
                     // done as a float to cut down to reasonable number of
                     // bits, then or with zero to get close by int value
                     var result = (nowtime - RISCV.boot_time) | 0;
-                    RISCV.gen_reg[inst.get_rd()] = result;
+                    RISCV.gen_reg[inst.get_rd()] = new Long(result, 0x0);
                     RISCV.pc += 4;
                     break;
 
                 // RDINSTRET
                 case 0x14:
                     // for our purposes, this is the same as RDCYCLE:
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.cycle_count|0;
+                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.cycle_count|0, 0x0);
                     break;
 
                 default:
-                    // need to manually update regtable
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
@@ -713,8 +710,6 @@ function runInstruction(inst, RISCV){
 
 
         default:
-            // need to manually update regtable
-            update_html_regtable(RISCV, tab);
             throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;
     }
