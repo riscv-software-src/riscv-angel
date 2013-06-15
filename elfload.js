@@ -47,25 +47,27 @@ function loadElf(binfile){
     // elf version (should always be 1)
     elf["e_version"] = bytes_to_int(binfile, 20, 4, end);
     // virtual address of entry point into program (0x10000)
-    elf["e_entry"] = bytes_to_int(binfile, 24, 4, end);
+    elf["e_entry"] = bytes_to_long(binfile, 24, 8, end);
     // offset for program header
-    elf["e_phoff"] = bytes_to_int(binfile, 28, 4, end);
+    elf["e_phoff"] = bytes_to_long(binfile, 32, 8, end);
     // offset for section header
-    elf["e_shoff"] = bytes_to_int(binfile, 32, 4, end);
+    elf["e_shoff"] = bytes_to_long(binfile, 40, 8, end);
     // processor flags
-    elf["e_flags"] = bytes_to_int(binfile, 36, 4, end);
+    elf["e_flags"] = bytes_to_int(binfile, 48, 4, end);
     // elf header size
-    elf["e_ehsize"] = bytes_to_int(binfile, 40, 2, end);
+    elf["e_ehsize"] = bytes_to_int(binfile, 52, 2, end);
     // size of each individual entry in program header table
-    elf["e_phentsize"] = bytes_to_int(binfile, 42, 2, end);
+    elf["e_phentsize"] = bytes_to_int(binfile, 54, 2, end);
     // number of entries in program header table
-    elf["e_phnum"] = bytes_to_int(binfile, 44, 2, end);
+    elf["e_phnum"] = bytes_to_int(binfile, 56, 2, end);
     // size of each individual entry in section header table
-    elf["e_shentsize"] = bytes_to_int(binfile, 46, 2, end);
+    elf["e_shentsize"] = bytes_to_int(binfile, 58, 2, end);
     // number of entries in section header table
-    elf["e_shnum"] = bytes_to_int(binfile, 48, 2, end);
+    elf["e_shnum"] = bytes_to_int(binfile, 60, 2, end);
     // section header string table index
-    elf["e_shstrndx"] = bytes_to_int(binfile, 50, 2, end);
+    elf["e_shstrndx"] = bytes_to_int(binfile, 62, 2, end);
+
+    update_elf_proptable(elf, elfproptab);
 
 
     // step through section headers, build up array
@@ -122,6 +124,16 @@ function loadElf(binfile){
     update_html_regtable(RISCV, tab);
 }
 
+// numbytes must always be 8, keep it as an arg for consistency
+function bytes_to_long(input, addr, numbytes, end){
+    if (end == "b"){
+        return new Long(bytes_to_int(input, addr+4, 4, end), bytes_to_int(input, addr, 4, end));
+    } else if (end == "l"){
+        return new Long(bytes_to_int(input, addr, 4, end), bytes_to_int(input, addr+4, 4, end));
+    } else {
+        throw new RISCVError("invalid endianness in bytes_to_long");
+    }
+}
 
 // load numbytes bytes from input starting at input[addr] using endianness end
 // valid values for end: "l": little, "b": big

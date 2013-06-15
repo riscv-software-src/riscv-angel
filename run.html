@@ -80,6 +80,9 @@ function runCode(userIn) {
 }
 
 function handle_file(file){
+    tab = document.getElementById("regtable");
+    elfproptab = document.getElementById("elfprops");
+
     file = file.target.files[0];
     var reader = new FileReader();
     RISCV = new CPU();
@@ -137,6 +140,17 @@ End: addi s9, s9, 200</textarea>
                     </div>
                     <div class="tab-pane" id="tab2">
                         <input type="file" id="files" name="files[]" multiple />
+
+                        <table id="elfprops" class="table table-striped table-hover table-condensed table-bordered">
+                            <tr>
+                                <td>ELF Property</td>
+                                <td>Value</td>
+                            </tr>
+                            <tr>
+                                <td>No ELF selected</td>
+                                <td></td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>

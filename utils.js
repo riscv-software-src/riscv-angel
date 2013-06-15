@@ -7,6 +7,19 @@ function update_html_regtable(RISCV, tab){
     }
 }
 
+function update_elf_proptable(elf, tab){
+    var elfprops = ["e_type", "e_machine", "e_version", "e_entry", "e_phoff",
+                    "e_shoff", "e_flags", "e_ehsize", "e_phentsize", "e_phnum",
+                    "e_shentsize", "e_shnum", "e_shstrndx"];
+
+    var samplerow = "<tr><td>ELF Property</td><td>Value</td></tr>";
+    var addinnerhtml = samplerow;
+    for (var i = 0; i < elfprops.length; i++){
+        addinnerhtml += samplerow.replace("ELF Property", elfprops[i]).replace("Value", stringIntHex(elf[elfprops[i]]));
+    }
+    tab.innerHTML = addinnerhtml;
+}
+
 function RISCVError(message){
     this.name = "RISCVError";
     this.message = (message || "");
@@ -15,6 +28,16 @@ function RISCVError(message){
 }
 
 RISCVError.prototype = Error.prototype;
+
+// converts both Numbers and Longs to hex (checks if typeof == "number" else
+// assumes Long)
+function stringIntHex(valin){
+    if (typeof valin === "number"){
+        return stringNumberHex(valin);
+    } else {
+        return stringLongHex(valin);
+    }
+}
 
 // build proper hex rep of 64 bit quantity
 // javascript does this incorrectly: it adds a 
