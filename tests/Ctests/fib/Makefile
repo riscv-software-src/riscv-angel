@@ -1,13 +1,17 @@
 CC=riscv-gcc
+PROGNAME=fib
 
 all:	
-	rm -rf fibobjdump
-	rm -rf fib
-	rm -rf fibelf
-	$(CC) -fpic -m32 -o fib fib.c
-	riscv-objdump -d fib > fibobjdump
-	riscv-readelf -a fib > fibelf
+	rm -rf $(PROGNAME)objdump
+	rm -rf $(PROGNAME)
+	rm -rf $(PROGNAME)elf
+	$(CC) -fpic -o $(PROGNAME) $(PROGNAME).c
+	riscv-objdump -d $(PROGNAME) > $(PROGNAME)objdump
+	riscv-readelf -a $(PROGNAME) > $(PROGNAME)elf
 run:
-	riscv-isa-run pk fib
+	riscv-isa-run pk $(PROGNAME)
 clean:
-	rm -rf fib
+	rm -rf $(PROGNAME)objdump
+	rm -rf $(PROGNAME)
+	rm -rf $(PROGNAME)elf
+	
