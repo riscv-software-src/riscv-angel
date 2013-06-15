@@ -697,6 +697,67 @@ function runInstruction(inst, RISCV){
             break;
 
 
+        // 32 bit integer compute instructions
+
+        case 0x1B:
+            var funct3 = inst.get_funct3(); 
+
+            switch(funct3){
+
+                // ADDIW
+                case 0x0:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0), 31);
+                    RISCV.pc += 4;
+                    break;
+
+
+                // SLLIW
+                case 0x1:
+                    if ((inst.get_imm("I") >>> 6) != 0) {
+                        //this is a bad inst, but not a trap, according to ISA doc
+                        console.log("ERR IN SLLI");
+                        break;
+                    }
+                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
+                        //this is a bad inst, causes illegal instruction trap
+                        //according to page 11 in ISA doc
+                        throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
+                        break;
+                    }
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() << (inst.get_imm("I") & 0x003F), 31);
+                    RISCV.pc += 4;
+                    break;
+
+
+                // SRLIW and SRAIW
+                case 0x5:
+                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
+                        //this is a bad inst, causes illegal instruction trap
+                        //according to page 11 in ISA doc
+                        throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
+                        break;
+                    }
+                    var aldiff = (inst.get_imm("I") >>> 6);
+                    if (aldiff === 0) {
+                        // SRLIW
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >>> (inst.get_imm("I") & 0x003F), 31);
+                    } else if (aldiff === 1) {
+                        // SRAIW
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >> (inst.get_imm("I") & 0x003F), 31);
+                    } else {
+                        // bad
+                        console.log("Bad inst");
+                        break;
+                    }
+                    RISCV.pc += 4;
+                    break;
+
+            }
+
+            break;
+
+
+
         default:
             throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             break;

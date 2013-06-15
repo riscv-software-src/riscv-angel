@@ -85,12 +85,23 @@ var inst_to_type = {
     "remu": Rtype,
     "lui": LUItype,
     "auipc": LUItype,
-    // 32-bit integer compute instructions here, not necessary right now
-    // since this is not a 64 bit implementation
-    
 
-    // TODO: add:
-    // FP instructions
+    // 32 bit integer compute
+    "addiw": Itype,
+    "slliw": Itype,
+    "srliw": Itype,
+    "sraiw": Itype,
+    "addw": Rtype,
+    "subw": Rtype,
+    "sllw": Rtype,
+    "srlw": Rtype,
+    "sraw": Rtype,
+    "mulw": Rtype,
+    "divw": Rtype,
+    "divuw": Rtype,
+    "remw": Rtype,
+    "remuw": Rtype,
+
     // Miscellaneous Memory Instructions
     "fence.i": Itype,
     "fence": Itype,
@@ -152,6 +163,11 @@ var Ifields = {
     "srai": new cItype(0x13, 0x5, 0x40), // needs to be or'd with shamt
     "ori": new cItype(0x13, 0x6),
     "andi": new cItype(0x13, 0x7),
+
+    "addiw": new cItype(0x1B, 0x0),
+    "slliw": new cItype(0x1B, 0x1, 0), // needs to be or'd with shamt
+    "srliw": new cItype(0x1B, 0x5, 0), // needs to be or'd with shamt
+    "sraiw": new cItype(0x1B, 0x5, 0x40), // needs to be or'd with shamt
 
     "fence.i": new cItype(0x2F, 0x1),
     "fence": new cItype(0x2F, 0x2),
