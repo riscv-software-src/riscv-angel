@@ -752,11 +752,79 @@ function runInstruction(inst, RISCV){
                     RISCV.pc += 4;
                     break;
 
+                default:
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
             }
-
             break;
 
 
+        // more 32 bit int compute
+        case 0x3B:
+            var funct10 = inst.get_funct10();
+            switch(funct10){
+
+                // ADDW
+                case 0x0:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
+                    RISCV.pc += 4;
+                    break;
+
+                // SUBW
+                case 0x200:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) - (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
+                    RISCV.pc += 4;
+                    break;
+
+                // SLLW
+                case 0x1:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) << (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
+                    RISCV.pc += 4;
+                    break;
+
+                // SRLW
+                case 0x5:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) >>> (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
+                    RISCV.pc += 4;
+                    break;
+
+                // SRAW
+                case 0x205:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) >> (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
+                    RISCV.pc += 4;
+                    break;
+
+                // MULW
+                case 0x8:
+                    throw new RISCVError("MUL not yet implemented");
+                    break;
+
+                // DIVW
+                case 0xC:
+                    throw new RISCVError("DIVW not yet implemented");
+                    break;
+
+                // DIVUW
+                case 0xD:
+                    throw new RISCVError("DIVUW not yet implemented");
+                    break;
+
+                // REMW
+                case 0xE:
+                    throw new RISCVError("REMW not yet implemented");
+                    break;
+
+                // REMUW
+                case 0xF:
+                    throw new RISCVError("REMUW not yet implemented");
+                    break;
+
+                default:
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+         
+            }
+            break;
 
         default:
             throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
