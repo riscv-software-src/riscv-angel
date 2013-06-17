@@ -90,8 +90,7 @@ function handle_file(file){
 
     reader.onload = (function(theFile) {
         return function(e) {
-            // this is super hacky, fix this once everything works
-            loadElf({"Content": e.target.result});
+            loadElf(e.target.result);
         };
     })(file);
 

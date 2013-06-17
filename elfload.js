@@ -1,27 +1,17 @@
-// Load elf file
-//
+// Load ELF64 file
 
-// loadElf is passed as the callback function to 
-// GetBinaryFile
-//
-// may assume access to RISCV (the processor). setup done in run.html
+// loadElf is passed as the callback function to binary file reader.
+// - May assume access to RISCV (the processor). 
+// - Setup done in run.html
 function loadElf(binfile){
-    var binfile_length = binfile.ContentLength;
-    var binfile = binfile.Content;
-
-    // remove line for release
-    binfiletest = binfile;
-
-    // TODO: ADD var AFTER TESTING DONE
-    elf = {};
+    var elf = {};
     var magic = ((binfile.charCodeAt(0) & 0xFF) << 24) | ((binfile.charCodeAt(1) & 0xFF) << 16) |
                 ((binfile.charCodeAt(2) & 0xFF) << 8) | (binfile.charCodeAt(3) & 0xFF);
     if (magic === 0x7f454c46){
-        console.log("THIS IS AN ELF");
+        // everything is fine. proceed
     } else { 
-        console.log("NOT AN ELF. ERR");
+        throw new RISCVError("NOT AN ELF. ERR");
     }
-
 
     // e_ident (16 bytes, ELF identification string)
     elf["magic"] = magic; // magic num to identify ELF files
@@ -37,7 +27,7 @@ function loadElf(binfile){
         var end = "b";
         RISCV.endianness = "big";
     } else {
-        throw new Error("ELF has invalid endianness");
+        throw new RISCVError("ELF has invalid endianness");
     }
 
     // type of object file. should be 2 for executable
@@ -67,11 +57,11 @@ function loadElf(binfile){
     // section header string table index
     elf["e_shstrndx"] = bytes_to_int(binfile, 62, 2, end);
 
+    // show elf header information to the user
     update_elf_proptable(elf, elfproptab);
 
-
     // step through section headers, build up array
-    section_headers = [];
+    var section_headers = [];
 
     for (var i = 0; i < elf["e_shnum"]; i++){
         var addr = elf["e_shoff"].getLowBits() + i*elf["e_shentsize"];
@@ -86,13 +76,10 @@ function loadElf(binfile){
     // copy necessary data into memory
     for (var i = 0; i < section_headers.length; i++){
         // check for allocate flag (bit #1)
-        console.log(section_headers[i]);
         if (((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1){
-
             for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++){
                 RISCV.memory[(section_headers[i]["addr"].getLowBits()|0) + j] = binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF;
             }
-
         }
     }
 
@@ -105,22 +92,24 @@ function loadElf(binfile){
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
 
     // currently stop on a syscall
+    // TODO: modify this so that it detects the end of _exit and stops
     while(RISCV.pc != 0){
         // run instruction
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
 
+        /*
         // update output. see note about this in run.html
-        //for (var i = 0; i < RISCV.gen_reg.length; i++){
-        //    tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
-        //}
+        for (var i = 0; i < RISCV.gen_reg.length; i++){
+            tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
+        }
+        */
 
-        // remove for perf improvement
-        console.log(RISCV.pc.toString(16));
         // load next instruction
         instVal = RISCV.load_word_from_mem(RISCV.pc);
     }
 
+    // show register contents to user
     update_html_regtable(RISCV, tab);
 }
 
