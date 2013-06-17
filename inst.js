@@ -289,25 +289,7 @@ function runInstruction(inst, RISCV){
 
                 // MUL
                 case 0x8:
-                    throw new RISCVError("MUL not yet implemented");
-                    var rs1 = RISCV.gen_reg[inst.get_rs1()];
-                    var rs2 = RISCV.gen_reg[inst.get_rs2()];
-                    var rs1_64;
-                    var rs2_64;
-
-                    if ((rs1|0) < 0){
-                        rs1_64 = new goog.math.Long(rs1, 0xFFFFFFFF);
-                    } else {
-                        rs1_64 = new goog.math.Long(rs1, 0x0);
-                    }
-                    if ((rs2|0) < 0){
-                        rs2_64 = new goog.math.Long(rs2, 0xFFFFFFFF);
-                    } else {
-                        rs2_64 = new goog.math.Long(rs2, 0x0);
-                    }
-                    var result = rs1_64.multiply(rs2_64);
-                    result = result.getLowBits();
-                    RISCV.gen_reg[inst.get_rd()] = result | 0;
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).multiply(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
 
@@ -796,7 +778,7 @@ function runInstruction(inst, RISCV){
 
                 // MULW
                 case 0x8:
-                    throw new RISCVError("MUL not yet implemented");
+                    throw new RISCVError("MULW not yet implemented");
                     break;
 
                 // DIVW
@@ -827,7 +809,9 @@ function runInstruction(inst, RISCV){
             break;
 
         default:
-            throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+            //throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+            console.log("unknown inst at: 0x" + RISCV.pc.toString(16));
+            RISCV.pc += 4;
             break;
     }
 

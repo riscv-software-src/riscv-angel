@@ -4,6 +4,7 @@ function update_html_regtable(RISCV, tab){
     // update output
     for (var i = 0; i < RISCV.gen_reg.length; i++){
         tab.rows[i+1].cells[1].innerHTML = stringLongHex(RISCV.gen_reg[i]);
+        tab.rows[i+1].cells[2].innerHTML = longtoStringUnsigned(RISCV.gen_reg[i]).toString();
     }
 }
 
@@ -78,7 +79,6 @@ function long_less_than_unsigned(long1, long2){
     var long2up = signed_to_unsigned(long2.getHighBits());
 
     if (long1up < long2up){
-        console.log("this triggered");
         return true;
     } else if (long1up > long2up){
         return false;
@@ -104,4 +104,64 @@ function signed_to_unsigned(inputNum){
     } else {
         return (inputNum & 0x7FFFFFFF) + Math.pow(2, 31);
     }
+}
+
+// perform unsigned multiplication of 64 bit ints (Longs)
+// return upper 64 bits
+function unsigned_64_mult(long1, long2){
+
+
+
+
+
+}
+
+// get stringified long as unsigned
+function longtoStringUnsigned(long1){
+    var MSB = long1.getHighBits() >>> 31;
+    if (MSB === 0){
+        return long1.toString();
+    }
+    var mask = new Long(0xFFFFFFFF, 0x7FFFFFFF);
+    var masked = long1.and(mask);
+    var digitarr = masked.toString().split("");
+
+    var twosixtythree = "9223372036854775808".split("");
+
+    twosixtythree = mapper(twosixtythree, parseInt);
+    digitarr = mapper(digitarr, parseInt);
+
+    var outputlen = Math.max(twosixtythree.length, digitarr.length);
+
+    var fillzero;
+
+    var zeroarr = function (inp) { return 0 };
+
+    if (outputlen == twosixtythree.length){
+        fillzero = mapper(new Array(outputlen - digitarr.length), zeroarr);
+        digitarr = fillzero.concat(digitarr);
+    } else {
+        fillzero = mapper(new Array(outputlen - twosixtythree.length), zeroarr);
+        twosixtythree = fillzero.concat(twosixtythree);
+    }
+
+    var output = mapper(new Array(outputlen), zeroarr);
+    for(var b = 0; b < outputlen-1; b++){
+        var a = outputlen-1-b;
+        var res = twosixtythree[a] + digitarr[a] + output[a];
+        output[a] = res % 10;
+        output[a-1] = Math.floor(res / 10);
+    }
+    output[0] += twosixtythree[0] + digitarr[0];
+
+    console.log(output);
+    return output.join().replace(/,/g, "");
+}
+
+
+function mapper(arr, fn){
+    for (var a = 0; a < arr.length; a++){
+        arr[a] = fn(arr[a]);
+    }
+    return arr;
 }
