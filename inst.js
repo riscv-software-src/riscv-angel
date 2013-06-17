@@ -1,4 +1,4 @@
-// here, we define instructions
+// Instruction object and implementation of each instruction
 
 function instruction(instVal){
     this.inst = instVal;
@@ -97,7 +97,7 @@ function signExt(quantity, bit){
 }
 
 // "sign extend" the quantity based on bit
-// input is a 32 bit quantity (as a normal javascript Number)
+// input is a 32 bit quantity (as a standard javascript Number)
 // output is a 64 bit Long, correctly sign extended
 function signExtLT32_64(quantity, bit){
     // bits numbered 31, 30, .... 2, 1, 0
@@ -113,18 +113,10 @@ function signExtLT32_64(quantity, bit){
     }
 }
 
-
-
-// takes instruction obj and CPU obj as args
-// perform computation on given CPU
-//
-// To get javascript to perform Number ops as 32 bit signed, do (num|0)
-// To perform Number ops as 32 bit unsigned, just do the 64 bit FP ops
+// Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(inst, RISCV){
-
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = new Long(0x0, 0x0);
-
     var op = inst.get_opcode();
 
     switch(op){
@@ -144,7 +136,7 @@ function runInstruction(inst, RISCV){
                 case 0x1:
                     if ((inst.get_imm("I") >>> 6) != 0) {
                         //this is a bad inst, but not a trap, according to ISA doc
-                        console.log("ERR IN SLLI");
+                        throw new RISCVError("ERR IN SLLI");
                         break;
                     }
                     RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft(inst.get_imm("I") & 0x003F);
@@ -187,8 +179,7 @@ function runInstruction(inst, RISCV){
                         // SRAI
                         RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRight(inst.get_imm("I") & 0x003F);
                     } else {
-                        // bad
-                        console.log("Bad inst");
+                        throw new RISCVError("Bad inst");
                         break;
                     }
                     RISCV.pc += 4;
@@ -498,7 +489,7 @@ function runInstruction(inst, RISCV){
                 RISCV.pc += 4;              
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc, 31);
             } else {
-                console.log("Bad Inst.");
+                throw new RISCVError("Bad Inst.");
             }
             break;
 
@@ -697,7 +688,7 @@ function runInstruction(inst, RISCV){
                 case 0x1:
                     if ((inst.get_imm("I") >>> 6) != 0) {
                         //this is a bad inst, but not a trap, according to ISA doc
-                        console.log("ERR IN SLLI");
+                        throw new RISCVError("ERR IN SLLI");
                         break;
                     }
                     if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
@@ -727,8 +718,7 @@ function runInstruction(inst, RISCV){
                         // SRAIW
                         RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >> (inst.get_imm("I") & 0x003F), 31);
                     } else {
-                        // bad
-                        console.log("Bad inst");
+                        throw new RISCVError("Bad inst");
                         break;
                     }
                     RISCV.pc += 4;

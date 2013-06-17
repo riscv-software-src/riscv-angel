@@ -1,7 +1,7 @@
 // utils for the cpu
-//
+
+// Fill HTML register table for user 
 function update_html_regtable(RISCV, tab){
-    // update output
     for (var i = 0; i < RISCV.gen_reg.length; i++){
         tab.rows[i+1].cells[1].innerHTML = stringLongHex(RISCV.gen_reg[i]);
         tab.rows[i+1].cells[2].innerHTML = longtoStringUnsigned(RISCV.gen_reg[i]).toString();
@@ -21,6 +21,8 @@ function update_elf_proptable(elf, tab){
     tab.innerHTML = addinnerhtml;
 }
 
+// Special Error class object that updates the HTML regtable before going up 
+// the stack
 function RISCVError(message){
     this.name = "RISCVError";
     this.message = (message || "");
@@ -28,9 +30,10 @@ function RISCVError(message){
     update_html_regtable(RISCV, tab);
 }
 
+// Make it a real Error
 RISCVError.prototype = Error.prototype;
 
-// converts both Numbers and Longs to hex (checks if typeof == "number" else
+// Converts both Numbers and Longs to hex (checks if typeof == "number" else
 // assumes Long)
 function stringIntHex(valin){
     if (typeof valin === "number"){
@@ -89,15 +92,16 @@ function long_less_than_unsigned(long1, long2){
     }
 }
 
-// this 'converts' a signed number in javascript to an 
-// unsigned number. 
-// by default, javascript will take the 'value' stored in a number
-// and compare it (the definition of value is rather fluid). instead, 
-// we want to convert signed numbers by 
-// stripping out the MSB and adding 2^31 if the MSB is set (ie if the 
-// value is negative). Such a number can be represented by JS built in 
-// Numbers (64 bit float), and then comparing these values without performing
-// any bitwise ops on them will effectively do an unsigned comparison
+/* this 'converts' a signed number in javascript to an 
+ * unsigned number. 
+ * by default, javascript will take the 'value' stored in a number
+ * and compare it (the definition of value is rather fluid). instead, 
+ * we want to convert signed numbers by 
+ * stripping out the MSB and adding 2^31 if the MSB is set (ie if the 
+ * value is negative). Such a number can be represented by JS built in 
+ * Numbers (64 bit float), and then comparing these values without performing
+ * any bitwise ops on them will effectively do an unsigned comparison 
+ */
 function signed_to_unsigned(inputNum){
     if ((inputNum & 0x7FFFFFFF) == 0){
         return inputNum;
@@ -116,7 +120,7 @@ function unsigned_64_mult(long1, long2){
 
 }
 
-// get stringified long as unsigned
+// Produce a string version of the Long interpreted as an unsigned 64 bit quantity
 function longtoStringUnsigned(long1){
     var MSB = long1.getHighBits() >>> 31;
     if (MSB === 0){

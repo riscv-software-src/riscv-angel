@@ -1,14 +1,10 @@
-// possible optimizations: choose/attach load/store methods at time of object 
-// creation instead of if/elses comparing strings at every call
+// Possible optimizations: choose/attach load/store methods at time of object 
+// creation instead of if/elses comparing strings at every call - however
+// need to remember to update methods if changing endianness after instantiation
+// is allowed.
 
-// assume 32 bit implementation, with 32 bit instructions
 
-// here, we define:
-// memory
-// PC
-// standard registers
-// FP registers
-
+// CPU class. Contains regfile, memory, and special registers
 // memamt is memory size in Mebibytes, default to 32
 function CPU(memamt){
     memamt = typeof memamt !== 'undefined' ? memamt : 32;

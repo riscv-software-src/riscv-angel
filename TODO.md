@@ -5,10 +5,12 @@ TODO before release:
     - Support labels that are on their own line
     - Support hex immediates
     - Clean out empty lines instead of crashing
+    - Support .data directives for users to load data to me
 
 2) Finish RV64 mul/div instructions
 
 3) UI improvements
+    - More data to user about ELF file
 
 4) Integrate many of the new Long functions from utils.js into a custom copy
 of closure-library

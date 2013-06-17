@@ -1,4 +1,4 @@
-// contains various mappings used by the disassembler and cpu
+// Contains various mappings/hardcoded values used by the disassembler and cpu
 
 // register mappings from disasm.cc
 var reg_maps = [
