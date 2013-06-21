@@ -818,6 +818,7 @@ function runInstruction(inst, RISCV){
                         temp = temp.and((new Long(inst.get_imm("I"), 0x0)).not);
                     }
                     RISCV.set_pcr(inst.get_rs1(), temp);
+                    RISCV.pc += 4;
                     break;
 
 
@@ -834,8 +835,16 @@ function runInstruction(inst, RISCV){
                         temp = temp.or(new Long(inst.get_imm("I"), 0x0));
                     }
                     RISCV.set_pcr(inst.get_rs1(), temp);
+                    RISCV.pc += 4;
                     break;
 
+                // MFPCR
+                case 0x2:
+
+                    RISCV.pc += 4; 
+                    break;
+
+        
 
                 default:
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));

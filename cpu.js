@@ -238,7 +238,6 @@ function CPU(memamt){
                 break; 
 
         }
-        RISCV.pc += 4;
     }
 
 
