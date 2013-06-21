@@ -104,7 +104,16 @@ function loadElf(binfile){
 
         // terminate if PC is unchanged
         if (RISCV.pc == oldpc){
-            throw new RISCVError("PC Repeat. In single CPU imp, this means inf loop. Terminated.");
+
+            // check TOHOST in case this is a test
+            if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))){
+                document.getElementById("testresult").innerHTML = "PASS";
+            } else {
+                document.getElementById("testresult").innerHTML = "FAIL";
+            }
+
+            // Terminate
+            throw new RISCVError("PC Repeat. In single CPU imp, this means inf loop. Terminated. Current PC: " + RISCV.pc.toString(16));
         }
         /*
         // update output. see note about this in run.html
