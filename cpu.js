@@ -32,8 +32,6 @@ function CPU(memamt){
     
     for (var key in PCR){
         if (PCR.hasOwnProperty(key)){
-            console.log("INIT " + key);
-            console.log(PCR[key]["num"]);
             if (key["width"] == 32){
                 this.priv_reg[PCR[key]["num"]] = 0x0;
             } else {

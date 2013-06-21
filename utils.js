@@ -158,7 +158,6 @@ function longtoStringUnsigned(long1){
     }
     output[0] += twosixtythree[0] + digitarr[0];
 
-    console.log(output);
     return output.join().replace(/,/g, "");
 }
 
