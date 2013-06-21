@@ -804,6 +804,23 @@ function runInstruction(inst, RISCV){
 
             switch(funct3){
 
+
+                // CLEARPCR
+                case 0x0:
+                    // may be a Long or a Number
+                    var temp = RISCV.priv_reg[inst.get_rs1()];
+                    if (typeof temp === "number"){
+                        RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                        temp = temp | (~inst.get_imm("I"));
+                    } else {
+                        //temp is a long
+                        RISCV.gen_reg[inst.get_rd()] = temp;
+                        temp = temp.and((new Long(inst.get_imm("I"), 0x0)).not);
+                    }
+                    RISCV.set_pcr(inst.get_rs1(), temp);
+                    break;
+
+
                 // SETPCR
                 case 0x1:
                     // may be a Long or a Number
