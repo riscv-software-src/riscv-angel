@@ -16,6 +16,7 @@ TODO before release:
 of closure-library
 
 5) Minify ("compile") closure-library (only really need long.js and its deps)
+5.1) Also minify everything else: https://github.com/mishoo/UglifyJS
 
 6) supervisor / syscall / htif
 

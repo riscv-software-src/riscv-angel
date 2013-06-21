@@ -27,6 +27,23 @@ function CPU(memamt){
         this.gen_reg[i] = new Long(0x0, 0x0);
     }
 
+    // privileged control registers
+    this.priv_reg = new Array(32);
+    
+    for (var key in PCR){
+        if (PCR.hasOwnProperty(key)){
+            if (key["width"] == 32){
+                this.priv_reg[key["num"]] = 0x0;
+            } else {
+                // 64 bit
+                this.priv_reg[key["num"]] = new Long(0x0, 0x0);
+            }
+        }
+    }
+
+    // init status register
+    this.priv_reg[0] = status_reg_init(0, 0, 0);
+
     // initialize stack pointer to highest mem addr
     // needs to be modified if > 4GiB mem
     this.gen_reg[reg_maps.indexOf("sp")] = new Long(memamt, 0x0);
@@ -201,6 +218,30 @@ function CPU(memamt){
         } 
     }
 
+    // set indicated PCR - need to make sure to prevent changes to hardwired vals
+    function set_pcr(num, val){
+        switch(num){
+            case PCR["PCR_SR"]["num"]:
+                // assuming 32 bit status reg
+                this.priv_reg[num] = status_reg_force(val);
+                break;
+
+            // need to fill in all cases here (i.e. when implementing interrupts)
+            case PCR["PCR_TOHOST"]["num"]:
+                if (priv_reg[num].equals(new Long(0x0, 0x0))){
+                    this.priv_reg[num] = val;
+                }
+                break;
+
+            default:
+                this.priv_reg[num] = val;
+                break; 
+
+        }
+        RISCV.pc += 4;
+    }
+
+
     this.reset_wall_clock = reset_wall_clock;
     this.store_double_to_mem = store_double_to_mem;
     this.store_word_to_mem = store_word_to_mem;
@@ -211,4 +252,52 @@ function CPU(memamt){
     this.load_half_from_mem = load_half_from_mem;
     this.load_byte_from_mem = load_byte_from_mem;
     this.load_to_mem = load_to_mem;
+    this.set_pcr = set_pcr;
+}
+
+// TODO: make arguments (im, ip) init, right now just dummies
+function status_reg_init(vm, im, ip){
+    // to begin, S = 0, PS = 1
+    // this is RV64 only and RV64S only
+    // EF is 0
+    var srinit = 0x0;
+    srinit = srinit | (0x1 << 4) | (0x1 << 6) | (0x1 << 7);
+    return srinit;
+
+
+    var srinit = 0x0;
+    // set ET to one 
+    srinit = srinit | SR["SR_ET"];
+    // set S = 0 here
+    srinit = srinit & (~SR["SR_S"]);
+    // set PS = 1 here
+    srinit = srinit | SR["SR_PS"];
+    // set VM based on user input
+    if (vm == 1){
+        srinit = srinit | SR["SR_VM"];
+    } else {
+        srinit = srinit & (~SR["SR_VM"]);
+    }
+
+    // CURRENTLY DOING NOTHING WITH:
+    // EV
+    // EC
+    // IM
+    // IP
+
+    // now force implementation defined presets
+    srinit = status_reg_force(srinit);
+    return srinit;
+}
+
+
+
+// "hardwired" values that need to be forced every time status reg is modified
+function status_reg_force(input){
+    // force EF to zero here 
+    // force U64 to 1 here
+    // force S64 to 1 here
+    input = input & (~SR["SR_EF"]);
+    input = input | SR["SR_U64"] | SR["SR_S64"];
+    return input;
 }

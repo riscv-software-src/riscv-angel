@@ -798,6 +798,37 @@ function runInstruction(inst, RISCV){
             }
             break;
 
+        // I-TYPES Privileged insts - opcode: 0b1111011
+        case 0x7B:
+            var funct3 = inst.get_funct3();
+
+            switch(funct3){
+
+                // SETPCR
+                case 0x1:
+                    // may be a Long or a Number
+                    var temp = RISCV.priv_reg[inst.get_rs1()];
+                    if (typeof temp === "number"){
+                        RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                        temp = temp | inst.get_imm("I");
+                    } else {
+                        //temp is a long
+                        RISCV.gen_reg[inst.get_rd()] = temp;
+                        temp = temp.or(new Long(inst.get_imm("I"), 0x0));
+                    }
+                    RISCV.set_pcr(inst.get_rs1(), temp);
+                    break;
+
+
+                default:
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+            }
+
+
+            break;
+
+
         default:
             //throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             console.log("unknown inst at: 0x" + RISCV.pc.toString(16));
