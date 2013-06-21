@@ -865,8 +865,12 @@ function runInstruction(inst, RISCV){
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
             }
+            break;
 
-
+        // MFFSR (doesn't actually do anything, needed to run tests)
+        case 0x53:
+            console.log("MFFSR does nothing in this implementation");
+            RISCV.pc += 4;
             break;
 
 

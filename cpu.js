@@ -32,11 +32,13 @@ function CPU(memamt){
     
     for (var key in PCR){
         if (PCR.hasOwnProperty(key)){
+            console.log("INIT " + key);
+            console.log(PCR[key]["num"]);
             if (key["width"] == 32){
-                this.priv_reg[key["num"]] = 0x0;
+                this.priv_reg[PCR[key]["num"]] = 0x0;
             } else {
                 // 64 bit
-                this.priv_reg[key["num"]] = new Long(0x0, 0x0);
+                this.priv_reg[PCR[key]["num"]] = new Long(0x0, 0x0);
             }
         }
     }
@@ -228,7 +230,7 @@ function CPU(memamt){
 
             // need to fill in all cases here (i.e. when implementing interrupts)
             case PCR["PCR_TOHOST"]["num"]:
-                if (priv_reg[num].equals(new Long(0x0, 0x0))){
+                if (this.priv_reg[num].equals(new Long(0x0, 0x0))){
                     this.priv_reg[num] = val;
                 }
                 break;
