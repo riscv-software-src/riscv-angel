@@ -91,13 +91,21 @@ function loadElf(binfile){
 
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
 
+    // used for inf loop detection
+    var oldpc;
+
     // currently stop on a syscall
     // TODO: modify this so that it detects the end of _exit and stops
     while(RISCV.pc != 0){
         // run instruction
+        oldpc = RISCV.pc;
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
 
+        // terminate if PC is unchanged
+        if (RISCV.pc == oldpc){
+            throw new RISCVError("PC Repeat. In single CPU imp, this means inf loop. Terminated.");
+        }
         /*
         // update output. see note about this in run.html
         for (var i = 0; i < RISCV.gen_reg.length; i++){
