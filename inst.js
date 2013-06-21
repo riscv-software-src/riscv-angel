@@ -286,25 +286,25 @@ function runInstruction(inst, RISCV){
 
                 // MULH
                 case 0x9:
-                    throw new RISCVError("MULH not yet implemented");
-                    var rs1 = RISCV.gen_reg[inst.get_rs1()];
-                    var rs2 = RISCV.gen_reg[inst.get_rs2()];
-                    var rs1_64;
-                    var rs2_64; 
+                    //throw new RISCVError("MULH not yet implemented");
+                    //var rs1 = RISCV.gen_reg[inst.get_rs1()];
+                    //var rs2 = RISCV.gen_reg[inst.get_rs2()];
+                    //var rs1_64;
+                    //var rs2_64; 
 
-                   if ((rs1|0) < 0){
-                        rs1_64 = new goog.math.Long(rs1, 0xFFFFFFFF);
-                    } else {
-                        rs1_64 = new goog.math.Long(rs1, 0x0);
-                    }
-                    if ((rs2|0) < 0){
-                        rs2_64 = new goog.math.Long(rs2, 0xFFFFFFFF);
-                    } else {
-                        rs2_64 = new goog.math.Long(rs2, 0x0);
-                    }
-                    var result = rs1_64.multiply(rs2_64);
-                    result = result.getHighBits();
-                    RISCV.gen_reg[inst.get_rd()] = result | 0;
+                    //if ((rs1|0) < 0){
+                    //    rs1_64 = new goog.math.Long(rs1, 0xFFFFFFFF);
+                    //} else {
+                    //    rs1_64 = new goog.math.Long(rs1, 0x0);
+                    //}
+                    //if ((rs2|0) < 0){
+                    //    rs2_64 = new goog.math.Long(rs2, 0xFFFFFFFF);
+                    //} else {
+                    //    rs2_64 = new goog.math.Long(rs2, 0x0);
+                    //}
+                    //var result = rs1_64.multiply(rs2_64);
+                    //result = result.getHighBits();
+                    //RISCV.gen_reg[inst.get_rd()] = result | 0;
                     RISCV.pc += 4;
                     break;
 

@@ -3,7 +3,8 @@
 // loadElf is passed as the callback function to binary file reader.
 // - May assume access to RISCV (the processor). 
 // - Setup done in run.html
-function loadElf(binfile){
+function loadElf(binfile, filename){
+    document.getElementById("testresult").innerHTML = "Loading " + filename;
     var elf = {};
     var magic = ((binfile.charCodeAt(0) & 0xFF) << 24) | ((binfile.charCodeAt(1) & 0xFF) << 16) |
                 ((binfile.charCodeAt(2) & 0xFF) << 8) | (binfile.charCodeAt(3) & 0xFF);
@@ -107,9 +108,9 @@ function loadElf(binfile){
 
             // check TOHOST in case this is a test
             if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))){
-                document.getElementById("testresult").innerHTML = "PASS";
+                document.getElementById("testresult").innerHTML = filename + " PASSED";
             } else {
-                document.getElementById("testresult").innerHTML = "FAIL";
+                document.getElementById("testresult").innerHTML = filename + " FAILED";
             }
 
             // Terminate

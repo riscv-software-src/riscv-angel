@@ -81,16 +81,18 @@ function runCode(userIn) {
 
 // handles "Run from File" tab
 function handle_file(file){
+    document.getElementById("testresult").innerHTML = "ELF not loaded";
     tab = document.getElementById("regtable");
     elfproptab = document.getElementById("elfprops");
 
+    console.log(file.name);
     file = file.target.files[0];
     var reader = new FileReader();
     RISCV = new CPU();
 
     reader.onload = (function(theFile) {
         return function(e) {
-            loadElf(e.target.result);
+            loadElf(e.target.result, theFile.name);
         };
     })(file);
 
