@@ -116,7 +116,8 @@ var inst_to_type = {
     // privileged instructions
     "setpcr": Itype,
     "clearpcr": Itype,
-
+    "mfpcr": Itype,
+    "mtpcr": Rtype,
 
 };
 
@@ -179,6 +180,7 @@ var Ifields = {
 
     "setpcr": new cItype(0x7B, 0x1),
     "clearpcr": new cItype(0x7B, 0x0),
+    "mfpcr": new cItype(0x7B, 0x2),
 }; 
 
 function cBtype(opcode, funct3){
@@ -261,6 +263,8 @@ var Rfields = {
     "rdcycle": new cRtype(0x77, 0x4, 0x0, 0x0),
     "rdtime": new cRtype(0x77, 0xC, 0x0, 0x0),
     "rdinstret": new cRtype(0x77, 0x14, 0x0, 0x0),
+    
+    "mtpcr": new cRtype(0x7B, 0x3),
 }; 
 
 // privileged control register mappings

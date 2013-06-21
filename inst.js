@@ -798,7 +798,7 @@ function runInstruction(inst, RISCV){
             }
             break;
 
-        // I-TYPES Privileged insts - opcode: 0b1111011
+        // I/R-TYPES Privileged insts - opcode: 0b1111011
         case 0x7B:
             var funct3 = inst.get_funct3();
 
@@ -840,11 +840,26 @@ function runInstruction(inst, RISCV){
 
                 // MFPCR
                 case 0x2:
-
+                    var temp = RISCV.priv_reg[inst.get_rs1()];
+                    if (typeof temp === "number"){
+                        temp = new Long(temp, 0x0);
+                    } 
+                    RISCV.gen_reg[inst.get_rd()] = temp;
                     RISCV.pc += 4; 
                     break;
 
-        
+                // MTPCR
+                case 0x3:
+                    var temp = RISCV.priv_reg[inst.get_rs1()];
+                    if (typeof temp === "number"){
+                        temp = new Long(temp, 0x0);
+                        RISCV.set_pcr(inst.get_rs1(), RISCV.gen_reg[inst.get_rs2()].getLowBits());
+                    } else {
+                        RISCV.set_pcr(inst.get_rs1(), RISCV.gen_reg[inst.get_rs2()]);
+                    }
+                    RISCV.gen_reg[inst.get_rd()] = temp;
+                    RISCV.pc += 4;
+                    break;
 
                 default:
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
