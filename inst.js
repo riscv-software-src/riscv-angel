@@ -804,7 +804,16 @@ function runInstruction(inst, RISCV){
 
                 // REMW
                 case 0xE:
-                    throw new RISCVError("REMW not yet implemented");
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                        // rem (div) by zero, set result to dividend
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
+                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000){
+                        // rem (div) most negative 32 bit num by -1: result = 0
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0)%(RISCV.gen_reg[inst.get_rs2()].getLowBits()|0))|0, 31);
+                    }
+                    RISCV.pc += 4;
                     break;
 
                 // REMUW
