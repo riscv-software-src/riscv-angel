@@ -818,7 +818,16 @@ function runInstruction(inst, RISCV){
 
                 // REMUW
                 case 0xF:
-                    throw new RISCVError("REMUW not yet implemented");
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                        // rem (div) by zero, set result to dividend
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((signed_to_unsigned(RISCV.gen_reg[inst.get_rs1()].getLowBits())%signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBits()))|0, 31);
+                    }
+                    RISCV.pc += 4;
+
+
+
                     break;
 
                 default:
