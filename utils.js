@@ -103,7 +103,7 @@ function long_less_than_unsigned(long1, long2){
  * any bitwise ops on them will effectively do an unsigned comparison 
  */
 function signed_to_unsigned(inputNum){
-    if ((inputNum & 0x7FFFFFFF) == 0){
+    if ((inputNum & 0x80000000) == 0){
         return inputNum;
     } else {
         return (inputNum & 0x7FFFFFFF) + Math.pow(2, 31);
