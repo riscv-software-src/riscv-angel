@@ -350,17 +350,21 @@ function runInstruction(inst, RISCV){
 
                 // REM
                 case 0xE:
-                    throw new RISCVError("REM not yet implemented");
-                    if (((RISCV.gen_reg[inst.get_rs1()]|0) == 0x80000000) && ((RISCV.gen_reg[inst.get_rs2()]|0) == 0xFFFFFFFF)){
-                        // signed division overflow
-                        RISCV.gen_reg[inst.get_rd()] = 0x0;
-                    } else if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
-                        // handle div by zero
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
-                    } else { 
-                        RISCV.gen_reg[inst.get_rd()] = ((RISCV.gen_reg[inst.get_rs1()]|0)%(RISCV.gen_reg[inst.get_rs2()]|0))|0;
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                        // rem (divide) by zero, result is dividend
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
+                    } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))){
+                        // rem (divide) most negative num by -1 -> signed overflow
+                        // set result to dividend
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                    } else {
+                        // actual rem
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].modulo(RISCV.gen_reg[inst.get_rs2()]);
                     }
                     RISCV.pc += 4;
+
+
+
                     break;
 
                 // REMU
