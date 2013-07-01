@@ -782,14 +782,20 @@ function runInstruction(inst, RISCV){
                         // div most negative 32 bit num by -1: result = dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()/RISCV.gen_reg[inst.get_rs2()].getLowBits())|0, 31);
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0)/(RISCV.gen_reg[inst.get_rs2()].getLowBits()|0))|0, 31);
                     }
                     RISCV.pc += 4;
                     break;
 
                 // DIVUW
                 case 0xD:
-                    throw new RISCVError("DIVUW not yet implemented");
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                        //div by zero, set result to all ones
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
+                    } else {
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((signed_to_unsigned(RISCV.gen_reg[inst.get_rs1()].getLowBits())/signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBits()))|0, 31);
+                    }
+                    RISCV.pc += 4;
                     break;
 
                 // REMW
