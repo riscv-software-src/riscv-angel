@@ -768,7 +768,8 @@ function runInstruction(inst, RISCV){
 
                 // MULW
                 case 0x8:
-                    throw new RISCVError("MULW not yet implemented");
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits()*RISCV.gen_reg[inst.get_rs2()].getLowBits(), 31);
+                    RISCV.pc += 4;
                     break;
 
                 // DIVW
