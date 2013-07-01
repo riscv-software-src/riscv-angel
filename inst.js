@@ -322,15 +322,16 @@ function runInstruction(inst, RISCV){
 
                 // DIV 
                 case 0xC:
-                    throw new RISCVError("DIV not yet implemented");
-                    if (((RISCV.gen_reg[inst.get_rs1()]|0) == 0x80000000) && ((RISCV.gen_reg[inst.get_rs2()]|0) == 0xFFFFFFFF)){
-                        // signed division overflow
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
-                    } else if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
-                        // handle div by zero
-                        RISCV.gen_reg[inst.get_rd()] = 0xFFFFFFFF;
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                        // divide by zero, result is all ones
+                        RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
+                    } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))){
+                        // divide most negative num by -1 -> signed overflow
+                        // set result to dividend
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = ((RISCV.gen_reg[inst.get_rs1()]|0)/(RISCV.gen_reg[inst.get_rs2()]|0))|0;
+                        // actual division
+                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].div(RISCV.gen_reg[inst.get_rs2()]);
                     }
                     RISCV.pc += 4;
                     break;
