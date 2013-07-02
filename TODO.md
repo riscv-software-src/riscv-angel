@@ -8,6 +8,12 @@ TODO before release:
     - Support .data directives for users to load data to me
 
 2) Finish RV64 mul/div instructions
+    Still left:
+        MULH
+        MULHSU
+        MULHU
+        DIVU
+        REMU
 
 3) UI improvements
     - More data to user about ELF file
