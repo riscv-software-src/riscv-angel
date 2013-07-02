@@ -433,15 +433,51 @@ function runInstruction(inst, RISCV){
 
                 // REMU
                 case 0xF:
-                    throw new RISCVError("REMU not yet implemented");
-                    if ((RISCV.gen_reg[inst.get_rs2()]|0) == 0){
-                        // handle div by zero
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()]|0;
-                    } else {
-                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]%RISCV.gen_reg[inst.get_rs2()])|0;
+
+                    var l1 = RISCV.gen_reg[inst.get_rs1()];
+                    var l2 = RISCV.gen_reg[inst.get_rs2()];
+                    if (l2.equals(new Long(0x0, 0x0))){
+                        //div by zero
+                        RISCV.gen_reg[inst.get_rd()] = l1;
+                        RISCV.pc += 4;
+                        break;
                     }
+
+                    var l1neg = (l1.getLowBits() & 0x80000000) != 0;
+                    var l2neg = (l2.getLowBits() & 0x80000000) != 0;
+                    if (l1neg) {
+                        l1 = new Long(l1.getLowBits(), l1.getHighBits() & 0x7FFFFFFF);
+                        var big1 = BigInteger(l1);
+                        big1 = big1.add(BigInteger("9223372036854775808"));
+                        console.log(big1.toString());
+                    } else {
+                        var big1 = BigInteger(l1);
+                    }
+                    if (l2neg) {
+                        l2 = new Long(l2.getLowBits(), l2.getHighBits() & 0x7FFFFFFF);
+                        var big2 = BigInteger(l2);
+                        big2 = big2.add(BigInteger("9223372036854775808")); // 2^63
+                        console.log(big2.toString());
+                    } else {
+                        var big2 = BigInteger(l2);
+                    }
+
+                    var bigresf = big1.remainder(big2);
+                    var bigsub = BigInteger("9223372036854775808"); // 2^63
+                    if (bigresf.compare(bigsub) >= 0){
+                        // need to subtract bigsub, manually set MSB
+                        bigresf = bigresf.subtract(bigsub);
+                        bigresf = bigresf.toString(10)
+                        var res = Long.fromString(bigresf, 10);
+                        res = new Long(res.getLowBits(), res.getHighBits()|0x80000000);
+                    } else {
+                        bigresf = bigresf.toString(10);
+                        var res = Long.fromString(bigresf, 10);
+                    }
+                    RISCV.gen_reg[inst.get_rd()] = res;
                     RISCV.pc += 4;
                     break;
+
 
                 default:
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
