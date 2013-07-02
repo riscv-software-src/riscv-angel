@@ -308,7 +308,45 @@ function runInstruction(inst, RISCV){
 
 //TODO:         // MULHU
                 case 0xB:
-                    throw new RISCVError("MULHU not yet implemented");
+                    // plan: long -determine/fix signs -> string -> bignum -> do the mult
+                    // then divide by 2^64 (equiv to right shift by 64 bits)
+                    // then bignum -> string -> Long.fromString()
+                    var l1 = RISCV.gen_reg[inst.get_rs1()];
+                    var l2 = RISCV.gen_reg[inst.get_rs2()];
+                    var l1neg = (l1.getLowBits() & 0x80000000) != 0;
+                    var l2neg = (l2.getLowBits() & 0x80000000) != 0;
+                    if (l1neg) {
+                        l1 = new Long(l1.getLowBits(), l1.getHighBits() & 0x7FFFFFFF);
+                        var big1 = BigInteger(l1);
+                        big1 = big1.add(BigInteger("9223372036854775808"));
+                        console.log(big1.toString());
+                    } else {
+                        var big1 = BigInteger(l1);
+                    }
+                    if (l2neg) {
+                        l2 = new Long(l2.getLowBits(), l2.getHighBits() & 0x7FFFFFFF);
+                        var big2 = BigInteger(l2);
+                        big2 = big2.add(BigInteger("9223372036854775808")); // 2^63
+                        console.log(big2.toString());
+                    } else {
+                        var big2 = BigInteger(l2);
+                    }
+
+                    var bigres = big1.multiply(big2);
+                    var bigdiv = BigInteger("18446744073709551616"); // 2^64
+                    var bigresf = bigres.divide(bigdiv);
+                    var bigsub = BigInteger("9223372036854775808"); // 2^63
+                    if (bigresf.compare(bigsub) >= 0){
+                        // need to subtract bigsub, manually set MSB
+                        bigresf = bigresf.subtract(bigsub);
+                        bigresf = bigresf.toString(10)
+                        var res = Long.fromString(bigresf, 10);
+                        res = new Long(res.getLowBits(), res.getHighBits()|0x80000000);
+                    } else {
+                        bigresf = bigresf.toString(10);
+                        var res = Long.fromString(bigresf, 10);
+                    }
+                    RISCV.gen_reg[inst.get_rd()] = res;
                     RISCV.pc += 4;
                     break;
 
