@@ -294,6 +294,12 @@ function runInstruction(inst, RISCV){
                     var bigres = big1.multiply(big2);
                     var bigdiv = BigInteger("18446744073709551616"); // 2^64
                     var bigresf = bigres.divide(bigdiv);
+
+                    // need to fix one-off error for negative nums when doing this shift
+                    if (bigres.isNegative()){
+                        bigresf = bigresf.subtract(BigInteger("1"));
+                    }
+
                     bigresf = bigresf.toString(10);
                     var result = Long.fromString(bigresf, 10);
                     RISCV.gen_reg[inst.get_rd()] = result;
@@ -320,6 +326,12 @@ function runInstruction(inst, RISCV){
                     console.log(bigres.toString());
                     var bigdiv = BigInteger("18446744073709551616"); // 2^64
                     var bigresf = bigres.divide(bigdiv);
+
+                    // need to fix one-off error for negative nums when doing this shift
+                    if (bigres.isNegative()){
+                        bigresf = bigresf.subtract(BigInteger("1"));
+                    }
+
 
                     // now we have the upper 64 bits of result, signed
                     bigresf = bigresf.toString(10);
