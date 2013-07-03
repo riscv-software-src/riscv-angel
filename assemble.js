@@ -2,13 +2,13 @@
 
 // take in reg in some form (ex: x0, $x0, zero, $zero)
 // output reg number
-function textToReg(text){
+function textToReg(text) {
     // strip all non-alphanumerics:
     text = text.replace(/\W/g, "");
 
     // handle special mappings (eg zero -> x0)
     var indexOf = reg_maps.indexOf(text);
-    if (indexOf != -1){
+    if (indexOf != -1) {
         // for special mappings, we already know reg#
         return parseInt(indexOf.toString());
     }
@@ -18,18 +18,18 @@ function textToReg(text){
 }
 
 // objs for different instruction types
-function Jtype(){
+function Jtype() {
     this.jumptarget = 0;
     this.opcode = 0;
 
-    function set_from_tokens(instArr){
+    function set_from_tokens(instArr) {
         // set fields from input and labels obj
         var cinst = Jfields[instArr[0]];
         this.jumptarget = instArr[1] & 0x01FFFFFF;
         this.opcode = cinst.opcode;
     }
 
-    function to_bin(){
+    function to_bin() {
         // convert to binary
         var binned = 0;
         binned = binned | this.opcode;
@@ -41,12 +41,12 @@ function Jtype(){
     this.to_bin = to_bin;
 }
 
-function LUItype(){
+function LUItype() {
     this.rd = 0;
     this.LUIimm = 0;
     this.opcode = 0;
 
-    function set_from_tokens(instArr){
+    function set_from_tokens(instArr) {
         // set fields from input and labels obj
         var cinst = Lfields[instArr[0]];
 
@@ -59,7 +59,7 @@ function LUItype(){
         this.opcode = cinst.opcode;
     }
 
-    function to_bin(){
+    function to_bin() {
         // convert to binary
         var binned = 0;
         binned = binned | this.opcode;
@@ -72,7 +72,7 @@ function LUItype(){
     this.to_bin = to_bin;
 }
 
-function Itype(){
+function Itype() {
     this.rd = 0;
     this.rs1 = 0;
     this.imm = 0;
@@ -80,16 +80,16 @@ function Itype(){
     this.opcode = 0;
 
     // set fields from input and labels obj
-    function set_from_tokens(instArr){
+    function set_from_tokens(instArr) {
         var cinst = Ifields[instArr[0]];
 
         // set this.rd from input instruction
         this.rd = textToReg(instArr[1]);
  
         // set this.rs1
-        if (cinst.specialrs1 != undefined){
+        if (cinst.specialrs1 != undefined) {
             this.rs1 = cinst.specialrs1;
-        } else if (cinst.opcode == 0x3){
+        } else if (cinst.opcode == 0x3) {
             // special handling for load inst
             var rs1imm = instArr[2];
             rs1imm = rs1imm.replace(")", "");
@@ -101,11 +101,11 @@ function Itype(){
         }
 
         // set this.imm
-        if (cinst.specialimm != undefined){
+        if (cinst.specialimm != undefined) {
             // handle specialimms
-            if (instArr[0] === "rdnpc"){
+            if (instArr[0] === "rdnpc") {
                 this.imm = cinst.specialimm;
-            } else if (cinst.opcode == 0x1B){
+            } else if (cinst.opcode == 0x1B) {
                 // handles slliw, srliw, sraiw
                 // shamt is 6 bits, but shamt[5] must equal 0
                 var shamt = instArr[3] & 0x1F;
@@ -116,7 +116,7 @@ function Itype(){
                 var shamt = instArr[3] & 0x3F;
                 this.imm = cinst.specialimm | shamt; 
             }
-        } else if (cinst.opcode == 0x3){
+        } else if (cinst.opcode == 0x3) {
             // special handling for load inst
             var rs1imm = instArr[2];
             rs1imm = rs1imm.replace(")", "");
@@ -131,7 +131,7 @@ function Itype(){
         this.opcode = cinst.opcode;
     }
 
-    function to_bin(){
+    function to_bin() {
         // convert to binary
         var binned = 0;
         binned = binned | this.opcode;
@@ -147,14 +147,14 @@ function Itype(){
     this.to_bin = to_bin;
 }
 
-function Btype(){
+function Btype() {
     this.rs1 = 0;
     this.rs2 = 0;
     this.imm = 0;
     this.funct3 = 0;
     this.opcode = 0;
 
-    function set_from_tokens(instArr){
+    function set_from_tokens(instArr) {
         // set fields from input and labels obj
         var cinst = Bfields[instArr[0]];
 
@@ -174,11 +174,10 @@ function Btype(){
             rs1imm = rs1imm.split("(");
             this.imm = parseInt(rs1imm[0]) & 0x0FFF; 
             this.rs1 = textToReg(rs1imm[1]); 
-
         }
     }
 
-    function to_bin(){
+    function to_bin() {
         // convert to binary
         var binned = 0;
         // handle splitting the immediate
@@ -197,29 +196,29 @@ function Btype(){
     this.to_bin = to_bin;
 }
 
-function Rtype(){
+function Rtype() {
     this.rd = 0;
     this.rs1 = 0;
     this.rs2 = 0;
     this.funct10 = 0;
     this.opcode = 0;
 
-    function set_from_tokens(instArr){
+    function set_from_tokens(instArr) {
         // set fields from input and labels obj
         var cinst = Rfields[instArr[0]];
 
         // set rd,rs1,rs2 from input instruction
-        if (cinst.specialrd != undefined){
+        if (cinst.specialrd != undefined) {
             this.rd = cinst.specialrd;
         } else {
             this.rd = textToReg(instArr[1]);
         }
-        if (cinst.specialrs1 != undefined){
+        if (cinst.specialrs1 != undefined) {
             this.rs1 = cinst.specialrs1;
         } else {
             this.rs1 = textToReg(instArr[2]);
         }
-        if (cinst.specialrs2 != undefined){
+        if (cinst.specialrs2 != undefined) {
             this.rs2 = cinst.specialrs2;
         } else {
             this.rs2 = textToReg(instArr[3]);
@@ -230,7 +229,7 @@ function Rtype(){
         this.opcode = cinst.opcode;
     }
 
-    function to_bin(){
+    function to_bin() {
         // convert to binary
         var binned = 0;
         binned = binned | this.opcode;
@@ -245,43 +244,16 @@ function Rtype(){
     this.to_bin = to_bin;
 }
 
-//TODO: need to implement this when the rest of the FP stuff is implemented
-function R4type(){
-    this.rd = 0;
-    this.rs1 = 0;
-    this.rs2 = 0;
-    this.rs3 = 0;
-    this.funct5 = 0;
-    this.opcode = 0;
-
-    function set_from_tokens(instArr){
-        // set fields from input and labels obj
-
-    }
-
-    function to_bin(){
-        // convert to binary
-        var binned = 0;
-
-        return binned;
-    }
-
-    this.set_from_tokens = set_from_tokens;
-    this.to_bin = to_bin;
-}
-
-
 // assume that program will be loaded at 0x2000
-function assemble(userProg){
+function assemble(userProg) {
     userProg = userProg.toLowerCase();
     userProg = userProg.split("\n");
     labels = {} //make this non-global after testing
 
     // First pass, process lines and calc labels
     // CURRENTLY DOES NOT HANDLE LABELS THAT ARE NOT ON SAME LINE AS INSTRUCTION
-    for (var i = 0; i < userProg.length; i++){
-
-        if (userProg[i].indexOf(":") != -1){
+    for (var i = 0; i < userProg.length; i++) {
+        if (userProg[i].indexOf(":") != -1) {
             // this line is a label
             l = userProg[i].replace(/: /g, ":");
             l = l.split(":");
@@ -290,23 +262,20 @@ function assemble(userProg){
             l = l.replace(" ", ""); // cleanup any remaining spaces
             labels[l] = i; 
         }
-
         // handle ", " and ",", convert to " "
         userProg[i] = userProg[i].replace(/, /g, " ");
         userProg[i] = userProg[i].replace(/,/g, " ");
-
         userProg[i] = userProg[i].split(" ");
-
     }
 
     // second pass, assemble and fill in labels assuming start at 0x2000
-    for (var i = 0; i < userProg.length; i++){
+    for (var i = 0; i < userProg.length; i++) {
         // this line is an instruction
         makeObj = inst_to_type[userProg[i][0]];
         instObj = new makeObj();
-        if ((makeObj === Btype) || (makeObj === Jtype)){
+        if ((makeObj === Btype) || (makeObj === Jtype)) {
             var labelLoc = labels[userProg[i][userProg[i].length-1]];
-            if (makeObj === Jtype){
+            if (makeObj === Jtype) {
                 // if Jtype
                 labelLoc = ((labelLoc|0) - (i|0))*4;
                 labelLoc = labelLoc >>> 1;

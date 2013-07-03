@@ -1,42 +1,42 @@
 // Instruction object and implementation of each instruction
 
-function instruction(instVal){
+function instruction(instVal) {
     this.inst = instVal;
 
-    function get_opcode(){
+    function get_opcode() {
         return (this.inst & 0x0000007F);
     }
 
-    function get_rd(){
+    function get_rd() {
         return (this.inst >>> 27);
     }
 
-    function get_rs1(){
+    function get_rs1() {
         return ((this.inst >>> 22) & 0x0000001F);
     }
 
-    function get_rs2(){
+    function get_rs2() {
         return ((this.inst >>> 17) & 0x0000001F);
     }
 
-    function get_rs3(){
+    function get_rs3() {
         return ((this.inst >>> 12) & 0x0000001F);
     }
 
-    function get_funct3(){
+    function get_funct3() {
         return ((this.inst >>> 7) & 0x00000007);
     }
 
-    function get_funct5(){
+    function get_funct5() {
         return ((this.inst >>> 7) & 0x0000001F);
     }
 
-    function get_funct10(){
+    function get_funct10() {
         return ((this.inst >>> 7) & 0x000003FF);
     }
 
     // inst type should be I or B
-    function get_imm11_7(inst_type){
+    function get_imm11_7(inst_type) {
         if (inst_type === 'I') {
             return ((this.inst >>> 17) & 0x0000001F);
         } else if (inst_type === 'B') {
@@ -44,23 +44,23 @@ function instruction(instVal){
         }
     }
 
-    function get_imm6_0(){
+    function get_imm6_0() {
         return ((this.inst >>> 10) & 0x0000007F);
     }
 
     // inst type should be I or B
-    function get_imm(inst_type){
-        if (inst_type === undefined){
+    function get_imm(inst_type) {
+        if (inst_type === undefined) {
             throw new RISCVError("ERR NO TYPE PROVIDED FOR IMMEDIATE FETCH");
         }
         return ((this.get_imm11_7(inst_type) << 7) | this.get_imm6_0());
     }
 
-    function get_lui_imm(){
+    function get_lui_imm() {
         return ((this.inst >>> 7) & 0x000FFFFF);
     }
 
-    function get_jump_offset(){
+    function get_jump_offset() {
         return ((this.inst >>> 7) & 0x01FFFFFF);
     }
 
@@ -82,12 +82,12 @@ function instruction(instVal){
 
 // "sign extend" the quantity based on bit
 // quantity will be a 32 bit quantity that was zero extended by default 
-function signExt(quantity, bit){
+function signExt(quantity, bit) {
     // bits numbered 31, 30, .... 2, 1, 0
     bitval = ((quantity|0) >> bit) & 0x00000001;
-    if (bitval === 0){
+    if (bitval === 0) {
         return quantity;
-    } else if (bitval === 1){
+    } else if (bitval === 1) {
         mask = 0x80000000;
         mask = mask >> (31-bit) 
         return (quantity | mask);
@@ -99,12 +99,12 @@ function signExt(quantity, bit){
 // "sign extend" the quantity based on bit
 // input is a 32 bit quantity (as a standard javascript Number)
 // output is a 64 bit Long, correctly sign extended
-function signExtLT32_64(quantity, bit){
+function signExtLT32_64(quantity, bit) {
     // bits numbered 31, 30, .... 2, 1, 0
     bitval = ((quantity|0) >> bit) & 0x00000001;
-    if (bitval === 0){
+    if (bitval === 0) {
         return new Long(quantity|0, 0x00000000);
-    } else if (bitval === 1){
+    } else if (bitval === 1) {
         mask = 0x80000000;
         mask = mask >> (31-bit) 
         return new Long((quantity | mask), 0xFFFFFFFF);
@@ -114,17 +114,17 @@ function signExtLT32_64(quantity, bit){
 }
 
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
-function runInstruction(inst, RISCV){
+function runInstruction(inst, RISCV) {
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = new Long(0x0, 0x0);
     var op = inst.get_opcode();
 
-    switch(op){
+    switch(op) {
     
         // I-TYPE, opcode: 0b0010011
         case 0x13:
             var funct3 = inst.get_funct3();
-            switch(funct3){
+            switch(funct3) {
                 
                 // ADDI
                 case 0x0:
@@ -145,7 +145,7 @@ function runInstruction(inst, RISCV){
 
                 // SLTI 
                 case 0x2:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_imm("I"), 11))){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_imm("I"), 11))) {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -155,7 +155,7 @@ function runInstruction(inst, RISCV){
 
                 // SLTIU, need to check signExt here
                 case 0x3:
-                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], signExtLT32_64(inst.get_imm("I"), 11))){
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], signExtLT32_64(inst.get_imm("I"), 11))) {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -208,7 +208,7 @@ function runInstruction(inst, RISCV){
         case 0x33:
             var funct10 = inst.get_funct10();
 
-            switch(funct10){
+            switch(funct10) {
 
                 // ADD
                 case 0x0:
@@ -230,7 +230,7 @@ function runInstruction(inst, RISCV){
 
                 // SLT
                 case 0x2:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -240,7 +240,7 @@ function runInstruction(inst, RISCV){
 
                 // SLTU
                 case 0x3:
-                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])){
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -296,7 +296,7 @@ function runInstruction(inst, RISCV){
                     var bigresf = bigres.divide(bigdiv);
 
                     // need to fix one-off error for negative nums when doing this shift
-                    if (bigres.isNegative()){
+                    if (bigres.isNegative()) {
                         bigresf = bigresf.subtract(BigInteger("1"));
                     }
 
@@ -326,7 +326,7 @@ function runInstruction(inst, RISCV){
                     var bigresf = bigres.divide(bigdiv);
 
                     // need to fix one-off error for negative nums when doing this shift
-                    if (bigres.isNegative()){
+                    if (bigres.isNegative()) {
                         bigresf = bigresf.subtract(BigInteger("1"));
                     }
 
@@ -365,7 +365,7 @@ function runInstruction(inst, RISCV){
                     var bigdiv = BigInteger("18446744073709551616"); // 2^64
                     var bigresf = bigres.divide(bigdiv);
                     var bigsub = BigInteger("9223372036854775808"); // 2^63
-                    if (bigresf.compare(bigsub) >= 0){
+                    if (bigresf.compare(bigsub) >= 0) {
                         // need to subtract bigsub, manually set MSB
                         bigresf = bigresf.subtract(bigsub);
                         bigresf = bigresf.toString(10)
@@ -381,10 +381,10 @@ function runInstruction(inst, RISCV){
 
                 // DIV 
                 case 0xC:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
                         // divide by zero, result is all ones
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
-                    } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))){
+                    } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))) {
                         // divide most negative num by -1 -> signed overflow
                         // set result to dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
@@ -399,7 +399,7 @@ function runInstruction(inst, RISCV){
                 case 0xD:
                     var l1 = RISCV.gen_reg[inst.get_rs1()];
                     var l2 = RISCV.gen_reg[inst.get_rs2()];
-                    if (l2.equals(new Long(0x0, 0x0))){
+                    if (l2.equals(new Long(0x0, 0x0))) {
                         //div by zero
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
                         RISCV.pc += 4;
@@ -425,7 +425,7 @@ function runInstruction(inst, RISCV){
 
                     var bigresf = big1.divide(big2);
                     var bigsub = BigInteger("9223372036854775808"); // 2^63
-                    if (bigresf.compare(bigsub) >= 0){
+                    if (bigresf.compare(bigsub) >= 0) {
                         // need to subtract bigsub, manually set MSB
                         bigresf = bigresf.subtract(bigsub);
                         bigresf = bigresf.toString(10)
@@ -441,10 +441,10 @@ function runInstruction(inst, RISCV){
 
                 // REM
                 case 0xE:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
                         // rem (divide) by zero, result is dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
-                    } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))){
+                    } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))) {
                         // rem (divide) most negative num by -1 -> signed overflow
                         // set result to dividend
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -457,10 +457,9 @@ function runInstruction(inst, RISCV){
 
                 // REMU
                 case 0xF:
-
                     var l1 = RISCV.gen_reg[inst.get_rs1()];
                     var l2 = RISCV.gen_reg[inst.get_rs2()];
-                    if (l2.equals(new Long(0x0, 0x0))){
+                    if (l2.equals(new Long(0x0, 0x0))) {
                         //div by zero
                         RISCV.gen_reg[inst.get_rd()] = l1;
                         RISCV.pc += 4;
@@ -486,7 +485,7 @@ function runInstruction(inst, RISCV){
 
                     var bigresf = big1.remainder(big2);
                     var bigsub = BigInteger("9223372036854775808"); // 2^63
-                    if (bigresf.compare(bigsub) >= 0){
+                    if (bigresf.compare(bigsub) >= 0) {
                         // need to subtract bigsub, manually set MSB
                         bigresf = bigresf.subtract(bigsub);
                         bigresf = bigresf.toString(10)
@@ -535,11 +534,11 @@ function runInstruction(inst, RISCV){
         // B-TYPE (Branches) - opcode: 0b1100011
         case 0x63:
             var funct3 = inst.get_funct3();
-            switch(funct3){
+            switch(funct3) {
 
                 // BEQ
                 case 0x0:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).equals(RISCV.gen_reg[inst.get_rs2()])){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).equals(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -548,7 +547,7 @@ function runInstruction(inst, RISCV){
 
                 // BNE
                 case 0x1:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).notEquals(RISCV.gen_reg[inst.get_rs2()])){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).notEquals(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -557,7 +556,7 @@ function runInstruction(inst, RISCV){
 
                 // BLT
                 case 0x4:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -566,7 +565,7 @@ function runInstruction(inst, RISCV){
 
                 // BGE
                 case 0x5:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).greaterThanOrEqual(RISCV.gen_reg[inst.get_rs2()])){
+                    if ((RISCV.gen_reg[inst.get_rs1()]).greaterThanOrEqual(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -575,7 +574,7 @@ function runInstruction(inst, RISCV){
 
                 // BLTU
                 case 0x6:
-                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])){
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -584,7 +583,7 @@ function runInstruction(inst, RISCV){
 
                 // BGEU
                 case 0x7:
-                    if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])){
+                    if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_imm("B"), 11) << 1);
                     } else {
                         RISCV.pc += 4;
@@ -595,10 +594,6 @@ function runInstruction(inst, RISCV){
                     throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
                     break;
 
-
-
-
-
             }
             break;
 
@@ -607,7 +602,7 @@ function runInstruction(inst, RISCV){
         // I-TYPES (continued): JALRs and RDNPC 
         case 0x6B:
             var funct3 = inst.get_funct3();
-            if (funct3 == 0x0 || funct3 == 0x1 || funct3 == 0x2){
+            if (funct3 == 0x0 || funct3 == 0x1 || funct3 == 0x2) {
                 // JALR.C, .R, .J, all are functionally identical
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
                 RISCV.pc = (signExt(inst.get_imm("I"), 11)|0) + (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0);
@@ -624,7 +619,7 @@ function runInstruction(inst, RISCV){
         // I-TYPES (continued): Loads
         case 0x3:
             var funct3 = inst.get_funct3();
-            switch(funct3){
+            switch(funct3) {
 
                 // LB
                 case 0x0:
@@ -689,7 +684,7 @@ function runInstruction(inst, RISCV){
         // B-TYPES (continued): Stores
         case 0x23:
             var funct3 = inst.get_funct3(); 
-            switch(funct3){
+            switch(funct3) {
                 
                 // SB
                 case 0x0:
@@ -732,11 +727,11 @@ function runInstruction(inst, RISCV){
         // I-TYPES (continued): Misc Mem instructions
         case 0x2F:
             var funct3 = inst.get_funct3();
-            if (funct3 == 0x1){
+            if (funct3 == 0x1) {
                 // FENCE.I
                 // fence.i is no-op in this implementation
                 RISCV.pc += 4;
-            } else if (funct3 = 0x2){
+            } else if (funct3 = 0x2) {
                 // FENCE
                 // fence is no-op in this implementation
                 RISCV.pc += 4;
@@ -748,7 +743,7 @@ function runInstruction(inst, RISCV){
         // R-TYPES (continued): System instructions
         case 0x77:
             var funct10 = inst.get_funct10();
-            switch(funct10){
+            switch(funct10) {
 
                 // SYSCALL
                 case 0x0:
@@ -802,7 +797,7 @@ function runInstruction(inst, RISCV){
         case 0x1B:
             var funct3 = inst.get_funct3(); 
 
-            switch(funct3){
+            switch(funct3) {
 
                 // ADDIW
                 case 0x0:
@@ -818,7 +813,7 @@ function runInstruction(inst, RISCV){
                         throw new RISCVError("ERR IN SLLI");
                         break;
                     }
-                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
+                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0) {
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
                         throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
@@ -831,7 +826,7 @@ function runInstruction(inst, RISCV){
 
                 // SRLIW and SRAIW
                 case 0x5:
-                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0){
+                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0) {
                         //this is a bad inst, causes illegal instruction trap
                         //according to page 11 in ISA doc
                         throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
@@ -861,7 +856,7 @@ function runInstruction(inst, RISCV){
         // more 32 bit int compute
         case 0x3B:
             var funct10 = inst.get_funct10();
-            switch(funct10){
+            switch(funct10) {
 
                 // ADDW
                 case 0x0:
@@ -901,10 +896,10 @@ function runInstruction(inst, RISCV){
 
                 // DIVW
                 case 0xC:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
                         //div by zero, set result to all ones
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
-                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000){
+                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000) {
                         // div most negative 32 bit num by -1: result = dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else {
@@ -915,7 +910,7 @@ function runInstruction(inst, RISCV){
 
                 // DIVUW
                 case 0xD:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
                         //div by zero, set result to all ones
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
                     } else {
@@ -926,10 +921,10 @@ function runInstruction(inst, RISCV){
 
                 // REMW
                 case 0xE:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
                         // rem (div) by zero, set result to dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
-                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000){
+                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000) {
                         // rem (div) most negative 32 bit num by -1: result = 0
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
                     } else {
@@ -940,7 +935,7 @@ function runInstruction(inst, RISCV){
 
                 // REMUW
                 case 0xF:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))){
+                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
                         // rem (div) by zero, set result to dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else {
@@ -963,14 +958,13 @@ function runInstruction(inst, RISCV){
         case 0x7B:
             var funct3 = inst.get_funct3();
 
-            switch(funct3){
-
+            switch(funct3) {
 
                 // CLEARPCR
                 case 0x0:
                     // may be a Long or a Number
                     var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number"){
+                    if (typeof temp === "number") {
                         RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
                         temp = temp | (~inst.get_imm("I"));
                     } else {
@@ -987,7 +981,7 @@ function runInstruction(inst, RISCV){
                 case 0x1:
                     // may be a Long or a Number
                     var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number"){
+                    if (typeof temp === "number") {
                         RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
                         temp = temp | inst.get_imm("I");
                     } else {
@@ -1002,7 +996,7 @@ function runInstruction(inst, RISCV){
                 // MFPCR
                 case 0x2:
                     var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number"){
+                    if (typeof temp === "number") {
                         temp = new Long(temp, 0x0);
                     } 
                     RISCV.gen_reg[inst.get_rd()] = temp;
@@ -1012,7 +1006,7 @@ function runInstruction(inst, RISCV){
                 // MTPCR
                 case 0x3:
                     var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number"){
+                    if (typeof temp === "number") {
                         temp = new Long(temp, 0x0);
                         RISCV.set_pcr(inst.get_rs1(), RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     } else {
@@ -1037,7 +1031,7 @@ function runInstruction(inst, RISCV){
         // atomic memory instructions 
         case 0x2B:
             var funct10 = inst.get_funct10();
-            switch(funct10){
+            switch(funct10) {
 
                 // AMOADD.W
                 case 0x2:
@@ -1075,7 +1069,7 @@ function runInstruction(inst, RISCV){
                 // AMOMIN.W
                 case 0x22:
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
-                    if (RISCV.gen_reg[inst.get_rd()].greaterThan(RISCV.gen_reg[inst.get_rs2()])){
+                    if (RISCV.gen_reg[inst.get_rd()].greaterThan(RISCV.gen_reg[inst.get_rs2()])) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
@@ -1087,7 +1081,7 @@ function runInstruction(inst, RISCV){
                 // AMOMAX.W
                 case 0x2A:
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
-                    if (RISCV.gen_reg[inst.get_rd()].lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                    if (RISCV.gen_reg[inst.get_rd()].lessThan(RISCV.gen_reg[inst.get_rs2()])) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
@@ -1100,7 +1094,7 @@ function runInstruction(inst, RISCV){
                 // AMOMINU.W
                 case 0x32:
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
-                    if (signed_to_unsigned(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned()) > signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBitsUnsigned())){
+                    if (signed_to_unsigned(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned()) > signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBitsUnsigned())) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
@@ -1113,7 +1107,7 @@ function runInstruction(inst, RISCV){
                 // AMOMAXU.W
                 case 0x3A:
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
-                    if (signed_to_unsigned(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned()) < signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBitsUnsigned())){
+                    if (signed_to_unsigned(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned()) < signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBitsUnsigned())) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
@@ -1159,7 +1153,7 @@ function runInstruction(inst, RISCV){
                 // AMOMIN.D
                 case 0x23:
                     RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
-                    if (RISCV.gen_reg[inst.get_rd()].greaterThan(RISCV.gen_reg[inst.get_rs2()])){
+                    if (RISCV.gen_reg[inst.get_rd()].greaterThan(RISCV.gen_reg[inst.get_rs2()])) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
@@ -1172,21 +1166,19 @@ function runInstruction(inst, RISCV){
                 // AMOMAX.D
                 case 0x2B:
                     RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
-                    if (RISCV.gen_reg[inst.get_rd()].lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                    if (RISCV.gen_reg[inst.get_rd()].lessThan(RISCV.gen_reg[inst.get_rs2()])) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
                     }
                     RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
                     RISCV.pc += 4;
-
-
                     break;
 
                 // AMOMINU.D
                 case 0x33:
                     RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
-                    if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rd()], RISCV.gen_reg[inst.get_rs2()])){
+                    if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rd()], RISCV.gen_reg[inst.get_rs2()])) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
@@ -1200,15 +1192,13 @@ function runInstruction(inst, RISCV){
                 // AMOMAXU.D
                 case 0x3B:
                     RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
-                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rd()], RISCV.gen_reg[inst.get_rs2()])){
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rd()], RISCV.gen_reg[inst.get_rs2()])) {
                         var temp = RISCV.gen_reg[inst.get_rs2()];
                     } else {
                         var temp = RISCV.gen_reg[inst.get_rd()];
                     }
                     RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
                     RISCV.pc += 4;
-
-
                     break;
 
                 default:

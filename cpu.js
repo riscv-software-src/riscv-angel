@@ -6,7 +6,7 @@
 
 // CPU class. Contains regfile, memory, and special registers
 // memamt is memory size in Mebibytes, default to 32
-function CPU(memamt){
+function CPU(memamt) {
     memamt = typeof memamt !== 'undefined' ? memamt : 32;
     
     memamt *= 1048576 // convert to Bytes
@@ -23,16 +23,16 @@ function CPU(memamt){
     // general-purpose registers, gen_reg[0] is x0, etc.
     this.gen_reg = [];
     
-    for (var i = 0; i < 32; i++){
+    for (var i = 0; i < 32; i++) {
         this.gen_reg[i] = new Long(0x0, 0x0);
     }
 
     // privileged control registers
     this.priv_reg = new Array(32);
     
-    for (var key in PCR){
-        if (PCR.hasOwnProperty(key)){
-            if (key["width"] == 32){
+    for (var key in PCR) {
+        if (PCR.hasOwnProperty(key)) {
+            if (key["width"] == 32) {
                 this.priv_reg[PCR[key]["num"]] = 0x0;
             } else {
                 // 64 bit
@@ -69,17 +69,17 @@ function CPU(memamt){
     var start = new Date();
     this.boot_time = start.getTime();
 
-    function reset_wall_clock(){
+    function reset_wall_clock() {
         // this should be called once, right before exec of first instruction
         var start = new Date();
         this.boot_time = start.getTime();
     }
 
     // unlike word, half, byte, the val arg here is a Long
-    function store_double_to_mem(addr, val){
+    function store_double_to_mem(addr, val) {
         var lowbits = val.getLowBits()|0;
         var highbits = val.getHighBits()|0;
-        if (this.endianness === "big"){
+        if (this.endianness === "big") {
             this.memory[addr] = (highbits >>> 24) & 0xFF;
             this.memory[addr+1] = (highbits >>> 16) & 0xFF;
             this.memory[addr+2] = (highbits >>> 8) & 0xFF;
@@ -89,7 +89,7 @@ function CPU(memamt){
             this.memory[addr+5] = (lowbits >>> 16) & 0xFF;
             this.memory[addr+6] = (lowbits >>> 8) & 0xFF;
             this.memory[addr+7] = (lowbits) & 0xFF;
-        } else if (this.endianness === "little"){
+        } else if (this.endianness === "little") {
             this.memory[addr] = (lowbits) & 0xFF;
             this.memory[addr+1] = (lowbits >>> 8) & 0xFF;
             this.memory[addr+2] = (lowbits >>> 16) & 0xFF;
@@ -100,127 +100,119 @@ function CPU(memamt){
             this.memory[addr+6] = (highbits >>> 16) & 0xFF;
             this.memory[addr+7] = (highbits >>> 24) & 0xFF;
         } else {
-            throw new Error("Invalid Endianness");
+            throw new RISCVError("Invalid Endianness");
         }
     }
 
-    function store_word_to_mem(addr, val){
-        if (this.endianness === "big"){
+    function store_word_to_mem(addr, val) {
+        if (this.endianness === "big") {
             this.memory[addr] = (val >>> 24) & 0xFF;
             this.memory[addr+1] = (val >>> 16) & 0xFF;
             this.memory[addr+2] = (val >>> 8) & 0xFF;
             this.memory[addr+3] = (val) & 0xFF;
-        } else if (this.endianness === "little"){
+        } else if (this.endianness === "little") {
             this.memory[addr] = (val) & 0xFF;
             this.memory[addr+1] = (val >>> 8) & 0xFF;
             this.memory[addr+2] = (val >>> 16) & 0xFF;
             this.memory[addr+3] = (val >>> 24) & 0xFF;
         } else {
-            throw new Error("Invalid Endianness");
+            throw new RISCVError("Invalid Endianness");
         }
     }
 
-    function store_half_to_mem(addr, val){
-        if (this.endianness === "big"){
+    function store_half_to_mem(addr, val) {
+        if (this.endianness === "big") {
             this.memory[addr] = (val >>> 8) & 0xFF;
             this.memory[addr+1] = val & 0xFF;
-        } else if (this.endianness === "little"){
+        } else if (this.endianness === "little") {
             this.memory[addr] = val & 0xFF;
             this.memory[addr+1] = (val >>> 8) & 0xFF;
         } else {
-            throw new Error("Invalid Endianness");
+            throw new RISCVError("Invalid Endianness");
         }
     }
 
-    function store_byte_to_mem(addr, val){
+    function store_byte_to_mem(addr, val) {
         this.memory[addr] = val & 0xFF;
     }
 
-    function load_double_from_mem(addr){
+    function load_double_from_mem(addr) {
         var retvalhigh = 0;
         var retvallow = 0;
-        if (this.endianness === "big"){
+        if (this.endianness === "big") {
             retvalhigh = retvalhigh | this.memory[addr] << 24;
             retvalhigh = retvalhigh | this.memory[addr+1] << 16;
             retvalhigh = retvalhigh | this.memory[addr+2] << 8;
             retvalhigh = retvalhigh | this.memory[addr+3];
-
             retvallow = retvallow | this.memory[addr+4] << 24;
             retvallow = retvallow | this.memory[addr+5] << 16;
             retvallow = retvallow | this.memory[addr+6] << 8;
             retvallow = retvallow | this.memory[addr+7];
-
             return new Long(retvallow, retvalhigh);
-
-        } else if (this.endianness === "little"){
+        } else if (this.endianness === "little") {
             retvallow = retvallow | this.memory[addr+3] << 24;
             retvallow = retvallow | this.memory[addr+2] << 16;
             retvallow = retvallow | this.memory[addr+1] << 8;
             retvallow = retvallow | this.memory[addr];
-    
             retvalhigh = retvalhigh | this.memory[addr+7] << 24;
             retvalhigh = retvalhigh | this.memory[addr+6] << 16;
             retvalhigh = retvalhigh | this.memory[addr+5] << 8;
             retvalhigh = retvalhigh | this.memory[addr+4];
-
             return new Long(retvallow, retvalhigh);
-
         } else {
-            throw new Error("Invalid Endianness");
+            throw new RISCVError("Invalid Endianness");
         }
     }
 
-    function load_word_from_mem(addr){
+    function load_word_from_mem(addr) {
         var retval = 0;
-        if (this.endianness === "big"){
+        if (this.endianness === "big") {
             retval = retval | this.memory[addr] << 24;
             retval = retval | this.memory[addr+1] << 16;
             retval = retval | this.memory[addr+2] << 8;
             retval = retval | this.memory[addr+3];
-        } else if (this.endianness === "little"){
+        } else if (this.endianness === "little") {
             retval = retval | this.memory[addr+3] << 24;
             retval = retval | this.memory[addr+2] << 16;
             retval = retval | this.memory[addr+1] << 8;
             retval = retval | this.memory[addr];
         } else {
-            throw new Error("Invalid Endianness");
+            throw new RISCVError("Invalid Endianness");
         }
-
         return retval;
     }
 
-    function load_half_from_mem(addr){
+    function load_half_from_mem(addr) {
         var retval = 0;
-        if (this.endianness === "big"){
+        if (this.endianness === "big") {
             retval = retval | this.memory[addr] << 8;
             retval = retval | this.memory[addr+1];
-        } else if (this.endianness === "little"){
+        } else if (this.endianness === "little") {
             retval = retval | this.memory[addr+1] << 8;
             retval = retval | this.memory[addr];
         } else {
-            throw new Error("Invalid Endianness");
+            throw new RISCVError("Invalid Endianness");
         }
-
         return retval;
     }
 
-    function load_byte_from_mem(addr){
+    function load_byte_from_mem(addr) {
         var retval = 0;
         retval = retval | this.memory[addr];
         return retval;
     }
 
     // vals[0] is loaded into 0x0000, vals[1] is program, loaded into 0x2000
-    function load_to_mem(vals){
+    function load_to_mem(vals) {
         prog = vals[1];
-        for (var i = 0; i < prog.length*4; i+=4){
+        for (var i = 0; i < prog.length*4; i+=4) {
             this.store_word_to_mem(i+0x2000, prog[i/4]);
         } 
     }
 
     // set indicated PCR - need to make sure to prevent changes to hardwired vals
-    function set_pcr(num, val){
-        switch(num){
+    function set_pcr(num, val) {
+        switch(num) {
             case PCR["PCR_SR"]["num"]:
                 // assuming 32 bit status reg
                 this.priv_reg[num] = status_reg_force(val);
@@ -228,7 +220,7 @@ function CPU(memamt){
 
             // need to fill in all cases here (i.e. when implementing interrupts)
             case PCR["PCR_TOHOST"]["num"]:
-                if (this.priv_reg[num].equals(new Long(0x0, 0x0))){
+                if (this.priv_reg[num].equals(new Long(0x0, 0x0))) {
                     this.priv_reg[num] = val;
                 }
                 break;
@@ -255,7 +247,7 @@ function CPU(memamt){
 }
 
 // TODO: make arguments (im, ip) init, right now just dummies
-function status_reg_init(vm, im, ip){
+function status_reg_init(vm, im, ip) {
     // to begin, S = 0, PS = 1
     // this is RV64 only and RV64S only
     // EF is 0
@@ -272,7 +264,7 @@ function status_reg_init(vm, im, ip){
     // set PS = 1 here
     srinit = srinit | SR["SR_PS"];
     // set VM based on user input
-    if (vm == 1){
+    if (vm == 1) {
         srinit = srinit | SR["SR_VM"];
     } else {
         srinit = srinit & (~SR["SR_VM"]);
@@ -292,7 +284,7 @@ function status_reg_init(vm, im, ip){
 
 
 // "hardwired" values that need to be forced every time status reg is modified
-function status_reg_force(input){
+function status_reg_force(input) {
     // force EF to zero here 
     // force U64 to 1 here
     // force S64 to 1 here

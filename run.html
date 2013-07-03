@@ -61,7 +61,7 @@ function runCode(userIn) {
 
     // run
     var instVal = RISCV.load_word_from_mem(RISCV.pc);
-    while(instVal != 0){
+    while(instVal != 0) {
         // run instruction
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
@@ -82,7 +82,7 @@ function runCode(userIn) {
 }
 
 // handles "Run from File" tab
-function handle_file(files){
+function handle_file(files) {
     passCount = 0;
     testCount = 0;
 
@@ -90,7 +90,7 @@ function handle_file(files){
     handle_file_continue(filesList);
 }
 
-function handle_file_continue(filesList){
+function handle_file_continue(filesList) {
     document.getElementById("testresult").innerHTML = "ELF not loaded";
     tab = document.getElementById("regtable");
     elfproptab = document.getElementById("elfprops");
@@ -108,8 +108,6 @@ function handle_file_continue(filesList){
 
     reader.readAsBinaryString(file);
 }
-
-
 </script>
 </head>
 
@@ -347,8 +345,6 @@ End: addi s9, s9, 200</textarea>
     <div class="footer">
         Based on <a href="http://inst.eecs.berkeley.edu/~cs152/sp12/handouts/riscv-spec.pdf">The RISC-V Instruction Set Manual</a> <br>
         Source on <a href="https://github.com/sagark/angel">Github</a>
-        <!-- nothing here for now -->
-
     </div>
 
 </div>
