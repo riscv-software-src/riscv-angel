@@ -306,7 +306,7 @@ function runInstruction(inst, RISCV){
                     RISCV.pc += 4;
                     break;
 
-//TODO:         // MULHSU
+                // MULHSU
                 case 0xA:
                     var l1 = RISCV.gen_reg[inst.get_rs1()];
                     var l2 = RISCV.gen_reg[inst.get_rs2()];
@@ -339,7 +339,7 @@ function runInstruction(inst, RISCV){
                     RISCV.pc += 4;
                     break;
 
-//TODO:         // MULHU
+                // MULHU
                 case 0xB:
                     // plan: long -determine/fix signs -> string -> bignum -> do the mult
                     // then divide by 2^64 (equiv to right shift by 64 bits)
@@ -459,9 +459,6 @@ function runInstruction(inst, RISCV){
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].modulo(RISCV.gen_reg[inst.get_rs2()]);
                     }
                     RISCV.pc += 4;
-
-
-
                     break;
 
                 // REMU
@@ -1043,6 +1040,190 @@ function runInstruction(inst, RISCV){
         case 0x53:
             console.log("MFFSR does nothing in this implementation");
             RISCV.pc += 4;
+            break;
+
+        // atomic memory instructions 
+        case 0x2B:
+            var funct10 = inst.get_funct10();
+            switch(funct10){
+
+                // AMOADD.W
+                case 0x2:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    var temp = RISCV.gen_reg[inst.get_rd()].add(RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+                    break;
+
+                // AMOSWAP.W
+                case 0xA:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    var temp = RISCV.gen_reg[inst.get_rs2()];
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+                    break;
+
+                // AMOAND.W
+                case 0x12:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    var temp = RISCV.gen_reg[inst.get_rd()].and(RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+                    break;
+
+                // AMOOR.W
+                case 0x1A:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    var temp = RISCV.gen_reg[inst.get_rd()].or(RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+
+                    break;
+
+                // AMOMIN.W
+                case 0x22:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    if (RISCV.gen_reg[inst.get_rd()].greaterThan(RISCV.gen_reg[inst.get_rs2()])){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+                    break;
+
+                // AMOMAX.W
+                case 0x2A:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    if (RISCV.gen_reg[inst.get_rd()].lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+                    break;
+
+
+                // AMOMINU.W
+                case 0x32:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    if (signed_to_unsigned(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned()) > signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBitsUnsigned())){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+
+                    break;
+
+                // AMOMAXU.W
+                case 0x3A:
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned()), 31);
+                    if (signed_to_unsigned(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned()) < signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBitsUnsigned())){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp.getLowBitsUnsigned());
+                    RISCV.pc += 4;
+                    break;
+
+
+                // AMOADD.D
+                case 0x3:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    var temp = RISCV.gen_reg[inst.get_rd()].add(RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+                    break;
+
+                // AMOSWAP.D
+                case 0xB:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    var temp = RISCV.gen_reg[inst.get_rs2()];
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+                    break;
+    
+                // AMOAND.D
+                case 0x13:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    var temp = RISCV.gen_reg[inst.get_rd()].and(RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+                    break;
+
+
+                // AMOOR.D
+                case 0x1B:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    var temp = RISCV.gen_reg[inst.get_rd()].or(RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+                    break;
+
+                // AMOMIN.D
+                case 0x23:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    if (RISCV.gen_reg[inst.get_rd()].greaterThan(RISCV.gen_reg[inst.get_rs2()])){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+
+                    break;
+
+                // AMOMAX.D
+                case 0x2B:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    if (RISCV.gen_reg[inst.get_rd()].lessThan(RISCV.gen_reg[inst.get_rs2()])){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+
+
+                    break;
+
+                // AMOMINU.D
+                case 0x33:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rd()], RISCV.gen_reg[inst.get_rs2()])){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+
+
+                    break;
+
+                // AMOMAXU.D
+                case 0x3B:
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rd()], RISCV.gen_reg[inst.get_rs2()])){
+                        var temp = RISCV.gen_reg[inst.get_rs2()];
+                    } else {
+                        var temp = RISCV.gen_reg[inst.get_rd()];
+                    }
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned(), temp);
+                    RISCV.pc += 4;
+
+
+                    break;
+
+                default:
+                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    break;
+
+            }
             break;
 
 
