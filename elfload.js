@@ -3,7 +3,7 @@
 // loadElf is passed as the callback function to binary file reader.
 // - May assume access to RISCV (the processor). 
 // - Setup done in run.html
-function loadElf(binfile, filename){
+function loadElf(binfile, filename, filesList){
     document.getElementById("testresult").innerHTML = "Loading " + filename;
     var elf = {};
     var magic = ((binfile.charCodeAt(0) & 0xFF) << 24) | ((binfile.charCodeAt(1) & 0xFF) << 16) |
@@ -112,16 +112,22 @@ function loadElf(binfile, filename){
                 console.log(filename + " PASSED");
                 passCount++;
                 testCount++;
-                console.log(passCount.toString() + " tests passed out of " + testCount.toString());
+                //console.log(passCount.toString() + " tests passed out of " + testCount.toString());
             } else {
                 document.getElementById("testresult").innerHTML = filename + " FAILED";
                 console.log(filename + " FAILED");
                 testCount++;
-                console.log(passCount.toString() + " tests passed out of " + testCount.toString());
+                //console.log(passCount.toString() + " tests passed out of " + testCount.toString());
             }
 
             // Terminate
             //throw new RISCVError("PC Repeat. In single CPU imp, this means inf loop. Terminated. Current PC: " + RISCV.pc.toString(16));
+            //
+            if (filesList.length > 0){
+                handle_file_continue(filesList);
+            } else {
+                console.log(passCount.toString() + " tests passed out of " + testCount.toString());
+            }
             return;
         }
         /*
