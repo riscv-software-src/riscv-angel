@@ -51,7 +51,7 @@ function instruction(instVal){
     // inst type should be I or B
     function get_imm(inst_type){
         if (inst_type === undefined){
-            console.log("ERR NO TYPE PROVIDED FOR IMMEDIATE FETCH");
+            throw new RISCVError("ERR NO TYPE PROVIDED FOR IMMEDIATE FETCH");
         }
         return ((this.get_imm11_7(inst_type) << 7) | this.get_imm6_0());
     }
@@ -92,7 +92,7 @@ function signExt(quantity, bit){
         mask = mask >> (31-bit) 
         return (quantity | mask);
     } else {
-        console.log("ERR in signext");
+        throw new RISCVError("ERR in signext");
     }
 }
 
@@ -109,7 +109,7 @@ function signExtLT32_64(quantity, bit){
         mask = mask >> (31-bit) 
         return new Long((quantity | mask), 0xFFFFFFFF);
     } else {
-        console.log("ERR in signext");
+        throw new RISCVError("ERR in signext");
     }
 }
 
@@ -317,13 +317,11 @@ function runInstruction(inst, RISCV){
                         l2 = new Long(l2.getLowBits(), l2.getHighBits() & 0x7FFFFFFF);
                         var big2 = BigInteger(l2);
                         big2 = big2.add(BigInteger("9223372036854775808")); // 2^63
-                        console.log(big2.toString());
                     } else {
                         var big2 = BigInteger(l2);
                     }
 
                     var bigres = big1.multiply(big2);
-                    console.log(bigres.toString());
                     var bigdiv = BigInteger("18446744073709551616"); // 2^64
                     var bigresf = bigres.divide(bigdiv);
 
@@ -352,7 +350,6 @@ function runInstruction(inst, RISCV){
                         l1 = new Long(l1.getLowBits(), l1.getHighBits() & 0x7FFFFFFF);
                         var big1 = BigInteger(l1);
                         big1 = big1.add(BigInteger("9223372036854775808"));
-                        console.log(big1.toString());
                     } else {
                         var big1 = BigInteger(l1);
                     }
@@ -360,7 +357,6 @@ function runInstruction(inst, RISCV){
                         l2 = new Long(l2.getLowBits(), l2.getHighBits() & 0x7FFFFFFF);
                         var big2 = BigInteger(l2);
                         big2 = big2.add(BigInteger("9223372036854775808")); // 2^63
-                        console.log(big2.toString());
                     } else {
                         var big2 = BigInteger(l2);
                     }
@@ -416,7 +412,6 @@ function runInstruction(inst, RISCV){
                         l1 = new Long(l1.getLowBits(), l1.getHighBits() & 0x7FFFFFFF);
                         var big1 = BigInteger(l1);
                         big1 = big1.add(BigInteger("9223372036854775808"));
-                        console.log(big1.toString());
                     } else {
                         var big1 = BigInteger(l1);
                     }
@@ -424,7 +419,6 @@ function runInstruction(inst, RISCV){
                         l2 = new Long(l2.getLowBits(), l2.getHighBits() & 0x7FFFFFFF);
                         var big2 = BigInteger(l2);
                         big2 = big2.add(BigInteger("9223372036854775808")); // 2^63
-                        console.log(big2.toString());
                     } else {
                         var big2 = BigInteger(l2);
                     }
@@ -479,7 +473,6 @@ function runInstruction(inst, RISCV){
                         l1 = new Long(l1.getLowBits(), l1.getHighBits() & 0x7FFFFFFF);
                         var big1 = BigInteger(l1);
                         big1 = big1.add(BigInteger("9223372036854775808"));
-                        console.log(big1.toString());
                     } else {
                         var big1 = BigInteger(l1);
                     }
@@ -487,7 +480,6 @@ function runInstruction(inst, RISCV){
                         l2 = new Long(l2.getLowBits(), l2.getHighBits() & 0x7FFFFFFF);
                         var big2 = BigInteger(l2);
                         big2 = big2.add(BigInteger("9223372036854775808")); // 2^63
-                        console.log(big2.toString());
                     } else {
                         var big2 = BigInteger(l2);
                     }
@@ -742,11 +734,11 @@ function runInstruction(inst, RISCV){
             var funct3 = inst.get_funct3();
             if (funct3 == 0x1){
                 // FENCE.I
-                console.log("fence.i is no-op in this implementation");
+                // fence.i is no-op in this implementation
                 RISCV.pc += 4;
             } else if (funct3 = 0x2){
                 // FENCE
-                console.log("fence is no-op in this implementation");
+                // fence is no-op in this implementation
                 RISCV.pc += 4;
             } else {
                 throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
@@ -767,7 +759,7 @@ function runInstruction(inst, RISCV){
 
                 // BREAK
                 case 0x1:
-                    console.log("break currently does nothing");
+                    // break does nothing in this implementation
                     RISCV.pc += 4;
                     break;
 
@@ -1038,7 +1030,7 @@ function runInstruction(inst, RISCV){
 
         // MFFSR (doesn't actually do anything, needed to run tests)
         case 0x53:
-            console.log("MFFSR does nothing in this implementation");
+            // MFFSR does nothing in this implementation
             RISCV.pc += 4;
             break;
 
@@ -1229,6 +1221,7 @@ function runInstruction(inst, RISCV){
 
         default:
             //throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+            //don't throw error for completely unknown inst (i.e. unknown opcode)
             console.log("unknown inst at: 0x" + RISCV.pc.toString(16));
             RISCV.pc += 4;
             break;
