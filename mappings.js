@@ -270,9 +270,9 @@ var Rfields = {
 // privileged control register mappings
 var PCR = {
     "PCR_SR"       :{"num": 0, "width": 32,},
-    "PCR_EPC"      :{"num": 1, "width": 64,},
-    "PCR_BADVADDR" :{"num": 2, "width": 64,},
-    "PCR_EVEC"     :{"num": 3, "width": 64,},
+    "PCR_EPC"      :{"num": 1, "width": 32,}, // normally 64, modded for imp restrictions
+    "PCR_BADVADDR" :{"num": 2, "width": 32,}, // normally 64, modded for imp restrictions
+    "PCR_EVEC"     :{"num": 3, "width": 32,}, // normally 64, modded for imp restrictions
     "PCR_COUNT"    :{"num": 4, "width": 32,},
     "PCR_COMPARE"  :{"num": 5, "width": 32,},
     "PCR_CAUSE"    :{"num": 6, "width": 64,},

@@ -279,33 +279,17 @@ function CPU(memamt) {
 
 // TODO: make arguments (im, ip) init, right now just dummies
 function status_reg_init(vm, im, ip) {
-    // to begin, S = 0, PS = 1
-    // this is RV64 only and RV64S only
-    // EF is 0
+
+    // at RESET, processor starts with ET=0, S=1, VM=0
     var srinit = 0x0;
-    srinit = srinit | (0x1 << 4) | (0x1 << 6) | (0x1 << 7);
-    return srinit;
-
-
-    var srinit = 0x0;
-    // set ET to one 
-    srinit = srinit | SR["SR_ET"];
-    // set S = 0 here
-    srinit = srinit & (~SR["SR_S"]);
-    // set PS = 1 here
-    srinit = srinit | SR["SR_PS"];
-    // set VM based on user input
-    if (vm == 1) {
-        srinit = srinit | SR["SR_VM"];
-    } else {
-        srinit = srinit & (~SR["SR_VM"]);
-    }
-
-    // CURRENTLY DOING NOTHING WITH:
-    // EV
-    // EC
-    // IM
-    // IP
+    // set ET to zero
+    srinit = srinit & (~SR["SR_ET"]);
+    // set S = 1 here
+    srinit = srinit | SR["SR_S"];
+    // set PS = 0 here
+    srinit = srinit & (~SR["SR_PS"]);
+    // VM is off by default
+    srinit = srinit & (~SR["SR_VM"]);
 
     // now force implementation defined presets
     srinit = status_reg_force(srinit);
@@ -316,10 +300,11 @@ function status_reg_init(vm, im, ip) {
 
 // "hardwired" values that need to be forced every time status reg is modified
 function status_reg_force(input) {
-    // force EF to zero here 
+    // force EF to zero here (no FP insts)
+    // force EC to zero here (no compressed insts)
     // force U64 to 1 here
     // force S64 to 1 here
-    input = input & (~SR["SR_EF"]);
+    input = input & (~SR["SR_EF"]) & (~SR["SR_EC"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
     return input;
 }

@@ -956,6 +956,11 @@ function runInstruction(inst, RISCV) {
 
                 // CLEARPCR
                 case 0x0:
+                    // first, confirm that we're in supervisor mode
+                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                        throw new RISCVTrap("Privileged Instruction");
+                    }
+
                     // may be a Long or a Number
                     var temp = RISCV.priv_reg[inst.get_rs1()];
                     if (typeof temp === "number") {
@@ -973,6 +978,11 @@ function runInstruction(inst, RISCV) {
 
                 // SETPCR
                 case 0x1:
+                    // first, confirm that we're in supervisor mode
+                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                        throw new RISCVTrap("Privileged Instruction");
+                    }
+
                     // may be a Long or a Number
                     var temp = RISCV.priv_reg[inst.get_rs1()];
                     if (typeof temp === "number") {
@@ -989,6 +999,11 @@ function runInstruction(inst, RISCV) {
 
                 // MFPCR
                 case 0x2:
+                    // first, confirm that we're in supervisor mode
+                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                        throw new RISCVTrap("Privileged Instruction");
+                    }
+
                     var temp = RISCV.priv_reg[inst.get_rs1()];
                     if (typeof temp === "number") {
                         temp = new Long(temp, 0x0);
@@ -999,6 +1014,11 @@ function runInstruction(inst, RISCV) {
 
                 // MTPCR
                 case 0x3:
+                    // first, confirm that we're in supervisor mode
+                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                        throw new RISCVTrap("Privileged Instruction");
+                    }
+
                     var temp = RISCV.priv_reg[inst.get_rs1()];
                     if (typeof temp === "number") {
                         temp = new Long(temp, 0x0);
@@ -1010,18 +1030,33 @@ function runInstruction(inst, RISCV) {
                     RISCV.pc += 4;
                     break;
 
+                // ERET
+                case 0x4:
+                    // first, confirm that we're in supervisor mode
+                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                        throw new RISCVTrap("Privileged Instruction");
+                    }
+                    // do eret stuff here
+                    var oldsr = RISCV.priv_reg[PCR["PCR_SR"]["num"]];
+                    // set SR[S] = SR[PS], don't touch SR[PS]
+                    if (oldsr & SR["SR_PS"] != 0) {
+                        // PS is set
+                        oldsr = oldsr | SR["SR_S"];
+                    } else {
+                        oldsr = oldsr & (~SR["SR_S"]);
+                    }
+                    // set ET
+                    oldsr = oldsr | SR["SR_ET"];
+                    // set pc to value stored in EPC
+                    RISCV.pc = RISCV.priv_reg[PCR["PCR_EPC"]["num"]];
+                    RISCV.pc += 4;
+                    break;
+
                 default:
                     throw new RISCVTrap("Illegal Instruction");
                     break;
             }
             break;
-
-/*        // MFFSR (doesn't actually do anything, needed to run tests)
-        case 0x53:
-            // MFFSR does nothing in this implementation
-            RISCV.pc += 4;
-            break;
-*/
 
         // atomic memory instructions 
         case 0x2B:
