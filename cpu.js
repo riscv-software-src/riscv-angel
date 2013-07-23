@@ -77,6 +77,9 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val) {
+        if (addr % 8 != 0) {
+            throw new RISCVTrap("Store Address Misaligned");
+        }
         var lowbits = val.getLowBits()|0;
         var highbits = val.getHighBits()|0;
         if (this.endianness === "big") {
@@ -105,6 +108,9 @@ function CPU(memamt) {
     }
 
     function store_word_to_mem(addr, val) {
+        if (addr % 4 != 0) {
+            throw new RISCVTrap("Store Address Misaligned");
+        }
         if (this.endianness === "big") {
             this.memory[addr] = (val >>> 24) & 0xFF;
             this.memory[addr+1] = (val >>> 16) & 0xFF;
@@ -121,6 +127,9 @@ function CPU(memamt) {
     }
 
     function store_half_to_mem(addr, val) {
+        if (addr % 2 != 0) {
+            throw new RISCVTrap("Store Address Misaligned");
+        }
         if (this.endianness === "big") {
             this.memory[addr] = (val >>> 8) & 0xFF;
             this.memory[addr+1] = val & 0xFF;
@@ -137,6 +146,9 @@ function CPU(memamt) {
     }
 
     function load_double_from_mem(addr) {
+        if (addr % 8 != 0) {
+            throw new RISCVTrap("Load Address Misaligned");
+        }
         var retvalhigh = 0;
         var retvallow = 0;
         if (this.endianness === "big") {
@@ -165,6 +177,9 @@ function CPU(memamt) {
     }
 
     function load_word_from_mem(addr) {
+        if (addr % 4 != 0) {
+            throw new RISCVTrap("Load Address Misaligned");
+        }
         var retval = 0;
         if (this.endianness === "big") {
             retval = retval | this.memory[addr] << 24;
@@ -183,6 +198,9 @@ function CPU(memamt) {
     }
 
     function load_half_from_mem(addr) {
+        if (addr % 2 != 0) {
+            throw new RISCVTrap("Load Address Misaligned");
+        }
         var retval = 0;
         if (this.endianness === "big") {
             retval = retval | this.memory[addr] << 8;
@@ -232,6 +250,18 @@ function CPU(memamt) {
         }
     }
 
+    /* wrapper for instruction fetch, converts Load Addr Misaligned to Instruction
+     * Address Misaligned  
+     */
+    function load_inst_from_mem(addr) {
+        try {
+            return this.load_word_from_mem(addr);
+        } catch(e) {
+            // catch Load Address Misaligned, convert to Inst Addr Misaligned
+            throw new RISCVTrap("Instruction Address Misaligned");
+        }
+    }
+
 
     this.reset_wall_clock = reset_wall_clock;
     this.store_double_to_mem = store_double_to_mem;
@@ -244,6 +274,7 @@ function CPU(memamt) {
     this.load_byte_from_mem = load_byte_from_mem;
     this.load_to_mem = load_to_mem;
     this.set_pcr = set_pcr;
+    this.load_inst_from_mem = load_inst_from_mem;
 }
 
 // TODO: make arguments (im, ip) init, right now just dummies

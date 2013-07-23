@@ -90,7 +90,8 @@ function loadElf(binfile, filename, filesList) {
     // reset clock
     RISCV.reset_wall_clock();
 
-    var instVal = RISCV.load_word_from_mem(RISCV.pc);
+    var testSuccess = false; // special var for tests, set to true on first
+                             // toHost = 0x1 for tests cases
 
     // used for inf loop detection
     var oldpc;
@@ -99,15 +100,45 @@ function loadElf(binfile, filename, filesList) {
     // TODO: modify this so that it detects the end of _exit and stops
     while(RISCV.pc != 0) {
         // run instruction
+        console.log(RISCV.pc.toString(16));
         oldpc = RISCV.pc;
+        var instVal = RISCV.load_inst_from_mem(RISCV.pc);
         var inst = new instruction(instVal);
-        runInstruction(inst, RISCV);
+
+        // try catch goes around here
+
+        try {
+            runInstruction(inst, RISCV);
+        } catch(e) {
+            // trap handling
+            console.log("HANDLING TRAP: " + e.message);
+            handle_trap();
+        }
+
+        // check toHost, output to JS console, clear it
+        if (RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]].notEquals(new Long(0x0, 0x0))){
+            console.log("Output on toHost:");
+            console.log(stringLongHex(RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]]));
+            if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))) {
+                // set to true in case this is a test
+                testSuccess = true;
+            }
+
+            RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
+        } 
+
+        //DEBUG CODE:
+        if (RISCV.pc == 0x30a8){
+            //throw new RISCVError("WAT");
+            RISCV.priv_reg[31] = new Long(0x1, 0x0);
+        }
+
 
         // terminate if PC is unchanged
         if (RISCV.pc == oldpc) {
 
             // check TOHOST in case this is a test
-            if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))) {
+            if (testSuccess) {
                 document.getElementById("testresult").innerHTML = filename + " PASSED";
                 console.log(filename + " PASSED");
                 passCount++;

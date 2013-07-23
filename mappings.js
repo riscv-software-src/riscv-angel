@@ -331,3 +331,17 @@ var SR = {
 //    "PCR_TOHOST",
 //    "PCR_FROMHOST"
 //];
+
+var TRAPS = {
+    "Instruction Address Misaligned": 0x0, // now thrown
+    "Instruction Access Fault": 0x1, // not possible 
+    "Illegal Instruction": 0x2,
+    "Privileged Instruction": 0x3,
+    "Floating-Point Disabled": 0x4,
+    "System Call": 0x6,
+    "Breakpoint": 0x7,
+    "Load Address Misaligned": 0x8,
+    "Store Address Misaligned": 0x9,
+    "Load Access Fault": 0xA,
+    "Store Access Fault": 0xB,
+};

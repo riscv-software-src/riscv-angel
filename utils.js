@@ -33,6 +33,19 @@ function RISCVError(message) {
 // Make it a real Error
 RISCVError.prototype = Error.prototype;
 
+// Special Error class to represent Traps
+function RISCVTrap(message) {
+    this.name = "RISCVTrap";
+    this.message = (message || "");
+    this.exceptionCode = TRAPS[this.message];
+    this.interruptBit = 0; // by def
+}
+
+// Make it a real Error
+RISCVTrap.prototype = Error.prototype;
+
+
+
 // Converts both Numbers and Longs to hex (checks if typeof == "number" else
 // assumes Long)
 function stringIntHex(valin) {

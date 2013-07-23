@@ -198,7 +198,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
             }
@@ -501,7 +501,7 @@ function runInstruction(inst, RISCV) {
 
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
             }
@@ -591,7 +591,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
             }
@@ -611,7 +611,7 @@ function runInstruction(inst, RISCV) {
                 RISCV.pc += 4;              
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc, 31);
             } else {
-                throw new RISCVError("Bad Inst.");
+                throw new RISCVTrap("Illegal Instruction");
             }
             break;
 
@@ -674,7 +674,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
 
@@ -718,7 +718,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
             }
@@ -736,7 +736,7 @@ function runInstruction(inst, RISCV) {
                 // fence is no-op in this implementation
                 RISCV.pc += 4;
             } else {
-                throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                throw new RISCVTrap("Illegal Instruction");
             }
             break;
 
@@ -748,7 +748,8 @@ function runInstruction(inst, RISCV) {
                 // SYSCALL
                 case 0x0:
                     // currently need to halt at syscall for elfs to work properly
-                    throw new RISCVError("SYSCALL NOT IMPLEMENTED");
+                    //throw new RISCVError("SYSCALL NOT IMPLEMENTED");
+                    throw new RISCVTrap("SYSCALL");
                     RISCV.pc += 4;
                     break;
 
@@ -785,7 +786,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
             }
@@ -814,9 +815,7 @@ function runInstruction(inst, RISCV) {
                         break;
                     }
                     if (((inst.get_imm("I") >>> 5) & 0x1) != 0) {
-                        //this is a bad inst, causes illegal instruction trap
-                        //according to page 11 in ISA doc
-                        throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SLLI");
+                        throw new RISCVTrap("Illegal Instruction");
                         break;
                     }
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() << (inst.get_imm("I") & 0x003F), 31);
@@ -827,9 +826,7 @@ function runInstruction(inst, RISCV) {
                 // SRLIW and SRAIW
                 case 0x5:
                     if (((inst.get_imm("I") >>> 5) & 0x1) != 0) {
-                        //this is a bad inst, causes illegal instruction trap
-                        //according to page 11 in ISA doc
-                        throw new RISCVError("ILLEGAL INSTRUCTION TRAP, MALFORMED SRLI/SRAI");
+                        throw new RISCVTrap("Illegal Instruction");
                         break;
                     }
                     var aldiff = (inst.get_imm("I") >>> 6);
@@ -847,7 +844,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
             }
             break;
@@ -942,13 +939,10 @@ function runInstruction(inst, RISCV) {
                         RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((signed_to_unsigned(RISCV.gen_reg[inst.get_rs1()].getLowBits())%signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBits()))|0, 31);
                     }
                     RISCV.pc += 4;
-
-
-
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
          
             }
@@ -1017,7 +1011,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
             }
             break;
@@ -1202,7 +1196,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
+                    throw new RISCVTrap("Illegal Instruction");
                     break;
 
             }
@@ -1212,8 +1206,7 @@ function runInstruction(inst, RISCV) {
         default:
             //throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             //don't throw error for completely unknown inst (i.e. unknown opcode)
-            console.log("unknown inst at: 0x" + RISCV.pc.toString(16));
-            RISCV.pc += 4;
+            throw new RISCVTrap("Illegal Instruction");
             break;
     }
 
