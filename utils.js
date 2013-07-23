@@ -49,7 +49,7 @@ RISCVTrap.prototype = Error.prototype;
 // Converts both Numbers and Longs to hex (checks if typeof == "number" else
 // assumes Long)
 function stringIntHex(valin) {
-    if (typeof valin === "number") {
+    if ((typeof valin) === "number") {
         return stringNumberHex(valin);
     } else {
         return stringLongHex(valin);

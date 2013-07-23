@@ -77,7 +77,7 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val) {
-        if (addr % 8 != 0) {
+        if ((addr % 8) != 0) {
             throw new RISCVTrap("Store Address Misaligned");
         }
         var lowbits = val.getLowBits()|0;
@@ -108,7 +108,7 @@ function CPU(memamt) {
     }
 
     function store_word_to_mem(addr, val) {
-        if (addr % 4 != 0) {
+        if ((addr % 4) != 0) {
             throw new RISCVTrap("Store Address Misaligned");
         }
         if (this.endianness === "big") {
@@ -127,7 +127,7 @@ function CPU(memamt) {
     }
 
     function store_half_to_mem(addr, val) {
-        if (addr % 2 != 0) {
+        if ((addr % 2) != 0) {
             throw new RISCVTrap("Store Address Misaligned");
         }
         if (this.endianness === "big") {
@@ -146,7 +146,7 @@ function CPU(memamt) {
     }
 
     function load_double_from_mem(addr) {
-        if (addr % 8 != 0) {
+        if ((addr % 8) != 0) {
             throw new RISCVTrap("Load Address Misaligned");
         }
         var retvalhigh = 0;
@@ -177,7 +177,7 @@ function CPU(memamt) {
     }
 
     function load_word_from_mem(addr) {
-        if (addr % 4 != 0) {
+        if ((addr % 4) != 0) {
             throw new RISCVTrap("Load Address Misaligned");
         }
         var retval = 0;
@@ -198,7 +198,7 @@ function CPU(memamt) {
     }
 
     function load_half_from_mem(addr) {
-        if (addr % 2 != 0) {
+        if ((addr % 2) != 0) {
             throw new RISCVTrap("Load Address Misaligned");
         }
         var retval = 0;
