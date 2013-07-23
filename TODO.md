@@ -20,13 +20,10 @@ TODO before release:
 6) UI improvements
     - More data to user about ELF file
 
-
-
 Not being implemented:
 ================
 
 1) floating point (stick to soft-float)
-
 
 Maybe Later:
 ============
