@@ -334,14 +334,14 @@ var SR = {
 
 var TRAPS = {
     "Instruction Address Misaligned": 0x0, // now thrown
-    "Instruction Access Fault": 0x1, // not possible 
-    "Illegal Instruction": 0x2,
+    "Instruction Access Fault": 0x1, // requires VM?
+    "Illegal Instruction": 0x2, // now thrown, should be completely specified
     "Privileged Instruction": 0x3,
-    "Floating-Point Disabled": 0x4,
-    "System Call": 0x6,
-    "Breakpoint": 0x7,
-    "Load Address Misaligned": 0x8,
-    "Store Address Misaligned": 0x9,
-    "Load Access Fault": 0xA,
-    "Store Access Fault": 0xB,
+    "Floating-Point Disabled": 0x4, // now thrown
+    "System Call": 0x6, // now thrown 
+    "Breakpoint": 0x7, // now thrown 
+    "Load Address Misaligned": 0x8, // now thrown
+    "Store Address Misaligned": 0x9, // now thrown
+    "Load Access Fault": 0xA, // requires VM?
+    "Store Access Fault": 0xB, // requires VM?
 };

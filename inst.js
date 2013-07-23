@@ -749,13 +749,13 @@ function runInstruction(inst, RISCV) {
                 case 0x0:
                     // currently need to halt at syscall for elfs to work properly
                     //throw new RISCVError("SYSCALL NOT IMPLEMENTED");
-                    throw new RISCVTrap("SYSCALL");
+                    throw new RISCVTrap("System Call");
                     RISCV.pc += 4;
                     break;
 
                 // BREAK
                 case 0x1:
-                    // break does nothing in this implementation
+                    throw new RISCVTrap("Breakpoint");
                     RISCV.pc += 4;
                     break;
 
@@ -1016,11 +1016,12 @@ function runInstruction(inst, RISCV) {
             }
             break;
 
-        // MFFSR (doesn't actually do anything, needed to run tests)
+/*        // MFFSR (doesn't actually do anything, needed to run tests)
         case 0x53:
             // MFFSR does nothing in this implementation
             RISCV.pc += 4;
             break;
+*/
 
         // atomic memory instructions 
         case 0x2B:
@@ -1202,6 +1203,322 @@ function runInstruction(inst, RISCV) {
             }
             break;
 
+
+        /* NOTE ABOUT FP: ALL FP INSTRUCTIONS IN THIS IMPLEMENTATION WILL ALWAYS
+         * THROW THE "Floating-Point Disabled" TRAP.
+         */
+
+        // Floating-Point Memory Insts, FLW, FLD
+        case 0x7:
+            var funct3 = inst.get_funct3();
+            if (funct3 == 0x2 || funct3 == 0x3) {
+                throw new RISCVTrap("Floating-Point Disabled"); 
+            } else {
+                throw new RISCVTrap("Illegal Instruction");
+            }
+            RISCV.pc += 4;
+            break; 
+
+        // Floating-Point Memory Insts, FSW, FSD
+        case 0x27:
+            var funct3 = inst.get_funct3();
+            if (funct3 == 0x2 || funct3 == 0x3) {
+                throw new RISCVTrap("Floating-Point Disabled"); 
+            } else {
+                throw new RISCVTrap("Illegal Instruction");
+            }
+            RISCV.pc += 4;
+            break; 
+
+        // Floating-Point Insts, FADD.S to FMAX.D
+        case 0x53:
+            var funct5 = inst.get_funct5();
+            var funct5low = funct5 & 0x3; 
+            var funct5high = (funct5 >> 2) & 0x7;
+            var rs3 = inst.get_rs3();
+            var rs2 = inst.get_rs2();
+
+            // FADD.S
+            if (funct5low == 0x0 && rs3 == 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSUB.S
+            if (funct5low == 0x0 && rs3 == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FMUL.S
+            if (funct5low == 0x0 && rs3 == 0x2) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FDIV.S
+            if (funct5low == 0x0 && rs3 == 0x3) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSQRT.S
+            if (rs2 = 0x0 && funct5low == 0x0 && rs3 == 0x4) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FMIN.S
+            if (funct5 == 0x0 && rs3 == 0x18) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FMAX.S
+            if (funct5 == 0x0 && rs3 == 0x19) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FADD.D
+            if (funct5low == 0x1 && rs3 == 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSUB.D
+            if (funct5low == 0x1 && rs3 == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FMUL.D
+            if (funct5low == 0x1 && rs3 == 0x2) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FDIV.D
+            if (funct5low == 0x1 && rs3 == 0x3) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSQRT.D
+            if (rs2 = 0x0 && funct5low == 0x1 && rs3 == 0x4) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FMIN.D
+            if (funct5 == 0x1 && rs3 == 0x18) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FMAX.D
+            if (funct5 == 0x1 && rs3 == 0x19) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FMADD.S, FMADD.D
+        case 0x43:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FMSUB.S, FMSUB.D
+        case 0x47:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FNMSUB.S, FNMSUB.D
+        case 0x4B:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FNMADD.S, FNMADD.D
+        case 0x4F:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // REMAINING FP INSTRUCTIONS (ALL OPCODE 0b1010011)
+        case 0x53:
+            var funct5 = inst.get_funct5();
+            var funct5low = funct5 & 0x3; 
+            var funct5high = (funct5 >> 2) & 0x7;
+            var rs3 = inst.get_rs3();
+            var rs2 = inst.get_rs2();
+            var rs1 = inst.get_rs1();
+
+            // FSGNJ.S
+            if (funct5 == 0x0 && rs3 == 0x5) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSGNJN.S
+            if (funct5 == 0x0 && rs3 == 0x6) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSGNJX.S
+            if (funct5 == 0x0 && rs3 == 0x7) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSGNJ.D
+            if (funct5 == 0x1 && rs3 == 0x5) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSGNJN.D
+            if (funct5 == 0x1 && rs3 == 0x6) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FSGNJX.D
+            if (funct5 == 0x1 && rs3 == 0x7) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.S.D
+            if (funct5low == 0x0 && rs3 == 0x11 && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.D.S
+            if (funct5low == 0x1 && rs3 == 0x10 && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+
+            // FCVT.S.L
+            if (funct5low == 0x0 && rs3 == 0xC && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.S.LU
+            if (funct5low == 0x0 && rs3 == 0xD && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.S.W
+            if (funct5low == 0x0 && rs3 == 0xE && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.S.WU
+            if (funct5low == 0x0 && rs3 == 0xF && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.D.L
+            if (funct5low == 0x1 && rs3 == 0xC && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.D.LU
+            if (funct5low == 0x1 && rs3 == 0xD && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.D.W
+            if (funct5low == 0x1 && rs3 == 0xE && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.D.WU
+            if (funct5low == 0x1 && rs3 == 0xF && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+
+            // MXTF.S
+            if (funct5 == 0x0 && rs3 == 0x1E && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // MXTF.D
+            if (funct5 == 0x1 && rs3 == 0x1E && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // MTFSR NOTE: MAY NEED TO ACTUALLY IMPLEMENT THIS
+            if (funct5 == 0x0 && rs3 == 0x1F && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+
+
+            // FCVT.L.S
+            if (funct5low == 0x0 && rs3 == 0x8 && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.LU.S
+            if (funct5low == 0x0 && rs3 == 0x9 && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.W.S
+            if (funct5low == 0x0 && rs3 == 0xA && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.WU.S
+            if (funct5low == 0x0 && rs3 == 0xB && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.L.D
+            if (funct5low == 0x1 && rs3 == 0x8 && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.LU.D
+            if (funct5low == 0x1 && rs3 == 0x9 && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.W.D
+            if (funct5low == 0x1 && rs3 == 0xA && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FCVT.WU.D
+            if (funct5low == 0x1 && rs3 == 0xB && rs2 = 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+
+            // MFTX.S
+            if (funct5 == 0x0 && rs3 == 0x1C && rs1 == 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // MFTX.D
+            if (funct5 == 0x1 && rs3 == 0x1C && rs1 == 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // MFFSR NOTE: MIGHT NEED TO ACTUALLY IMPLEMENT
+            if (funct5 = 0x0 && rs3 == 0x1D && rs2 == 0x0 && rs1 == 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
 
         default:
             //throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
