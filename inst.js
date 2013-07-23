@@ -957,7 +957,7 @@ function runInstruction(inst, RISCV) {
                 // CLEARPCR
                 case 0x0:
                     // first, confirm that we're in supervisor mode
-                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -979,7 +979,7 @@ function runInstruction(inst, RISCV) {
                 // SETPCR
                 case 0x1:
                     // first, confirm that we're in supervisor mode
-                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -1000,7 +1000,7 @@ function runInstruction(inst, RISCV) {
                 // MFPCR
                 case 0x2:
                     // first, confirm that we're in supervisor mode
-                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -1015,7 +1015,7 @@ function runInstruction(inst, RISCV) {
                 // MTPCR
                 case 0x3:
                     // first, confirm that we're in supervisor mode
-                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -1033,13 +1033,13 @@ function runInstruction(inst, RISCV) {
                 // ERET
                 case 0x4:
                     // first, confirm that we're in supervisor mode
-                    if (RISCV.priv_reg[0] & SR["SR_S"] == 0) {
+                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
                     // do eret stuff here
                     var oldsr = RISCV.priv_reg[PCR["PCR_SR"]["num"]];
                     // set SR[S] = SR[PS], don't touch SR[PS]
-                    if (oldsr & SR["SR_PS"] != 0) {
+                    if ((oldsr & SR["SR_PS"]) != 0) {
                         // PS is set
                         oldsr = oldsr | SR["SR_S"];
                     } else {
@@ -1329,7 +1329,7 @@ function runInstruction(inst, RISCV) {
             }
 
             // FSQRT.D
-            if (rs2 = 0x0 && funct5low == 0x1 && rs3 == 0x4) {
+            if (rs2 == 0x0 && funct5low == 0x1 && rs3 == 0x4) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
@@ -1427,111 +1427,111 @@ function runInstruction(inst, RISCV) {
             }
 
             // FCVT.S.D
-            if (funct5low == 0x0 && rs3 == 0x11 && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0x11 && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.D.S
-            if (funct5low == 0x1 && rs3 == 0x10 && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0x10 && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
 
             // FCVT.S.L
-            if (funct5low == 0x0 && rs3 == 0xC && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0xC && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.S.LU
-            if (funct5low == 0x0 && rs3 == 0xD && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0xD && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.S.W
-            if (funct5low == 0x0 && rs3 == 0xE && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0xE && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.S.WU
-            if (funct5low == 0x0 && rs3 == 0xF && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0xF && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.D.L
-            if (funct5low == 0x1 && rs3 == 0xC && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0xC && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.D.LU
-            if (funct5low == 0x1 && rs3 == 0xD && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0xD && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.D.W
-            if (funct5low == 0x1 && rs3 == 0xE && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0xE && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.D.WU
-            if (funct5low == 0x1 && rs3 == 0xF && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0xF && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
 
             // MXTF.S
-            if (funct5 == 0x0 && rs3 == 0x1E && rs2 = 0x0) {
+            if (funct5 == 0x0 && rs3 == 0x1E && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // MXTF.D
-            if (funct5 == 0x1 && rs3 == 0x1E && rs2 = 0x0) {
+            if (funct5 == 0x1 && rs3 == 0x1E && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // MTFSR NOTE: MAY NEED TO ACTUALLY IMPLEMENT THIS
-            if (funct5 == 0x0 && rs3 == 0x1F && rs2 = 0x0) {
+            if (funct5 == 0x0 && rs3 == 0x1F && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
 
 
             // FCVT.L.S
-            if (funct5low == 0x0 && rs3 == 0x8 && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0x8 && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.LU.S
-            if (funct5low == 0x0 && rs3 == 0x9 && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0x9 && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.W.S
-            if (funct5low == 0x0 && rs3 == 0xA && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0xA && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.WU.S
-            if (funct5low == 0x0 && rs3 == 0xB && rs2 = 0x0) {
+            if (funct5low == 0x0 && rs3 == 0xB && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.L.D
-            if (funct5low == 0x1 && rs3 == 0x8 && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0x8 && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.LU.D
-            if (funct5low == 0x1 && rs3 == 0x9 && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0x9 && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.W.D
-            if (funct5low == 0x1 && rs3 == 0xA && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0xA && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // FCVT.WU.D
-            if (funct5low == 0x1 && rs3 == 0xB && rs2 = 0x0) {
+            if (funct5low == 0x1 && rs3 == 0xB && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
@@ -1547,7 +1547,7 @@ function runInstruction(inst, RISCV) {
             }
 
             // MFFSR NOTE: MIGHT NEED TO ACTUALLY IMPLEMENT
-            if (funct5 = 0x0 && rs3 == 0x1D && rs2 == 0x0 && rs1 == 0x0) {
+            if (funct5 == 0x0 && rs3 == 0x1D && rs2 == 0x0 && rs1 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 

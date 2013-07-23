@@ -290,7 +290,6 @@ function status_reg_init(vm, im, ip) {
     srinit = srinit & (~SR["SR_PS"]);
     // VM is off by default
     srinit = srinit & (~SR["SR_VM"]);
-
     // now force implementation defined presets
     srinit = status_reg_force(srinit);
     return srinit;
@@ -306,5 +305,8 @@ function status_reg_force(input) {
     // force S64 to 1 here
     input = input & (~SR["SR_EF"]) & (~SR["SR_EC"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
+    // clear bit 2 and bits 9-15 (hardwired zeroes)
+    input = input & ~(1 << 2);
+    input = input & ~(0x7F << 9);
     return input;
 }

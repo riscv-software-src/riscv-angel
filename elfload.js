@@ -102,12 +102,12 @@ function loadElf(binfile, filename, filesList) {
         // run instruction
         console.log(RISCV.pc.toString(16));
         oldpc = RISCV.pc;
-        var instVal = RISCV.load_inst_from_mem(RISCV.pc);
-        var inst = new instruction(instVal);
 
         // try catch goes around here
 
         try {
+            var instVal = RISCV.load_inst_from_mem(RISCV.pc);
+            var inst = new instruction(instVal);
             runInstruction(inst, RISCV);
         } catch(e) {
             // trap handling
@@ -127,12 +127,12 @@ function loadElf(binfile, filename, filesList) {
             RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
         } 
 
-        //DEBUG CODE:
+/*        //DEBUG CODE:
         if (RISCV.pc == 0x30a8){
             //throw new RISCVError("WAT");
             RISCV.priv_reg[31] = new Long(0x1, 0x0);
         }
-
+*/
 
         // terminate if PC is unchanged
         if (RISCV.pc == oldpc) {
