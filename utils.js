@@ -34,9 +34,11 @@ function RISCVError(message) {
 RISCVError.prototype = Error.prototype;
 
 // Special Error class to represent Traps
-function RISCVTrap(message) {
+// memaddr is for load/store misaligned/access faults
+function RISCVTrap(message, memaddr) {
     this.name = "RISCVTrap";
     this.message = (message || "");
+    this.memaddr = (memaddr || 0);
     this.exceptionCode = TRAPS[this.message];
     this.interruptBit = 0; // by def
 }

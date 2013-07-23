@@ -112,7 +112,7 @@ function loadElf(binfile, filename, filesList) {
         } catch(e) {
             // trap handling
             console.log("HANDLING TRAP: " + e.message);
-            handle_trap();
+            handle_trap(e);
         }
 
         // check toHost, output to JS console, clear it
