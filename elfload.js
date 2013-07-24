@@ -67,6 +67,9 @@ function loadElf(binfile, filename, filesList) {
     for (var i = 0; i < elf["e_shnum"]; i++) {
         var addr = elf["e_shoff"].getLowBits() + i*elf["e_shentsize"];
         var section = {};
+        section["name"] = bytes_to_int(binfile, addr, 4, end);
+
+        section["type"] = bytes_to_int(binfile, addr+4, 4, end);
         section["flags"] = bytes_to_long(binfile, addr+8, 8, end);
         section["addr"] = bytes_to_long(binfile, addr+16, 8, end);
         section["offs"] = bytes_to_long(binfile, addr+24, 8, end);
@@ -76,13 +79,19 @@ function loadElf(binfile, filename, filesList) {
 
     // copy necessary data into memory
     for (var i = 0; i < section_headers.length; i++) {
-        // check for allocate flag (bit #1)
-        if (((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) {
+        // check for allocate flag (bit #1) and type != 8 (aka NOT NOBITS)
+        if ((((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) && (section_headers[i]["type"] != 8)) {
             for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++) {
                 RISCV.memory[(section_headers[i]["addr"].getLowBits()|0) + j] = binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF;
             }
+        } else if ((((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) && (section_headers[i]["type"] == 8)) {
+            // for .bss, load in zeroes, since it's not actually stored in the elf
+            for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++) {
+                RISCV.memory[(section_headers[i]["addr"].getLowBits()|0) + j] = 0x0;
+            }
         }
     }
+
 
     // start running program
     RISCV.pc = elf["e_entry"].getLowBits();
@@ -96,7 +105,6 @@ function loadElf(binfile, filename, filesList) {
     // used for inf loop detection
     var oldpc;
 
-    // currently stop on a syscall
     // TODO: modify this so that it detects the end of _exit and stops
     while(RISCV.pc != 0) {
         // run instruction
@@ -115,24 +123,54 @@ function loadElf(binfile, filename, filesList) {
             handle_trap(e);
         }
 
+        var toHostVal = RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]];
         // check toHost, output to JS console, clear it
-        if (RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]].notEquals(new Long(0x0, 0x0))){
+        if (toHostVal.notEquals(new Long(0x0, 0x0))){
             console.log("Output on toHost:");
             console.log(stringLongHex(RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]]));
-            if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))) {
-                // set to true in case this is a test
-                testSuccess = true;
+
+
+            // now on every run, we need to check to see if a syscall is happening
+            // check device / cmd
+            var device = (toHostVal.getHighBits >> 24) & 0xFF;
+            var cmd = (toHostVal.getHighBits >> 16) & 0xFF;
+            var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
+
+            if (device == 0x0 && cmd == 0x0) {
+                // this is a syscall
+                if (payload.getLowBits() & 0x1 == 1) {
+                    // this is for testing (Pass/Fail) report for test programs
+                    // all other programs cannot have this bit set (since it's an
+                    // address)
+                    if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))) {
+                        // set to true in case this is a test
+                        testSuccess = true;
+                    }
+                } else {
+                    // this is for normal syscalls (not testing)
+
+                    // read 8 words starting at payload
+                    var eMem = [];
+                    for (var i = 0; i < 8; i++){
+                        eMem.push(RISCV.load_double_from_mem(payload.getLowBits() + i*8));
+                    }
+
+                    console.log(eMem[0]);
+                    throw new RISCVError(); 
+
+                }
+
             }
+
+            // if we get the open syscall, we copy in the file at the address specified
+
 
             RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
         } 
 
-/*        //DEBUG CODE:
-        if (RISCV.pc == 0x30a8){
-            //throw new RISCVError("WAT");
-            RISCV.priv_reg[31] = new Long(0x1, 0x0);
-        }
-*/
+/*        if (RISCV.pc == 0x306c){
+            throw new RISCVError();
+        } */
 
         // terminate if PC is unchanged
         if (RISCV.pc == oldpc) {

@@ -345,3 +345,21 @@ var TRAPS = {
     "Load Access Fault": 0xA, // requires VM?
     "Store Access Fault": 0xB, // requires VM?
 };
+
+var SYSCALLS = {
+    "sys_exit": 93,
+    "sys_read": 63,
+    "sys_write": 64,
+    "sys_open": 1024,
+    "sys_close": 57,
+    "sys_fstat": 80,
+    "sys_lseek": 62,
+    "sys_stat": 1038,
+    "sys_lstat": 1039,
+    "sys_link": 1025,
+    "sys_unlink": 1026,
+    "sys_pread": 67,
+    "sys_pwrite": 68,
+    "sys_getmainvars": 2011,
+};
+
