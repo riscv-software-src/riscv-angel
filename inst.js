@@ -1231,6 +1231,41 @@ function runInstruction(inst, RISCV) {
                     RISCV.pc += 4;
                     break;
 
+                // LR.W
+                case 0x202:
+                    // This acts just like a lw in this implementation (no need for sync)
+                    // (except there's no immediate)
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]), 31);
+                    RISCV.pc += 4;
+                    break;
+
+                // LR.D
+                case 0x203:
+                    // This acts just like a ld in this implementation (no need for sync)
+                    // (except there's no immediate)
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()]);
+                    RISCV.pc += 4;
+                    break;
+
+                // SC.W
+                case 0x20A:
+                    // this acts just like a sd in this implementation, but it will
+                    // always set the check register to 1 (indicating load success)
+                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBits()|0, RISCV.gen_reg[inst.get_rs2()].getLowBits());
+                    RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0); // indicate success
+                    RISCV.pc += 4;
+                    break;
+
+                // SC.D
+                case 0x20B:
+                    // this acts just like a sd in this implementation, but it will
+                    // always set the check register to 1 (indicating load success)
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0); // indicate success
+                    RISCV.pc += 4;
+                    break;
+
+
                 default:
                     throw new RISCVTrap("Illegal Instruction");
                     break;
