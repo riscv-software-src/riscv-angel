@@ -160,9 +160,6 @@ function loadElf(binfile, filename, filesList) {
             RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
         } 
 
-        if (RISCV.pc == 0x20dc){
-            throw new RISCVError();
-        } 
 
         // terminate if PC is unchanged
         if (RISCV.pc == oldpc) {

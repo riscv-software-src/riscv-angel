@@ -135,7 +135,7 @@ function translate(addr, access_type) {
     addr = new page_table_entry_addr(addr);
     var ptbr = RISCV.priv_reg[7]; // hardcoded update later    
 
-    var pte2 = RISCV.load_double_from_mem((ptbr.add(new Long(addr.get_vpn2()*8, 0x0))).getLowBits());
+    var pte2 = RISCV.load_double_from_mem((ptbr.add(new Long(addr.get_vpn2()*8, 0x0))).getLowBits(), false);
     pte2 = new page_table_entry_addr(pte2);
     
     if (pte2.e != 0x1) {
@@ -146,7 +146,7 @@ function translate(addr, access_type) {
     permission_check(pte2, access_type);
  
     var baseaddr1 = pte2.get_ppn().shiftLeft(13); 
-    var pte1 = RISCV.load_double_from_mem((baseaddr1.add(new Long(addr.get_vpn1()*8, 0x0))).getLowBits());
+    var pte1 = RISCV.load_double_from_mem((baseaddr1.add(new Long(addr.get_vpn1()*8, 0x0))).getLowBits(), false);
 
     if (pte1.e != 0x1) {
         throw new RISCVError("Address Error"); // need to update later
@@ -155,7 +155,7 @@ function translate(addr, access_type) {
     permission_check(pte1, access_type);
 
     var baseaddr0 = pte1.get_ppn().shiftLeft(13);
-    var pte0 = RISCV.load_double_from_mem((baseaddr0.add(new Long(addr.get_vpn0()*8, 0x0))).getLowBits()); 
+    var pte0 = RISCV.load_double_from_mem((baseaddr0.add(new Long(addr.get_vpn0()*8, 0x0))).getLowBits(), false); 
 
     if (pte0.e != 0x1) {
         throw new RISCVError("Address Error"); // need to update later
@@ -167,6 +167,7 @@ function translate(addr, access_type) {
     addr.set_ppn1(pte0.get_ppn1());
     addr.set_ppn2(pte0.get_ppn2()); 
 
+    return addr;
 }
 
 

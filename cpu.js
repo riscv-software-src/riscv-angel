@@ -75,13 +75,21 @@ function CPU(memamt) {
         this.boot_time = start.getTime();
     }
 
+
+    // for the following calls - by default, will use VM bit to determine if
+    // address translation should be used. however sometimes, it must be forced
+    // off, so can be passed in as an arg
+
     // unlike word, half, byte, the val arg here is a Long
-    function store_double_to_mem(addr, val) {
+    function store_double_to_mem(addr, val, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 1);
+        }
+
         if ((addr % 8) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
-        }
-        if (addr == 0xC1A8){
-            throw new RISCVError("ENCOUNTERED DESIRED ADDRESS");
         }
 
         var lowbits = val.getLowBits()|0;
@@ -111,7 +119,13 @@ function CPU(memamt) {
         }
     }
 
-    function store_word_to_mem(addr, val) {
+    function store_word_to_mem(addr, val, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 1);
+        }
+
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
         }
@@ -130,7 +144,13 @@ function CPU(memamt) {
         }
     }
 
-    function store_half_to_mem(addr, val) {
+    function store_half_to_mem(addr, val, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 1);
+        }
+
         if ((addr % 2) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
         }
@@ -145,11 +165,23 @@ function CPU(memamt) {
         }
     }
 
-    function store_byte_to_mem(addr, val) {
+    function store_byte_to_mem(addr, val, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 1);
+        }
+
         this.memory[addr] = val & 0xFF;
     }
 
-    function load_double_from_mem(addr) {
+    function load_double_from_mem(addr, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 0);
+        }
+
         if ((addr % 8) != 0) {
             throw new RISCVTrap("Load Address Misaligned", addr);
         }
@@ -180,7 +212,13 @@ function CPU(memamt) {
         }
     }
 
-    function load_word_from_mem(addr) {
+    function load_word_from_mem(addr, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 0);
+        }
+
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Load Address Misaligned", addr);
         }
@@ -201,7 +239,13 @@ function CPU(memamt) {
         return retval;
     }
 
-    function load_half_from_mem(addr) {
+    function load_half_from_mem(addr, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 0);
+        }
+
         if ((addr % 2) != 0) {
             throw new RISCVTrap("Load Address Misaligned", addr);
         }
@@ -218,7 +262,13 @@ function CPU(memamt) {
         return retval;
     }
 
-    function load_byte_from_mem(addr) {
+    function load_byte_from_mem(addr, tr) {
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 0);
+        }
+
         var retval = 0;
         retval = retval | this.memory[addr];
         return retval;
@@ -257,9 +307,32 @@ function CPU(memamt) {
     /* wrapper for instruction fetch, converts Load Addr Misaligned to Instruction
      * Address Misaligned  
      */
-    function load_inst_from_mem(addr) {
+    function load_inst_from_mem(addr, tr) {
         try {
-            return this.load_word_from_mem(addr);
+            var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+            tr = typeof tr !== 'undefined' ? tr : vmOn; 
+            if (tr) { 
+                addr = translate(addr, 2);
+            }
+
+            if ((addr % 4) != 0) {
+                throw new RISCVTrap("Load Address Misaligned", addr);
+            }
+            var retval = 0;
+            if (this.endianness === "big") {
+                retval = retval | this.memory[addr] << 24;
+                retval = retval | this.memory[addr+1] << 16;
+                retval = retval | this.memory[addr+2] << 8;
+                retval = retval | this.memory[addr+3];
+            } else if (this.endianness === "little") {
+                retval = retval | this.memory[addr+3] << 24;
+                retval = retval | this.memory[addr+2] << 16;
+                retval = retval | this.memory[addr+1] << 8;
+                retval = retval | this.memory[addr];
+            } else {
+                throw new RISCVError("Invalid Endianness");
+            }
+            return retval;
         } catch(e) {
             // catch Load Address Misaligned, convert to Inst Addr Misaligned
             throw new RISCVTrap("Instruction Address Misaligned");
