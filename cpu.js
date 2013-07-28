@@ -365,8 +365,10 @@ function status_reg_init(vm, im, ip) {
     srinit = srinit | SR["SR_S"];
     // set PS = 0 here
     srinit = srinit & (~SR["SR_PS"]);
-    // VM is off by default
+    // VM is off at boot, turned on by kernel
     srinit = srinit & (~SR["SR_VM"]);
+//    srinit = srinit | (SR["SR_VM"]);
+
     // now force implementation defined presets
     srinit = status_reg_force(srinit);
     return srinit;

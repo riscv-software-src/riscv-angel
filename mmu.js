@@ -130,6 +130,8 @@ function page_table_entry_addr(entryin) {
 
 // performs address translation
 function translate(addr, access_type) {
+    addr = new Long(addr, 0x0);
+    console.log("USING ADDR TRANSLATION");
     // addr is address
     // access_type: indicates 0 for read, 1 for write, 2 for exec
     addr = new page_table_entry_addr(addr);
@@ -167,7 +169,7 @@ function translate(addr, access_type) {
     addr.set_ppn1(pte0.get_ppn1());
     addr.set_ppn2(pte0.get_ppn2()); 
 
-    return addr;
+    return addr.getLowBits();
 }
 
 
