@@ -80,6 +80,10 @@ function CPU(memamt) {
         if ((addr % 8) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
         }
+        if (addr == 0xC1A8){
+            throw new RISCVError("ENCOUNTERED DESIRED ADDRESS");
+        }
+
         var lowbits = val.getLowBits()|0;
         var highbits = val.getHighBits()|0;
         if (this.endianness === "big") {

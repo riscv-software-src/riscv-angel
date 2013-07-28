@@ -4,6 +4,7 @@
 // - May assume access to RISCV (the processor). 
 // - Setup done in run.html
 function loadElf(binfile, filename, filesList) {
+    globfilename = filename; // global access to filename
     document.getElementById("testresult").innerHTML = "Loading " + filename;
     var elf = {};
     var magic = ((binfile.charCodeAt(0) & 0xFF) << 24) | ((binfile.charCodeAt(1) & 0xFF) << 16) |
@@ -148,16 +149,7 @@ function loadElf(binfile, filename, filesList) {
                     }
                 } else {
                     // this is for normal syscalls (not testing)
-
-                    // read 8 words starting at payload
-                    var eMem = [];
-                    for (var i = 0; i < 8; i++){
-                        eMem.push(RISCV.load_double_from_mem(payload.getLowBits() + i*8));
-                    }
-
-                    console.log(eMem[0]);
-                    throw new RISCVError(); 
-
+                    handle_syscall(payload);
                 }
 
             }
@@ -168,9 +160,9 @@ function loadElf(binfile, filename, filesList) {
             RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
         } 
 
-/*        if (RISCV.pc == 0x306c){
+        if (RISCV.pc == 0x20dc){
             throw new RISCVError();
-        } */
+        } 
 
         // terminate if PC is unchanged
         if (RISCV.pc == oldpc) {
