@@ -8,9 +8,14 @@
 // memamt is memory size in Mebibytes, default to 32
 function CPU(memamt) {
     memamt = typeof memamt !== 'undefined' ? memamt : 32;
+
+    this.memamount = memamt; // for use by the kernel
     
     memamt *= 1048576 // convert to Bytes
     this.memory = new Uint8Array(memamt);
+
+    // FOR DEBUGGING ONLY TODO: REMOVE
+    this.memory[0] = 0x1;
     
     // PC, defaults to 0x2000 according to the ISA, documented in 
     // processor.cc
@@ -384,6 +389,7 @@ function status_reg_force(input) {
     // force S64 to 1 here
     input = input & (~SR["SR_EF"]) & (~SR["SR_EC"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
+    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
     // clear bit 2 and bits 9-15 (hardwired zeroes)
     input = input & ~(1 << 2);
     input = input & ~(0x7F << 9);

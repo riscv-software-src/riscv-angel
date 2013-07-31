@@ -94,6 +94,12 @@ function loadElf(binfile, filename, filesList) {
     }
 
 
+    // TODO: Detect when this is the proxy kernel
+    // ASSUME THAT THIS IS THE PROXY KERNEL
+    RISCV.store_word_to_mem(0, 1) // single core
+    RISCV.store_word_to_mem(4, RISCV.memamount); // amount of memory in MiB
+
+
     // start running program
     RISCV.pc = elf["e_entry"].getLowBits();
 
