@@ -17,8 +17,9 @@ function handle_syscall(payload) {
     }
 */
     console.log(SYSCALLS[eMem[0]]);
-    SYSCALL_HANDLERS[SYSCALLS[eMem[0]]](eMem[1], eMem[2], eMem[3], eMem[4]);
-
+    result = SYSCALL_HANDLERS[SYSCALLS[eMem[0]]](eMem[1], eMem[2], eMem[3], eMem[4]);
+    RISCV.store_double_to_mem(payload.getLowBits(), new Long(result[0], 0x0));
+    RISCV.store_double_to_mem(payload.add(new Long(0x8, 0x0)).getLowBits(), new Long(result[1], 0x0));
 }
 
 function sys_exit() {
@@ -101,13 +102,39 @@ function sys_getmainvars(mm1, mm2, mm3, mm4) {
         sz = sz.add(new Long(args[i].length+1,0x0));
     }
 
-    var bytes = new Array(sz)
+    var bytes = new Uint8Array(sz.getLowBits());
+
+    if (sz.greaterThan(mm2)) {
+        // mm2 is limit
+        // TODO: what is ENOMEM? for now junk def:
+        var ENOMEM = -1;
+        return [-1, ENOMEM]
+    } 
+
+    // for endianness purposes, copy directly into mem
+    // copy in argc, pointers, argv[argc]=NULL, envp[0]=NULL
+    for (var i = 0; i < copyToMem.length; i++) {
+        RISCV.store_double_to_mem(mm1.getLowBits()+i*8, copyToMem[i]);
+    } 
 
 
+    var tracker = copyToMem.length*8;
+    for (var i = 0; i < args.length; i++) {
+        for (var j = 0; j < args[i].length; j++) {
+            console.log(args[i].charCodeAt(j));
+            bytes[tracker+j] = args[i].charCodeAt(j); // grab ASCII char codes from str
+        }
+        bytes[tracker+args[i].length] = 0; // add null terminator
+        tracker = tracker + args[i].length + 1;
+    } 
 
+    // write last piece of bytes into target memory
+    console.log(copyToMem.length*8);
+    console.log(bytes.length);
+    for (var i = copyToMem.length*8; i < bytes.length; i++) {   
+        console.log(bytes[i]);
+        RISCV.memory[mm1.getLowBits() + i] = bytes[i];
+    }
 
-
-
-
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+    return [0, 0];
 }
