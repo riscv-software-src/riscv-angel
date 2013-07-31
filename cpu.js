@@ -313,35 +313,30 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr, tr) {
-        try {
-            var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
-            tr = typeof tr !== 'undefined' ? tr : vmOn; 
-            if (tr) { 
-                addr = translate(addr, 2);
-            }
-
-            if ((addr % 4) != 0) {
-                throw new RISCVTrap("Load Address Misaligned", addr);
-            }
-            var retval = 0;
-            if (this.endianness === "big") {
-                retval = retval | this.memory[addr] << 24;
-                retval = retval | this.memory[addr+1] << 16;
-                retval = retval | this.memory[addr+2] << 8;
-                retval = retval | this.memory[addr+3];
-            } else if (this.endianness === "little") {
-                retval = retval | this.memory[addr+3] << 24;
-                retval = retval | this.memory[addr+2] << 16;
-                retval = retval | this.memory[addr+1] << 8;
-                retval = retval | this.memory[addr];
-            } else {
-                throw new RISCVError("Invalid Endianness");
-            }
-            return retval;
-        } catch(e) {
-            // catch Load Address Misaligned, convert to Inst Addr Misaligned
-            throw new RISCVTrap("Instruction Address Misaligned");
+        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        tr = typeof tr !== 'undefined' ? tr : vmOn; 
+        if (tr) { 
+            addr = translate(addr, 2);
         }
+
+        if ((addr % 4) != 0) {
+            throw new RISCVTrap("Instruction Address Misaligned", addr);
+        }
+        var retval = 0;
+        if (this.endianness === "big") {
+            retval = retval | this.memory[addr] << 24;
+            retval = retval | this.memory[addr+1] << 16;
+            retval = retval | this.memory[addr+2] << 8;
+            retval = retval | this.memory[addr+3];
+        } else if (this.endianness === "little") {
+            retval = retval | this.memory[addr+3] << 24;
+            retval = retval | this.memory[addr+2] << 16;
+            retval = retval | this.memory[addr+1] << 8;
+            retval = retval | this.memory[addr];
+        } else {
+            throw new RISCVError("Invalid Endianness");
+        }
+        return retval;
     }
 
 
@@ -389,7 +384,7 @@ function status_reg_force(input) {
     // force S64 to 1 here
     input = input & (~SR["SR_EF"]) & (~SR["SR_EC"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
-    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
+//    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
     // clear bit 2 and bits 9-15 (hardwired zeroes)
     input = input & ~(1 << 2);
     input = input & ~(0x7F << 9);

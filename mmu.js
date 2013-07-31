@@ -125,12 +125,26 @@ function page_table_entry_addr(entryin) {
     this.get_vpn0 = get_vpn0;
     this.get_vpn1 = get_vpn1;
     this.get_vpn2 = get_vpn2;
+    this.get_ppn = get_ppn;
 }
 
 
 // performs address translation
 function translate(addr, access_type) {
+    // decide which trap to throw in case
+    var throwTrap;
+    if (access_type == CONSTS.READ) {
+        throwTrap = "Load Access Fault";
+    } else if (access_type == CONSTS.WRITE) {
+        throwTrap = "Store Access Fault";
+    } else if (access_type == CONSTS.EXEC) {
+        throwTrap = "Instruction Access Fault";
+    } else {
+        throw new RISCVError("Invalid access_type in translate");
+    } 
+
     addr = new Long(addr, 0x0);
+    var vaddr = addr;
     console.log("USING ADDR TRANSLATION");
     // addr is address
     // access_type: indicates 0 for read, 1 for write, 2 for exec
@@ -138,68 +152,113 @@ function translate(addr, access_type) {
     var ptbr = RISCV.priv_reg[7]; // hardcoded update later    
 
     var pte2 = RISCV.load_double_from_mem((ptbr.add(new Long(addr.get_vpn2()*8, 0x0))).getLowBits(), false);
+
+    console.log(stringIntHex(pte2));
     pte2 = new page_table_entry_addr(pte2);
     
-    if (pte2.e != 0x1) {
-        throw new RISCVError("Address Error"); // need to update later
+//    if (pte2.get_E() != 0x1) {
+//        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
+//    }
+    if (pte2.get_T() != 0x1) {
+        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
     }
 
+
     // TODO: check permission bits
-    permission_check(pte2, access_type);
+//    permission_check(pte2, access_type, vaddr);
  
     var baseaddr1 = pte2.get_ppn().shiftLeft(13); 
     var pte1 = RISCV.load_double_from_mem((baseaddr1.add(new Long(addr.get_vpn1()*8, 0x0))).getLowBits(), false);
 
-    if (pte1.e != 0x1) {
-        throw new RISCVError("Address Error"); // need to update later
+    pte1 = new page_table_entry_addr(pte1);
+
+//    if (pte1.get_E() != 0x1) {
+//        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
+//    }
+    if (pte1.get_T() != 0x1) {
+        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
     }
 
-    permission_check(pte1, access_type);
+
+//    permission_check(pte1, access_type, vaddr);
 
     var baseaddr0 = pte1.get_ppn().shiftLeft(13);
     var pte0 = RISCV.load_double_from_mem((baseaddr0.add(new Long(addr.get_vpn0()*8, 0x0))).getLowBits(), false); 
-
-    if (pte0.e != 0x1) {
-        throw new RISCVError("Address Error"); // need to update later
+    pte0 = new page_table_entry_addr(pte0);
+ 
+    if (pte0.get_E() != 0x1) {
+        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
     }
+//    if (pte0.get_T() != 0x1) {
+//        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
+//    }
 
-    permission_check(pte0, access_type);
+
+    permission_check(pte0, access_type, vaddr);
     
     addr.set_ppn0(pte0.get_ppn0());
     addr.set_ppn1(pte0.get_ppn1());
     addr.set_ppn2(pte0.get_ppn2()); 
 
-    return addr.getLowBits();
+    console.log(addr.entry.getLowBits());
+    throw new RISCVError("FINISHED ONE TRANSLATION");
+    return addr.entry.getLowBits();
+    
 }
 
 
-function permission_check(pte, access_type) {
+function permission_check(pte, access_type, vaddr) {
     // check if access is valid
     // follows same convention for access_type as translate()
+    var throwTrap;
+    if (access_type == CONSTS.READ) {
+        throwTrap = "Load Access Fault";
+    } else if (access_type == CONSTS.WRITE) {
+        throwTrap = "Store Access Fault";
+    } else if (access_type == CONSTS.EXEC) {
+        throwTrap = "Instruction Access Fault";
+    } else {
+        throw new RISCVError("Invalid access_type in permission_check");
+    } 
     var isSupervisor = (RISCV.priv_reg[0] >> 5) & 0x1; // hardcoded 0 update later
     if (isSupervisor == 0x1) {  
         // if running in supervisor mode
-        if (access_type == 0 && pte.get_SR() == 0x1) {
+        if (access_type == CONSTS.READ && pte.get_SR() == 0x1) {
             return;
-        } else if (access_type == 1 && pte.get_SW() == 0x1) {
+        } else if (access_type == CONSTS.WRITE && pte.get_SW() == 0x1) {
             return;
-        } else if (access_type == 2 && pte.get_SX() == 0x1) {
+        } else if (access_type == CONSTS.EXEC && pte.get_SX() == 0x1) {
             return;
         } else {
-            throw RISCVError("Address Error"); // need to update later
+            throw RISCVTrap(throwTrap, vaddr.getLowBits()); 
         }
     } else if (isSupervisor == 0x0) {
         // if running in user mode
-        if (access_type == 0 && pte.get_UR() == 0x1) {
+        if (access_type == CONSTS.READ && pte.get_UR() == 0x1) {
             return;
-        } else if (access_type == 1 && pte.get_UW() == 0x1) {
+        } else if (access_type == CONSTS.WRITE && pte.get_UW() == 0x1) {
             return;
-        } else if (access_type == 2 && pte.get_UX() == 0x1) {
+        } else if (access_type == CONSTS.EXEC && pte.get_UX() == 0x1) {
             return;
         } else {
-            throw RISCVError("Address Error"); // need to update later
+            throw RISCVTrap(throwTrap, vaddr.getLowBits()); 
         }
     } else {
         throw new RISCVError("invalid CPU mode in permission check");
+    }
+}
+
+function throw_address_error(vaddr, access_type) {
+    if (access_type == 0) {
+        // READ
+        throw new RISCVTrap("Load Access Fault");
+    } else if (access_type == 1) {
+        // WRITE
+        throw new RISCVTrap("Store Access Fault");
+    } else if (access_type == 2) {
+        // EXEC
+        throw new RISCVTrap("Instruction Access Fault");
+    } else {
+        throw new RISCVError("INVALID ACCESS TYPE GIVEN TO throw_address_error");
     }
 }

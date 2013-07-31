@@ -202,7 +202,7 @@ function loadElf(binfile, filename, filesList) {
         */
 
         // load next instruction
-        instVal = RISCV.load_word_from_mem(RISCV.pc);
+        //instVal = RISCV.load_word_from_mem(RISCV.pc);
     }
 
     // show register contents to user

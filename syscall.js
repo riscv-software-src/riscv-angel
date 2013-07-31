@@ -136,5 +136,6 @@ function sys_getmainvars(mm1, mm2, mm3, mm4) {
         RISCV.memory[mm1.getLowBits() + i] = bytes[i];
     }
 
+    throw new RISCVError("LOL");
     return [0, 0];
 }
