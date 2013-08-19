@@ -171,7 +171,7 @@ End: addi s9, s9, 200</textarea>
                                 <span class="fileupload-preview" style="color:#000000;"></span>
                             </div>
                             <span class="btn btn-file">
-                                <span class="fileupload-new">>Select File to Execute</span>
+                                <span class="fileupload-new">> Load Binary to Exec.</span>
                                 <span class="fileupload-exists">Change</span>
                                 <input type="file" id="files" name="files[]" multiple />
                             </span>
@@ -183,7 +183,7 @@ End: addi s9, s9, 200</textarea>
 
 <div id="debugbuttons" style="position:relative;">
     <div style="float: left; width:40%; left: 0;">
-        <h4><a href="#" data-toggle="tooltip" data-placement="right" title="Special tools for monitoring program execution.">Debug Mode</a>:</h4> 
+        <h4><a href="#" data-toggle="tooltip" data-container="body" data-placement="bottom" title="Special tools for monitoring program execution.">Debug Mode</a>:</h4> 
     </div>
     <div id="debugtoggle" class="make-switch" data-on-label="ON" data-off-label="OFF" style="height: 30px; width: 30%; float:right; right: 0;">
         <input type="checkbox" checked="checked" />
@@ -192,11 +192,11 @@ End: addi s9, s9, 200</textarea>
 <br><br>
 <div id="debugbox" style="position:relative; width: 100%;">
 <div>
-<h5>Execution controls: </h5><a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-placement="right" title="Execute next instruction."   onclick="">></a>
-<a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-placement="right" title="Execute to completion."     onclick="">>></a>
+<h5>Execution controls: </h5><a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute next instruction."   onclick="">></a>
+<a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion."     onclick="">>></a>
 </div>
 
-                        <div><h5><a data-toggle="tooltip" data-placement="right" title="Enter comma separated list of 0x-prefixed (hex) PC values to use as breakpoints">Breakpoints</a>:</h5> <input type="text" style="height: 32px; width:100%;" id="breakpoints" /> </div>
+                        <div><h5><a data-toggle="tooltip" data-container="body" data-placement="bottom" title="Enter comma separated list of 0x-prefixed (hex) PC values to use as breakpoints">Breakpoints</a>:</h5> <input type="text" style="height: 32px; width:100%;" id="breakpoints" /> </div>
 
 
                         <table id="debugprops" class="table table-striped table-hover table-condensed table-bordered">
