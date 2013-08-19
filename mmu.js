@@ -145,7 +145,7 @@ function translate(addr, access_type) {
 
     addr = new Long(addr, 0x0);
     var vaddr = addr;
-    console.log("USING ADDR TRANSLATION");
+    //console.log("USING ADDR TRANSLATION");
     // addr is address
     // access_type: indicates 0 for read, 1 for write, 2 for exec
     addr = new page_table_entry_addr(addr);
@@ -153,7 +153,7 @@ function translate(addr, access_type) {
 
     var pte2 = RISCV.load_double_from_mem((ptbr.add(new Long(addr.get_vpn2()*8, 0x0))).getLowBits(), false);
 
-    console.log(stringIntHex(pte2));
+    //console.log(stringIntHex(pte2));
     pte2 = new page_table_entry_addr(pte2);
     
 //    if (pte2.get_E() != 0x1) {
@@ -200,8 +200,8 @@ function translate(addr, access_type) {
     addr.set_ppn1(pte0.get_ppn1());
     addr.set_ppn2(pte0.get_ppn2()); 
 
-    console.log(addr.entry.getLowBits());
-    throw new RISCVError("FINISHED ONE TRANSLATION");
+    //console.log(addr.entry.getLowBits());
+//    throw new RISCVError("FINISHED ONE TRANSLATION");
     return addr.entry.getLowBits();
     
 }

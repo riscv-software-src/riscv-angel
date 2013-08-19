@@ -26,7 +26,7 @@ function update_elf_proptable(elf, tab) {
 function RISCVError(message) {
     this.name = "RISCVError";
     this.message = (message || "");
-
+    this.e_type = "RISCVError";
     update_html_regtable(RISCV, tab);
 }
 
@@ -41,6 +41,7 @@ function RISCVTrap(message, memaddr) {
     this.memaddr = (memaddr || 0);
     this.exceptionCode = TRAPS[this.message];
     this.interruptBit = 0; // by def
+    this.e_type = "RISCVTrap";
 }
 
 // Make it a real Error

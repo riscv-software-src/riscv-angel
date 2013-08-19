@@ -120,14 +120,22 @@ function loadElf(binfile, filename, filesList) {
 
         // try catch goes around here
 
+        if (RISCV.pc == 0x48dc) {
+            throw new RISCVError("vm_init complete");
+        }
+
         try {
             var instVal = RISCV.load_inst_from_mem(RISCV.pc);
             var inst = new instruction(instVal);
             runInstruction(inst, RISCV);
         } catch(e) {
             // trap handling
-            console.log("HANDLING TRAP: " + e.message);
-            handle_trap(e);
+            if (e.e_type === "RISCVTrap") {
+                console.log("HANDLING TRAP: " + e.message);
+                handle_trap(e);
+            } else {
+                throw e;
+            }
         }
 
         var toHostVal = RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]];

@@ -87,6 +87,15 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val, tr) {
+
+        if (addr == 0xAB10){
+            if (this.spinlockwrites === undefined) {
+                this.spinlockwrites = 1;
+            } else {
+                this.spinlockwrites += 1;
+            }
+            console.log("WRITING TO SPINLOCK: " + this.spinlockwrites);
+        }
         var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
