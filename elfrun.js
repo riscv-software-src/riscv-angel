@@ -94,5 +94,4 @@ function elfRunNextInst() {
     update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal)], debugtab);
     update_html_regtable(RISCV, tab);
 
-
 }

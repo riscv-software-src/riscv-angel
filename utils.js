@@ -23,7 +23,7 @@ function update_elf_proptable(elf, tab) {
 
 function update_debug_table(propsarr, tab) {
 
-    var propnames = ["Current PC", "Current Inst"];
+    var propnames = ["Last instruction executed addr.", "Last instruction executed"];
 
     var samplerow = "<tr><td>Debug Stats</td><td>Value</td></tr>";
     var addinnerhtml = samplerow;

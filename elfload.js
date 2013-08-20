@@ -110,6 +110,15 @@ function loadElf(binfile, filename, filesList) {
     //while(RISCV.pc != 0) {
 
 
+    // GET breakpoints and make global dict
+    breakpoints = document.getElementById("breakpoints").value;
+    breakpoints = breakpoints.trim();
+    breakpoints = breakpoints.replace(/ +(?= )/g, ""); // strip extra spaces
+    breakpoints = breakpoints.split(" ");
+    breaks = new Object();
+    for (var i = 0; i < breakpoints.length; i++) {
+        breaks[parseInt(breakpoints[i], 16)] = 0x1;
+    }
 
     //}
 

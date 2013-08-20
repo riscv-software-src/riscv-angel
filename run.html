@@ -125,7 +125,7 @@ function elfRunCompletion() {
     // elf run to completion
     elfRunNextInst();
 
-    if (!pauseExec) {
+    if (!pauseExec && breaks[RISCV.pc] != 0x1) {
         setTimeout(elfRunCompletion, 0.00001);
     }
 
@@ -211,7 +211,7 @@ End: addi s9, s9, 200</textarea>
 
 </div>
 
-                        <div><h5><a data-toggle="tooltip" data-container="body" data-placement="bottom" title="Enter comma separated list of 0x-prefixed (hex) PC values to use as breakpoints">Breakpoints</a>:</h5> <input type="text" style="height: 32px; width:100%;" id="breakpoints" /> </div>
+                        <div><h5><a data-toggle="tooltip" data-container="body" data-placement="bottom" title="Enter space separated list of 0x-prefixed (hex) PC values to use as breakpoints. CPU will halt before the instruction at the specified address is executed. Breakpoints must be entered before elf file is loaded above.">Breakpoints</a>:</h5> <input type="text" style="height: 32px; width:100%;" id="breakpoints" /> </div>
 
 
 
