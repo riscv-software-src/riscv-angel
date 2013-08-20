@@ -21,6 +21,21 @@ function update_elf_proptable(elf, tab) {
     tab.innerHTML = addinnerhtml;
 }
 
+function update_debug_table(propsarr, tab) {
+
+    var propnames = ["Current PC", "Current Inst"];
+
+    var samplerow = "<tr><td>Debug Stats</td><td>Value</td></tr>";
+    var addinnerhtml = samplerow;
+
+    for (var i = 0; i < propnames.length; i++) {
+        addinnerhtml += samplerow.replace("Debug Stats", propnames[i]).replace("Value", propsarr[i]);
+    }
+
+    tab.innerHTML = addinnerhtml;
+}
+
+
 // Special Error class object that updates the HTML regtable before going up 
 // the stack
 function RISCVError(message) {

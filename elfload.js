@@ -106,112 +106,13 @@ function loadElf(binfile, filename, filesList) {
     // reset clock
     RISCV.reset_wall_clock();
 
-    var testSuccess = false; // special var for tests, set to true on first
-                             // toHost = 0x1 for tests cases
-
-    // used for inf loop detection
-    var oldpc;
-
     // TODO: modify this so that it detects the end of _exit and stops
-    while(RISCV.pc != 0) {
-        // run instruction
-        console.log(RISCV.pc.toString(16));
-        oldpc = RISCV.pc;
-
-        // try catch goes around here
-
-        if (RISCV.pc == 0x48dc) {
-            throw new RISCVError("vm_init complete");
-        }
-
-        try {
-            var instVal = RISCV.load_inst_from_mem(RISCV.pc);
-            var inst = new instruction(instVal);
-            runInstruction(inst, RISCV);
-        } catch(e) {
-            // trap handling
-            if (e.e_type === "RISCVTrap") {
-                console.log("HANDLING TRAP: " + e.message);
-                handle_trap(e);
-            } else {
-                throw e;
-            }
-        }
-
-        var toHostVal = RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]];
-        // check toHost, output to JS console, clear it
-        if (toHostVal.notEquals(new Long(0x0, 0x0))){
-            console.log("Output on toHost:");
-            console.log(stringLongHex(RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]]));
+    //while(RISCV.pc != 0) {
 
 
-            // now on every run, we need to check to see if a syscall is happening
-            // check device / cmd
-            var device = (toHostVal.getHighBits >> 24) & 0xFF;
-            var cmd = (toHostVal.getHighBits >> 16) & 0xFF;
-            var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
 
-            if (device == 0x0 && cmd == 0x0) {
-                // this is a syscall
-                if (payload.getLowBits() & 0x1 == 1) {
-                    // this is for testing (Pass/Fail) report for test programs
-                    // all other programs cannot have this bit set (since it's an
-                    // address)
-                    if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))) {
-                        // set to true in case this is a test
-                        testSuccess = true;
-                    }
-                } else {
-                    // this is for normal syscalls (not testing)
-                    handle_syscall(payload);
-                }
+    //}
 
-            }
-
-            // if we get the open syscall, we copy in the file at the address specified
-
-
-            RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
-        } 
-
-
-        // terminate if PC is unchanged
-        if (RISCV.pc == oldpc) {
-
-            // check TOHOST in case this is a test
-            if (testSuccess) {
-                document.getElementById("testresult").innerHTML = filename + " PASSED";
-                console.log(filename + " PASSED");
-                passCount++;
-                testCount++;
-                //console.log(passCount.toString() + " tests passed out of " + testCount.toString());
-            } else {
-                document.getElementById("testresult").innerHTML = filename + " FAILED";
-                console.log(filename + " FAILED");
-                testCount++;
-                //console.log(passCount.toString() + " tests passed out of " + testCount.toString());
-            }
-
-            // Terminate
-            //throw new RISCVError("PC Repeat. In single CPU imp, this means inf loop. Terminated. Current PC: " + RISCV.pc.toString(16));
-            //
-            if (filesList.length > 0) {
-                handle_file_continue(filesList);
-            } else {
-                console.log(passCount.toString() + " tests passed out of " + testCount.toString());
-            }
-            return;
-        }
-        /*
-        // update output. see note about this in run.html
-        for (var i = 0; i < RISCV.gen_reg.length; i++){
-            tab.rows[i+1].cells[1].innerHTML = (RISCV.gen_reg[i]|0).toString();
-        }
-        */
-
-        // load next instruction
-        //instVal = RISCV.load_word_from_mem(RISCV.pc);
-    }
 
     // show register contents to user
     update_html_regtable(RISCV, tab);

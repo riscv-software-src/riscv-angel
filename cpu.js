@@ -25,6 +25,13 @@ function CPU(memamt) {
     // store more than ~4GiB is probably not a good idea anyways 
     this.pc = 0x2000;
 
+    // catch loops
+    this.oldpc = 0x0;
+
+    // special testing flag
+    this.testSuccess = false;
+
+
     // general-purpose registers, gen_reg[0] is x0, etc.
     this.gen_reg = [];
     
