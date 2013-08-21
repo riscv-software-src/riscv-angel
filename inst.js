@@ -519,8 +519,8 @@ function runInstruction(inst, RISCV) {
             RISCV.pc += 4;
             break;
 
-        // J-TYPE (J) - opcode: 0b1100111
-        case 0x67:
+        // J-TYPE (J) - opcode: 0b1101011
+        case 0x6B:
             RISCV.pc = (RISCV.pc|0) + (signExt(inst.get_jump_offset(), 24) << 1);
             break;
 
@@ -598,11 +598,10 @@ function runInstruction(inst, RISCV) {
 
 
 
-        // I-TYPES (continued): JALRs and RDNPC 
-        case 0x6B:
+        // I-TYPES (JALR)
+        case 0x67:
             var funct3 = inst.get_funct3();
-            if (funct3 == 0x0 || funct3 == 0x1 || funct3 == 0x2) {
-                // JALR.C, .R, .J, all are functionally identical
+            if (funct3 == 0x0) {
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
                 RISCV.pc = (signExt(inst.get_imm("I"), 11)|0) + (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0);
             } else {
