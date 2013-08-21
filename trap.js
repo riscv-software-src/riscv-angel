@@ -30,6 +30,9 @@ function handle_trap(trap){
     // set ET to 0
     oldsr = oldsr & (~SR["SR_ET"]);
 
+    // store modified SR
+    RISCV.priv_reg[PCR["PCR_SR"]["num"]] = oldsr;
+
     // if trap is load/store misaligned address or access fault, 
     // set badvaddr to faulting address
     if (trapec == 0x8 || trapec == 0x9 || trapec == 0xA || trapec == 0xB) {
