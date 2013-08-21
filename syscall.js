@@ -36,8 +36,19 @@ function sys_read() {
     throw new RISCVError("NOT YET IMPLEMENTED"); 
 }
 
-function sys_write() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+function sys_write(fd, pbuf, len, a3) {
+    if (fd.getLowBits() < 0x3) {
+        // stdin, stdout, stderr TODO: stdin shouldn't really be here
+        var buildStr = "";
+        for (var i = 0; i < len.getLowBits(); i++) {
+            buildStr += String.fromCharCode(RISCV.load_byte_from_mem(pbuf.getLowBits() + i));
+        }    
+        buildStr = "<br>" + buildStr;
+        console.log(buildStr);
+        document.getElementById("console").innerHTML += buildStr;
+        forceConsoleDivDown();
+    }
+    return [0, 0];
 }
 
 function sys_open(pname, len, flags, mode) {

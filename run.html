@@ -252,7 +252,16 @@ End: addi s9, s9, 200</textarea>
 
         </div>
         <div class="span7">
-            Output:
+            <h4>Output:</h4>
+            <div id="consoleLabel"><h5>Console:</h5></div>
+            <div id="consoleBox" style="height:300px; background-color:black; color:white;overflow:auto; font-family: Monaco, Consolas, Lucida Console, monospace;">
+
+            <div id="console"></div>
+
+            <div id="consoleCursor">$ </div>
+            </div>
+
+            <div id="regLabel"><h5>Register Values</h5></div>
             <table id="regtable" class="table table-striped table-hover table-condensed table-bordered">
                 <tr>
                     <td>Register</td>
@@ -443,6 +452,7 @@ End: addi s9, s9, 200</textarea>
 
     fileNamePairs = new Array(); // global filename, filecontents pairs
 
+    flashConsoleCursor(); // start flashing console
 
     // init junk cpu to fill table
     runCode("addi zero, zero, 0");

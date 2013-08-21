@@ -3,6 +3,16 @@
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
 
+    // force load in for NON-VM IMPLEMENTATION
+    if (RISCV.pc == 0x10000) {
+        loadElf(fileNamePairs[1][1], fileNamePairs[1][0], []);
+    }
+
+
+
+
+
+
     var instVal;
 
     // run instruction

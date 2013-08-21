@@ -36,6 +36,24 @@ function update_debug_table(propsarr, tab) {
 }
 
 
+function flashConsoleCursor() {
+    inner = document.getElementById("consoleCursor").innerHTML;
+    if (inner == "$ ") {
+        //inner = "$ " + String.fromCharCode(9609);
+        inner = "$ " + String.fromCharCode(0x2588);
+    } else {
+        inner = "$ ";
+    }
+    document.getElementById("consoleCursor").innerHTML = inner;
+    setTimeout(flashConsoleCursor, 1000);
+}
+
+function forceConsoleDivDown() {
+    var objDiv = document.getElementById("consoleBox");
+    objDiv.scrollTop = objDiv.scrollHeight;
+}
+
+
 // Special Error class object that updates the HTML regtable before going up 
 // the stack
 function RISCVError(message) {
