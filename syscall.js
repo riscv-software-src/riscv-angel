@@ -20,6 +20,12 @@ function handle_syscall(payload) {
     result = SYSCALL_HANDLERS[SYSCALLS[eMem[0]]](eMem[1], eMem[2], eMem[3], eMem[4]);
     RISCV.store_double_to_mem(payload.getLowBits(), new Long(result[0], 0x0));
     RISCV.store_double_to_mem(payload.add(new Long(0x8, 0x0)).getLowBits(), new Long(result[1], 0x0));
+
+
+    //not sure if this is supposed to happen, but set fromhost to one
+    //TODO: figure out if this is supposed to be here
+    RISCV.priv_reg[31] = new Long(0x1, 0x0);
+
 }
 
 function sys_exit() {
@@ -136,6 +142,5 @@ function sys_getmainvars(mm1, mm2, mm3, mm4) {
         RISCV.memory[mm1.getLowBits() + i] = bytes[i];
     }
 
-    throw new RISCVError("LOL");
     return [0, 0];
 }

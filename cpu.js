@@ -400,7 +400,9 @@ function status_reg_force(input) {
     // force S64 to 1 here
     input = input & (~SR["SR_EF"]) & (~SR["SR_EC"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
-//    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
+
+    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
+
     // clear bit 2 and bits 9-15 (hardwired zeroes)
     input = input & ~(1 << 2);
     input = input & ~(0x7F << 9);
