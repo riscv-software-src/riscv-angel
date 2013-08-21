@@ -507,14 +507,13 @@ function runInstruction(inst, RISCV) {
             }
             break;
 
-        // L-TYPE (LUI only) - opcode: 0b0110111
+        // L-TYPE (LUI) - opcode: 0b0110111
         case 0x37:
             RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(inst.get_lui_imm() << 12, 31);
             RISCV.pc += 4;
             break;
 
-        // L-TYPE (AUIPC (not in spec, from isa-sim)) - opcode: 0b0010111
-        // not certain about this
+        // L-TYPE (AUIPC) - opcode: 0b0010111
         case 0x17:
             RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((inst.get_lui_imm() << 12) + (RISCV.pc|0), 31);
             RISCV.pc += 4;
@@ -606,10 +605,6 @@ function runInstruction(inst, RISCV) {
                 // JALR.C, .R, .J, all are functionally identical
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
                 RISCV.pc = (signExt(inst.get_imm("I"), 11)|0) + (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0);
-            } else if (funct3 === 0x4) {
-                // RDNPC
-                RISCV.pc += 4;              
-                RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc, 31);
             } else {
                 throw new RISCVTrap("Illegal Instruction");
             }
