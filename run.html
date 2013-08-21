@@ -114,7 +114,7 @@ function handle_file_continue(filesList) {
 
     reader.onload = (function(theFile, filesList) {
         return function(e) {
-            loadElf(e.target.result, theFile.name, filesList);
+            chainedFileLoader(e.target.result, theFile.name, filesList);
         };
     })(file, filesList);
 
@@ -440,6 +440,8 @@ End: addi s9, s9, 200</textarea>
     $('#debugtoggle').change(function() {
         $('#debugbox').toggle();
     });
+
+    fileNamePairs = new Array(); // global filename, filecontents pairs
 
 
     // init junk cpu to fill table

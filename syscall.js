@@ -40,12 +40,39 @@ function sys_write() {
     throw new RISCVError("NOT YET IMPLEMENTED"); 
 }
 
-function sys_open() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+function sys_open(pname, len, flags, mode) {
+    nameArr = new Array();
+    nameStr = "";
+
+    // these are bytes so ignore endianness
+    for (var i = 0; i < len.getLowBits(); i++) {
+        nameArr.push(RISCV.load_byte_from_mem(pname.getLowBits() + i));
+    }
+
+    for (var i = 0; i < nameArr.length-1; i++) {
+        nameStr = nameStr + String.fromCharCode(nameArr[i]);
+    }
+
+    //TODO: incorporate flags and mode?
+
+    // now check to make sure that fileNamePairs[2][0] is correct
+    if (fileNamePairs[1][0] === nameStr) {
+        // do nothing
+    } else {
+        throw new RISCVError("INCORRECT PROGRAM NAME SPECIFIED, see syscall.js");
+    }
+
+    // force file descriptor of 3 (stdout, stderr, stdin account for others)
+    return [3, 0];
 }
 
 function sys_close() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+
+    // do nothing for our current implementation
+    // TODO: handle running user code that works with files
+    return [0, 0];
+
+
 }
 
 function sys_fstat() {
@@ -72,8 +99,28 @@ function sys_unlink() {
     throw new RISCVError("NOT YET IMPLEMENTED"); 
 }
 
-function sys_pread() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+function sys_pread(fd, pbuf, len, off) {
+
+    console.log("fd " + stringIntHex(fd));
+    console.log("pbuf " + stringIntHex(pbuf));
+    console.log("len " + stringIntHex(len));
+    console.log("off " + stringIntHex(off));
+
+
+    var binary = fileNamePairs[1][1];
+    if (fd.getLowBits() === 0x3) {
+        console.log("loaded file to run");
+        //handle loading program to exec    
+        //assume same endianness
+        // load from offset to min(binary.length, len.getLowBits())
+        var loadlen = Math.min(binary.length, len.getLowBits());
+        console.log("loadlen " + stringIntHex(loadlen));
+        for (var i = off.getLowBits(); i < loadlen; i++) {
+            RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
+        }
+
+        return [loadlen, 0];
+    }
 }
 
 function sys_pwrite() {

@@ -154,3 +154,18 @@ function bytes_to_int(input, addr, numbytes, end) {
     }
     return output;
 }
+
+
+
+function chainedFileLoader(binFile, filename, filesList) {
+        // add binFile and filename to global array
+
+        fileNamePairs.push([filename, binFile]);
+
+        if (filesList.length > 0) {
+            handle_file_continue(filesList);
+        } else {
+            // call elfload with the first file
+            loadElf(fileNamePairs[0][1], fileNamePairs[0][0], filesList);
+        }
+}

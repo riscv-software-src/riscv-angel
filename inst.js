@@ -1049,7 +1049,7 @@ function runInstruction(inst, RISCV) {
                     oldsr = oldsr | SR["SR_ET"];
                     // set pc to value stored in EPC
                     RISCV.pc = RISCV.priv_reg[PCR["PCR_EPC"]["num"]].getLowBits();
-                    RISCV.pc += 4;
+//                    RISCV.pc += 4;
                     break;
 
                 default:

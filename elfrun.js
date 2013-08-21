@@ -66,6 +66,7 @@ function elfRunNextInst() {
     // terminate if PC is unchanged
     if (RISCV.pc == RISCV.oldpc) {
 
+    /* EVENTUALLY MOVE THIS TO SYSCALL HANDLER
         // check TOHOST in case this is a test
         if (RISCV.testSuccess) {
             document.getElementById("testresult").innerHTML = filename + " PASSED";
@@ -88,6 +89,7 @@ function elfRunNextInst() {
         } else {
             console.log(passCount.toString() + " tests passed out of " + testCount.toString());
         }
+    */
         return;
     }
 
