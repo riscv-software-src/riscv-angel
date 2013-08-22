@@ -942,15 +942,15 @@ function runInstruction(inst, RISCV) {
             break;
 
         // I/R-TYPES Privileged insts - opcode: 0b1111011
-        case 0x7B:
+        case 0x73:
             var funct3 = inst.get_funct3();
 
             switch(funct3) {
 
                 // CLEARPCR
-                case 0x0:
+                case 0x3:
                     // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
+                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -970,9 +970,9 @@ function runInstruction(inst, RISCV) {
 
 
                 // SETPCR
-                case 0x1:
+                case 0x2:
                     // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
+                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -991,9 +991,9 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // MFPCR
-                case 0x2:
+                case 0x1:
                     // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
+                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -1006,9 +1006,9 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // MTPCR
-                case 0x3:
+                case 0x0:
                     // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
+                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
 
@@ -1026,7 +1026,7 @@ function runInstruction(inst, RISCV) {
                 // ERET
                 case 0x4:
                     // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[0] & SR["SR_S"]) == 0) {
+                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
                         throw new RISCVTrap("Privileged Instruction");
                     }
                     // do eret stuff here
@@ -1039,7 +1039,7 @@ function runInstruction(inst, RISCV) {
                         oldsr = oldsr & (~SR["SR_S"]);
                     }
                     // set ET
-                    oldsr = oldsr | SR["SR_ET"];
+                    oldsr = oldsr | SR["SR_EI"];
         
                     // store updated SR back:
                     RISCV.priv_reg[PCR["PCR_SR"]["num"]] = oldsr;

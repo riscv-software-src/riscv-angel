@@ -55,7 +55,7 @@ function elfRunNextInst() {
                 // this is for testing (Pass/Fail) report for test programs
                 // all other programs cannot have this bit set (since it's an
                 // address)
-                if (RISCV.priv_reg[30].equals(new Long(0x1, 0x0))) {
+                if (RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]].equals(new Long(0x1, 0x0))) {
                     // set to true in case this is a test
                     RISCV.testSuccess = true;
                 }
@@ -103,7 +103,9 @@ function elfRunNextInst() {
         return;
     }
 
-    update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);
-    update_html_regtable(RISCV, tab);
+    if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
+        update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);
+        update_html_regtable(RISCV, tab);
+    }
 
 }

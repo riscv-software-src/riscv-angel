@@ -149,7 +149,7 @@ function translate(addr, access_type) {
     // addr is address
     // access_type: indicates 0 for read, 1 for write, 2 for exec
     addr = new page_table_entry_addr(addr);
-    var ptbr = RISCV.priv_reg[7]; // hardcoded update later    
+    var ptbr = RISCV.priv_reg[PCR["PCR_PTBR"]["num"]]; // hardcoded update later    
 
     var pte2 = RISCV.load_double_from_mem((ptbr.add(new Long(addr.get_vpn2()*8, 0x0))).getLowBits(), false);
 
@@ -220,7 +220,7 @@ function permission_check(pte, access_type, vaddr) {
     } else {
         throw new RISCVError("Invalid access_type in permission_check");
     } 
-    var isSupervisor = (RISCV.priv_reg[0] >> 5) & 0x1; // hardcoded 0 update later
+    var isSupervisor = ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) != 0x0); // hardcoded 0 update later
     if (isSupervisor == 0x1) {  
         // if running in supervisor mode
         if (access_type == CONSTS.READ && pte.get_SR() == 0x1) {

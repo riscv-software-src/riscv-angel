@@ -54,7 +54,7 @@ function CPU(memamt) {
     }
 
     // init status register
-    this.priv_reg[0] = status_reg_init(0, 0, 0);
+    this.priv_reg[PCR["PCR_SR"]["num"]] = status_reg_init(0, 0, 0);
 
     // initialize stack pointer to highest mem addr
     // needs to be modified if > 4GiB mem
@@ -94,16 +94,7 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val, tr) {
-
-        if (addr == 0xAB10){
-            if (this.spinlockwrites === undefined) {
-                this.spinlockwrites = 1;
-            } else {
-                this.spinlockwrites += 1;
-            }
-            console.log("WRITING TO SPINLOCK: " + this.spinlockwrites);
-        }
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -141,7 +132,7 @@ function CPU(memamt) {
     }
 
     function store_word_to_mem(addr, val, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -166,7 +157,7 @@ function CPU(memamt) {
     }
 
     function store_half_to_mem(addr, val, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -187,7 +178,7 @@ function CPU(memamt) {
     }
 
     function store_byte_to_mem(addr, val, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -197,7 +188,7 @@ function CPU(memamt) {
     }
 
     function load_double_from_mem(addr, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -234,7 +225,7 @@ function CPU(memamt) {
     }
 
     function load_word_from_mem(addr, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -261,7 +252,7 @@ function CPU(memamt) {
     }
 
     function load_half_from_mem(addr, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -284,7 +275,7 @@ function CPU(memamt) {
     }
 
     function load_byte_from_mem(addr, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -329,7 +320,7 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr, tr) {
-        var vmOn = (((this.priv_reg[0] >> 8) & 0x1) == 0x1);
+        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 2);
@@ -376,7 +367,7 @@ function status_reg_init(vm, im, ip) {
     // at RESET, processor starts with ET=0, S=1, VM=0
     var srinit = 0x0;
     // set ET to zero
-    srinit = srinit & (~SR["SR_ET"]);
+    srinit = srinit & (~SR["SR_EI"]);
     // set S = 1 here
     srinit = srinit | SR["SR_S"];
     // set PS = 0 here
@@ -398,7 +389,7 @@ function status_reg_force(input) {
     // force EC to zero here (no compressed insts)
     // force U64 to 1 here
     // force S64 to 1 here
-    input = input & (~SR["SR_EF"]) & (~SR["SR_EC"]);
+    input = input & (~SR["SR_EF"]) & (~SR["SR_PEI"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
 
     input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF

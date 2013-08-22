@@ -24,7 +24,7 @@ function handle_syscall(payload) {
 
     //not sure if this is supposed to happen, but set fromhost to one
     //TODO: figure out if this is supposed to be here
-    RISCV.priv_reg[31] = new Long(0x1, 0x0);
+    RISCV.priv_reg[PCR["PCR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
 
 }
 

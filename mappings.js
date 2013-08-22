@@ -268,7 +268,7 @@ var Rfields = {
 }; 
 
 // privileged control register mappings
-var PCR = {
+/*var PCR = {
     "PCR_SR"       :{"num": 0, "width": 32,},
     "PCR_EPC"      :{"num": 1, "width": 64,}, // normally 64, modded for imp restrictions
     "PCR_BADVADDR" :{"num": 2, "width": 64,}, // normally 64, modded for imp restrictions
@@ -288,10 +288,37 @@ var PCR = {
     "PCR_RESET"    :{"num": 29, "width": 32,}, // not sure here
     "PCR_TOHOST"   :{"num": 30, "width": 64,},
     "PCR_FROMHOST" :{"num": 31, "width": 64,},
+};*/
+
+// new
+var PCR = {
+    "PCR_SUP0"       :{"num": 0, "width": 64,},
+    "PCR_SUP1"      :{"num": 1, "width": 64,}, // normally 64, modded for imp restrictions
+    "PCR_EPC" :{"num": 2, "width": 64,}, // normally 64, modded for imp restrictions
+    "PCR_BADVADDR"     :{"num": 3, "width": 64,}, // normally 64, modded for imp restrictions
+    "PCR_PTBR"    :{"num": 4, "width": 64,},
+    "PCR_ASID"  :{"num": 5, "width": 64,},
+    "PCR_COUNT"    :{"num": 6, "width": 32,},
+    "PCR_COMPARE"     :{"num": 7, "width": 32,},
+    "PCR_EVEC" :{"num": 8, "width": 64,}, // not sure here
+    "PCR_CAUSE"  :{"num": 9, "width": 64,}, // not sure here
+    "PCR_SR"   :{"num": 10, "width": 32,},
+    "PCR_HARTID"     :{"num": 11, "width": 64,}, // not sure here
+    "PCR_IMPL"       :{"num": 12, "width": 64,},
+    "PCR_FATC"       :{"num": 13, "width": 64,},
+    "PCR_VECBANK"  :{"num": 18, "width": 64,},
+    "PCR_VECCFG"   :{"num": 19, "width": 64,}, //not sure here
+    "PCR_RESET"    :{"num": 29, "width": 32,}, // not sure here
+    "PCR_TOHOST"   :{"num": 30, "width": 64,},
+    "PCR_FROMHOST" :{"num": 31, "width": 64,},
 };
 
+
+
+
+
 // status register bit mappings
-var SR = {
+/*var SR = {
     "SR_ET"  :  0x00000001,
     "SR_EF"  :  0x00000002,
     "SR_EV"  :  0x00000004,
@@ -301,6 +328,20 @@ var SR = {
     "SR_U64" :  0x00000040,
     "SR_S64" :  0x00000080,
     "SR_VM"  :  0x00000100,
+    "SR_IM"  :  0x00FF0000,
+    "SR_IP"  :  0xFF000000,
+};*/
+
+var SR = {
+    "SR_S"  :  0x00000001,
+    "SR_PS"  :  0x00000002,
+    "SR_EI"  :  0x00000004,
+    "SR_PEI"  :  0x00000008,
+    "SR_EF"  :  0x00000010,
+    "SR_U64"   :  0x00000020,
+    "SR_S64" :  0x00000040,
+    "SR_VM" :  0x00000080,
+    "SR_EV"  :  0x00000100,
     "SR_IM"  :  0x00FF0000,
     "SR_IP"  :  0xFF000000,
 };

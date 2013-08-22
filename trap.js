@@ -3,7 +3,7 @@
 function handle_trap(trap){
     //first, need to check ET bit. if it is not one, processor enters ERROR
     //mode (throw new RISCVError("ERROR");)
-    if ((RISCV.priv_reg[0] & 0x1) == 0x0) {
+    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_EI"]) == 0x0) {
         // this means exceptions are disabled
         // enter ERROR mode:
         throw new RISCVError("Exceptions are Disabled but Trap Occurred, Terminating");
