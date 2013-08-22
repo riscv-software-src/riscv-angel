@@ -788,7 +788,6 @@ function runInstruction(inst, RISCV) {
 
 
         // 32 bit integer compute instructions
-
         case 0x1B:
             var funct3 = inst.get_funct3(); 
 
@@ -1513,12 +1512,12 @@ function runInstruction(inst, RISCV) {
             }
 
 
-            // MXTF.S
+            // FMV.S.X
             if (funct5 == 0x0 && rs3 == 0x1E && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
-            // MXTF.D
+            // FMV.D.X
             if (funct5 == 0x1 && rs3 == 0x1E && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
@@ -1570,19 +1569,50 @@ function runInstruction(inst, RISCV) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
-
-            // MFTX.S
-            if (funct5 == 0x0 && rs3 == 0x1C && rs1 == 0x0) {
+            // FMV.X.S
+            if (funct5 == 0x0 && rs3 == 0x1C && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
-            // MFTX.D
-            if (funct5 == 0x1 && rs3 == 0x1C && rs1 == 0x0) {
+            // FMV.X.D
+            if (funct5 == 0x1 && rs3 == 0x1C && rs2 == 0x0) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
             // MFFSR NOTE: MIGHT NEED TO ACTUALLY IMPLEMENT
             if (funct5 == 0x0 && rs3 == 0x1D && rs2 == 0x0 && rs1 == 0x0) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FOLLOWING INSTS ARE NEW FROM V1.999
+
+            // FEQ.S
+            if (funct5 == 0x0 && rs3 == 0x15) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FLT.S
+            if (funct5 == 0x0 && rs3 == 0x16) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FLE.S
+            if (funct5 == 0x0 && rs3 == 0x17) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FEQ.D
+            if (funct5 == 0x1 && rs3 == 0x15) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FLT.D
+            if (funct5 == 0x1 && rs3 == 0x16) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+
+            // FLE.D
+            if (funct5 == 0x1 && rs3 == 0x17) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
