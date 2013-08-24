@@ -28,8 +28,9 @@ function handle_syscall(payload) {
 
 }
 
-function sys_exit() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+function sys_exit(code, a1, a2, a3) {
+    console.log("EXITCODE: " + stringIntHex(code.shiftLeft(1).or(new Long(0x1, 0x0))));
+    return [0, 0];
 }
 
 function sys_read() {
