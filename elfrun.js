@@ -3,6 +3,7 @@
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
 
+/*
     // force load in for NON-VM IMPLEMENTATION
     if (RISCV.pc == 0x10000) {
         var filen = document.getElementById("cmdargs").value.trim().replace(/ +(?= )/g, "").split(" ")[0];
@@ -11,7 +12,7 @@ function elfRunNextInst() {
         loadElf(bin, filen, []);
     }
 
-
+*/
 
 
 
@@ -19,7 +20,7 @@ function elfRunNextInst() {
     var instVal;
 
     // run instruction
-    console.log(RISCV.pc.toString(16));
+//    console.log(RISCV.pc.toString(16));
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;

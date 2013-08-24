@@ -27,14 +27,29 @@ function sys_exit(code, a1, a2, a3) {
     return [0, 0];
 }
 
-function sys_read() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+function sys_read(fd, pbuf, len, a3) {
+    console.log("fd " + stringIntHex(fd));
+    console.log("pbuf " + stringIntHex(pbuf));
+    console.log("len " + stringIntHex(len));
+
+    var binary = RISCV.binaries[fd.getLowBits()];
+    console.log("loaded file to run");
+    //handle loading program to exec    
+    //assume same endianness
+    // load from offset to min(binary.length, len.getLowBits())
+    var loadlen = Math.min(binary.length, len.getLowBits());
+    console.log("loadlen " + stringIntHex(loadlen));
+    for (var i = 0; i < loadlen; i++) {
+        RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
+    }
+    return [loadlen, 0];
 }
 
 function sys_write(fd, pbuf, len, a3) {
 
     // TODO: implement writing to files. currently only stdout/stderr
-    if (fd.getLowBits() < 0x3) {
+//    if (fd.getLowBits() < 0x3) {
+    if (true) {
         // stdin, stdout, stderr TODO: stdin shouldn't really be here
         var buildStr = "";
         for (var i = 0; i < len.getLowBits(); i++) {
@@ -112,10 +127,21 @@ function sys_pread(fd, pbuf, len, off) {
     //handle loading program to exec    
     //assume same endianness
     // load from offset to min(binary.length, len.getLowBits())
+
+    // TODO: EVENTUALLY FIX FOR LARGE FILES, where we may be loading weirdly / too much
     var loadlen = Math.min(binary.length, len.getLowBits());
+
+/*    if (len.getLowBits() + off.getLowBits() <= binary.length) {
+        var loadlen = len.getLowBits();
+    } else {
+        var loadlen = binary.length
+*/
+
+
+
     console.log("loadlen " + stringIntHex(loadlen));
-    for (var i = off.getLowBits(); i < loadlen; i++) {
-        RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
+    for (var i = 0; i < loadlen; i++) {
+        RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i+off.getLowBits()) & 0xFF); 
     }
 
     return [loadlen, 0];

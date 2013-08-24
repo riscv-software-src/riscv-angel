@@ -1299,13 +1299,54 @@ function runInstruction(inst, RISCV) {
             RISCV.pc += 4;
             break; 
 
-        // Floating-Point Insts, FADD.S to FMAX.D
+        // FMADD.S, FMADD.D
+        case 0x43:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FMSUB.S, FMSUB.D
+        case 0x47:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FNMSUB.S, FNMSUB.D
+        case 0x4B:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // FNMADD.S, FNMADD.D
+        case 0x4F:
+            var funct5low = inst.get_funct5() & 0x3;
+            if (funct5low == 0x0 || funct5low == 0x1) {
+                throw new RISCVTrap("Floating-Point Disabled");
+            }
+            // If none of these trigger, this is an illegal instruction:
+            throw new RISCVTrap("Illegal Instruction");
+            break;
+
+        // REMAINING FP INSTRUCTIONS (ALL OPCODE 0b1010011)
         case 0x53:
             var funct5 = inst.get_funct5();
             var funct5low = funct5 & 0x3; 
             var funct5high = (funct5 >> 2) & 0x7;
             var rs3 = inst.get_rs3();
             var rs2 = inst.get_rs2();
+            var rs1 = inst.get_rs1();
 
             // FADD.S
             if (funct5low == 0x0 && rs3 == 0x0) {
@@ -1377,58 +1418,9 @@ function runInstruction(inst, RISCV) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
 
-            // If none of these trigger, this is an illegal instruction:
-            throw new RISCVTrap("Illegal Instruction");
-            break;
 
-        // FMADD.S, FMADD.D
-        case 0x43:
-            var funct5low = inst.get_funct5() & 0x3;
-            if (funct5low == 0x0 || funct5low == 0x1) {
-                throw new RISCVTrap("Floating-Point Disabled");
-            }
-            // If none of these trigger, this is an illegal instruction:
-            throw new RISCVTrap("Illegal Instruction");
-            break;
 
-        // FMSUB.S, FMSUB.D
-        case 0x47:
-            var funct5low = inst.get_funct5() & 0x3;
-            if (funct5low == 0x0 || funct5low == 0x1) {
-                throw new RISCVTrap("Floating-Point Disabled");
-            }
-            // If none of these trigger, this is an illegal instruction:
-            throw new RISCVTrap("Illegal Instruction");
-            break;
 
-        // FNMSUB.S, FNMSUB.D
-        case 0x4B:
-            var funct5low = inst.get_funct5() & 0x3;
-            if (funct5low == 0x0 || funct5low == 0x1) {
-                throw new RISCVTrap("Floating-Point Disabled");
-            }
-            // If none of these trigger, this is an illegal instruction:
-            throw new RISCVTrap("Illegal Instruction");
-            break;
-
-        // FNMADD.S, FNMADD.D
-        case 0x4F:
-            var funct5low = inst.get_funct5() & 0x3;
-            if (funct5low == 0x0 || funct5low == 0x1) {
-                throw new RISCVTrap("Floating-Point Disabled");
-            }
-            // If none of these trigger, this is an illegal instruction:
-            throw new RISCVTrap("Illegal Instruction");
-            break;
-
-        // REMAINING FP INSTRUCTIONS (ALL OPCODE 0b1010011)
-        case 0x53:
-            var funct5 = inst.get_funct5();
-            var funct5low = funct5 & 0x3; 
-            var funct5high = (funct5 >> 2) & 0x7;
-            var rs3 = inst.get_rs3();
-            var rs2 = inst.get_rs2();
-            var rs1 = inst.get_rs1();
 
             // FSGNJ.S
             if (funct5 == 0x0 && rs3 == 0x5) {
@@ -1617,13 +1609,13 @@ function runInstruction(inst, RISCV) {
             }
 
             // If none of these trigger, this is an illegal instruction:
-            throw new RISCVTrap("Illegal Instruction");
+            throw new RISCVTrap("Illegal Instruction OCCURRED HERE 1");
             break;
 
         default:
             //throw new RISCVError("Unknown instruction at: 0x" + RISCV.pc.toString(16));
             //don't throw error for completely unknown inst (i.e. unknown opcode)
-            throw new RISCVTrap("Illegal Instruction");
+            throw new RISCVTrap("Illegal Instruction OCCURRED HERE 2");
             break;
     }
 
