@@ -96,6 +96,9 @@ function handle_file(files) {
 
     filesList = [].slice.call(files.target.files);
     handle_file_continue(filesList);
+
+
+    RISCV = new CPU();
 }
 
 function handle_file_continue(filesList) {
@@ -110,7 +113,7 @@ function handle_file_continue(filesList) {
     var file = filesList[0];
     filesList = filesList.slice(1, filesList.length);
     var reader = new FileReader();
-    RISCV = new CPU();
+//    RISCV = new CPU();
 
     reader.onload = (function(theFile, filesList) {
         return function(e) {

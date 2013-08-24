@@ -31,6 +31,17 @@ function CPU(memamt) {
     // special testing flag
     this.testSuccess = false;
 
+    // file management fields
+    // program name => fd lookup
+    this.pname_fd = new Object();
+    // fd => program name lookup
+    this.fd_pname = new Object();
+    // actually store binaries. index on file descriptor
+    this.binaries = [];
+    // next unused file-descriptor. start at 0x3
+    this.next_fd = 3;
+
+
 
     // general-purpose registers, gen_reg[0] is x0, etc.
     this.gen_reg = [];

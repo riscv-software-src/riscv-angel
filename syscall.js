@@ -4,18 +4,12 @@
 
 
 function handle_syscall(payload) {
-
-
     // read 8 words starting at payload
     var eMem = [];
     for (var i = 0; i < 8; i++){
         eMem.push(RISCV.load_double_from_mem(payload.getLowBits() + i*8));
     }
-/*    console.log("syscall magic mem:");
-    for (var i = 0; i < 8; i++){
-        console.log(stringIntHex(eMem[i]));
-    }
-*/
+
     console.log(SYSCALLS[eMem[0]]);
     result = SYSCALL_HANDLERS[SYSCALLS[eMem[0]]](eMem[1], eMem[2], eMem[3], eMem[4]);
     RISCV.store_double_to_mem(payload.getLowBits(), new Long(result[0], 0x0));
@@ -38,6 +32,8 @@ function sys_read() {
 }
 
 function sys_write(fd, pbuf, len, a3) {
+
+    // TODO: implement writing to files. currently only stdout/stderr
     if (fd.getLowBits() < 0x3) {
         // stdin, stdout, stderr TODO: stdin shouldn't really be here
         var buildStr = "";
@@ -67,15 +63,8 @@ function sys_open(pname, len, flags, mode) {
 
     //TODO: incorporate flags and mode?
 
-    // now check to make sure that fileNamePairs[2][0] is correct
-    if (fileNamePairs[1][0] === nameStr) {
-        // do nothing
-    } else {
-        throw new RISCVError("INCORRECT PROGRAM NAME SPECIFIED, see syscall.js");
-    }
-
-    // force file descriptor of 3 (stdout, stderr, stdin account for others)
-    return [3, 0];
+    // return the file descriptor (stdout, stderr, stdin account for others)
+    return [RISCV.pname_fd[nameStr], 0];
 }
 
 function sys_close() {
@@ -112,27 +101,24 @@ function sys_unlink() {
 }
 
 function sys_pread(fd, pbuf, len, off) {
-
     console.log("fd " + stringIntHex(fd));
     console.log("pbuf " + stringIntHex(pbuf));
     console.log("len " + stringIntHex(len));
     console.log("off " + stringIntHex(off));
 
 
-    var binary = fileNamePairs[1][1];
-    if (fd.getLowBits() === 0x3) {
-        console.log("loaded file to run");
-        //handle loading program to exec    
-        //assume same endianness
-        // load from offset to min(binary.length, len.getLowBits())
-        var loadlen = Math.min(binary.length, len.getLowBits());
-        console.log("loadlen " + stringIntHex(loadlen));
-        for (var i = off.getLowBits(); i < loadlen; i++) {
-            RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
-        }
-
-        return [loadlen, 0];
+    var binary = RISCV.binaries[fd.getLowBits()];
+    console.log("loaded file to run");
+    //handle loading program to exec    
+    //assume same endianness
+    // load from offset to min(binary.length, len.getLowBits())
+    var loadlen = Math.min(binary.length, len.getLowBits());
+    console.log("loadlen " + stringIntHex(loadlen));
+    for (var i = off.getLowBits(); i < loadlen; i++) {
+        RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
     }
+
+    return [loadlen, 0];
 }
 
 function sys_pwrite() {

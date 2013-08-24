@@ -159,13 +159,26 @@ function bytes_to_int(input, addr, numbytes, end) {
 
 function chainedFileLoader(binFile, filename, filesList) {
         // add binFile and filename to global array
-
-        fileNamePairs.push([filename, binFile]);
+        console.log('called for ' + filename);
+        RISCV.pname_fd[filename] = RISCV.next_fd;
+        RISCV.fd_pname[RISCV.next_fd] = filename;
+        RISCV.binaries[RISCV.next_fd] = binFile;
+        RISCV.next_fd += 1;
 
         if (filesList.length > 0) {
             handle_file_continue(filesList);
         } else {
-            // call elfload with the first file
-            loadElf(fileNamePairs[0][1], fileNamePairs[0][0], filesList);
+            // call elfload with pk to start boot
+            loadElf(RISCV.binaries[RISCV.pname_fd["pk"]], "pk", filesList);
+            // if cmdargs is empty and next fd is 5, assume fd 4 is user prog:
+            var cmdargs = document.getElementById("cmdargs");
+            var arg = cmdargs.value;
+            if (arg === "" && RISCV.next_fd == 5) {
+                if (RISCV.pname_fd["pk"] == 3) {
+                    cmdargs.value = RISCV.fd_pname[4] + "";
+                } else {
+                    cmdargs.value = RISCV.fd_pname[3] + "";
+                }
+            }
         }
 }
