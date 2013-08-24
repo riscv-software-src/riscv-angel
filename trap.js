@@ -45,12 +45,4 @@ function handle_trap(trap){
     // set PC = to value in evec register
     RISCV.pc = RISCV.priv_reg[PCR["PCR_EVEC"]["num"]].getLowBits();
 
-    // TODO: how is evec initalized at CPU reset? (trap_entry from kernel?)
-
-
-
-
-
-
-
 }

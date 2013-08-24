@@ -3,20 +3,6 @@
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
 
-/*
-    // force load in for NON-VM IMPLEMENTATION
-    if (RISCV.pc == 0x10000) {
-        var filen = document.getElementById("cmdargs").value.trim().replace(/ +(?= )/g, "").split(" ")[0];
-        var bin = RISCV.binaries[RISCV.pname_fd[filen]];
-
-        loadElf(bin, filen, []);
-    }
-
-*/
-
-
-
-
     var instVal;
 
     // run instruction
@@ -24,7 +10,6 @@ function elfRunNextInst() {
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
-
 
     try {
         instVal = RISCV.load_inst_from_mem(RISCV.pc);
@@ -69,9 +54,6 @@ function elfRunNextInst() {
             }
 
         }
-
-        // if we get the open syscall, we copy in the file at the address specified
-
 
         RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
     } 

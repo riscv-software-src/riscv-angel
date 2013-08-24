@@ -6,6 +6,13 @@
 function page_table_entry_addr(entryin) {
     this.entry = entryin; // entryin MUST be a long
 
+
+
+    // TODO: fix this with 
+    // https://github.com/ucb-bar/riscv-pk/blob/186ae3cc353fa3115d4ee0c9fcb18d8b2370c68c/pk/pcr.h
+
+
+
     function get_T() {
         return this.entry.getLowBits() & 0x1;
     }

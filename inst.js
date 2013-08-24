@@ -741,8 +741,6 @@ function runInstruction(inst, RISCV) {
 
                 // SYSCALL
                 case 0x0:
-                    // currently need to halt at syscall for elfs to work properly
-                    //throw new RISCVError("SYSCALL NOT IMPLEMENTED");
                     throw new RISCVTrap("System Call");
                     RISCV.pc += 4;
                     break;

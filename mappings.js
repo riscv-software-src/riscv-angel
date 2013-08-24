@@ -267,30 +267,6 @@ var Rfields = {
     "mtpcr": new cRtype(0x7B, 0x3),
 }; 
 
-// privileged control register mappings
-/*var PCR = {
-    "PCR_SR"       :{"num": 0, "width": 32,},
-    "PCR_EPC"      :{"num": 1, "width": 64,}, // normally 64, modded for imp restrictions
-    "PCR_BADVADDR" :{"num": 2, "width": 64,}, // normally 64, modded for imp restrictions
-    "PCR_EVEC"     :{"num": 3, "width": 64,}, // normally 64, modded for imp restrictions
-    "PCR_COUNT"    :{"num": 4, "width": 32,},
-    "PCR_COMPARE"  :{"num": 5, "width": 32,},
-    "PCR_CAUSE"    :{"num": 6, "width": 64,},
-    "PCR_PTBR"     :{"num": 7, "width": 64,},
-    "PCR_SEND_IPI" :{"num": 8, "width": 64,}, // not sure here
-    "PCR_CLR_IPI"  :{"num": 9, "width": 64,}, // not sure here
-    "PCR_COREID"   :{"num": 10, "width": 64,},
-    "PCR_IMPL"     :{"num": 11, "width": 64,}, // not sure here
-    "PCR_K0"       :{"num": 12, "width": 64,},
-    "PCR_K1"       :{"num": 13, "width": 64,},
-    "PCR_VECBANK"  :{"num": 18, "width": 64,},
-    "PCR_VECCFG"   :{"num": 19, "width": 64,}, //not sure here
-    "PCR_RESET"    :{"num": 29, "width": 32,}, // not sure here
-    "PCR_TOHOST"   :{"num": 30, "width": 64,},
-    "PCR_FROMHOST" :{"num": 31, "width": 64,},
-};*/
-
-// new
 var PCR = {
     "PCR_SUP0"       :{"num": 0, "width": 64,},
     "PCR_SUP1"      :{"num": 1, "width": 64,}, // normally 64, modded for imp restrictions
@@ -314,24 +290,7 @@ var PCR = {
 };
 
 
-
-
-
 // status register bit mappings
-/*var SR = {
-    "SR_ET"  :  0x00000001,
-    "SR_EF"  :  0x00000002,
-    "SR_EV"  :  0x00000004,
-    "SR_EC"  :  0x00000008,
-    "SR_PS"  :  0x00000010,
-    "SR_S"   :  0x00000020,
-    "SR_U64" :  0x00000040,
-    "SR_S64" :  0x00000080,
-    "SR_VM"  :  0x00000100,
-    "SR_IM"  :  0x00FF0000,
-    "SR_IP"  :  0xFF000000,
-};*/
-
 var SR = {
     "SR_S"  :  0x00000001,
     "SR_PS"  :  0x00000002,
@@ -346,32 +305,6 @@ var SR = {
     "SR_IP"  :  0xFF000000,
 };
 
-
-//var numToPCR = [
-//    "PCR_SR",
-//    "PCR_EPC",
-//    "PCR_BADVADDR",
-//    "PCR_EVEC",
-//    "PCR_COUNT",
-//    "PCR_COMPARE",
-//    "PCR_CAUSE",
-//    "PCR_PTBR",
-//    "PCR_SEND_IPI",
-//    "PCR_CLR_IPI",
-//    "PCR_COREID",
-//    "PCR_IMPL",
-//    "PCR_K0",
-//    "PCR_K1",
-//    undefined,
-//    undefined,
-//    undefined,
-//    undefined,
-//    "PCR_VECBANK",
-//    "PCR_VECCFG",
-//    "PCR_RESET",
-//    "PCR_TOHOST",
-//    "PCR_FROMHOST"
-//];
 
 var TRAPS = {
     "Instruction Address Misaligned": 0x0, // now thrown
