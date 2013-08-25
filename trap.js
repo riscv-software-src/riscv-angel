@@ -24,11 +24,18 @@ function handle_trap(trap){
     } else {
         oldsr = oldsr & (~SR["SR_PS"]);
     }
+
+    if ((oldsr & SR["SR_EI"] != 0)) {
+        oldsr = oldsr | SR["SR_PEI"];
+    } else {
+        oldsr = oldsr & (~SR["SR_PEI"]);
+    }
+
     // set S to 1 - enable supervisor
     oldsr = oldsr | SR["SR_S"];
 
-    // set ET to 0
-    oldsr = oldsr & (~SR["SR_ET"]);
+    // set EI to 0
+    oldsr = oldsr & (~SR["SR_EI"]);
 
     // store modified SR
     RISCV.priv_reg[PCR["PCR_SR"]["num"]] = oldsr;

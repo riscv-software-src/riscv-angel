@@ -228,7 +228,7 @@ End: addi s9, s9, 200</textarea>
                         <div><h5><a data-toggle="tooltip" data-container="body" data-placement="bottom" title="Enter space separated list of 0x-prefixed (hex) PC values to use as breakpoints. CPU will halt before the instruction at the specified address is executed. Breakpoints must be entered before elf file is loaded above.">Breakpoints</a>:</h5> <input type="text" style="height: 32px; width:100%;" id="breakpoints" /> </div>
 
 
-
+<div style="font-family: Monaco, Consolas, Lucida Console, monospace;">
                         <table id="debugprops" class="table table-striped table-hover table-condensed table-bordered">
                             <tr>
                                 <td>Debug Stats</td>
@@ -240,9 +240,9 @@ End: addi s9, s9, 200</textarea>
                             </tr>
 
                         </table>
+</div>
 
-
-
+<div style="font-family: Monaco, Consolas, Lucida Console, monospace;">
                         <table id="elfprops" class="table table-striped table-hover table-condensed table-bordered">
                             <tr>
                                 <td>ELF Property</td>
@@ -253,7 +253,7 @@ End: addi s9, s9, 200</textarea>
                                 <td></td>
                             </tr>
                         </table>
-
+</div>
 
                         <div id="testrestext">Test Result (for RV64 tests): </div>
                         <div id="testresult">ELF not loaded</div>
@@ -276,6 +276,8 @@ End: addi s9, s9, 200</textarea>
             </div>
 
             <div id="regLabel"><h5>Register Values</h5></div>
+
+            <div style="font-family: Monaco, Consolas, Lucida Console, monospace;">
             <table id="regtable" class="table table-striped table-hover table-condensed table-bordered">
                 <tr>
                     <td>Register</td>
@@ -443,6 +445,7 @@ End: addi s9, s9, 200</textarea>
                     <td></td>
                 </tr>
             </table>
+            </div>
         </div>
 
     </div>

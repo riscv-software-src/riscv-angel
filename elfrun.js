@@ -5,6 +5,16 @@ function elfRunNextInst() {
 
     var instVal;
 
+
+    // write out to console to indicate booting
+    if (RISCV.pc == 0x2000) {
+        // indicate booting
+        document.getElementById("console").innerHTML += "Booting proxy_kernel...";
+    } else if (RISCV.pc == 0x10000) {
+        // indicate finished booting
+        document.getElementById("console").innerHTML += "<br>Boot finished, running user program...";
+    }
+
     // run instruction
 //    console.log(RISCV.pc.toString(16));
 

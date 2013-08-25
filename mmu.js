@@ -1,6 +1,33 @@
 // simulated memory management unit,
 // needs to intercept all memory loading calls
 
+
+
+    // CONSTANTS HERE
+    var LEVELS = new Long(0x3, 0x0);
+    var PTIDXBITS = new Long(0xA, 0x0);
+    var PGSHIFT = new Long(0xD, 0x0);
+    var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT.getLowBits());
+    var VPN_BITS = new Long(30, 0x0);
+    var PPN_BITS = new Long(51, 0x0);
+    var VA_BITS = new Long(43, 0x0);
+
+    var PTE_V = new Long(0x1, 0x0);
+    var PTE_T = new Long(0x2, 0x0);
+    var PTE_G = new Long(0x4, 0x0);
+    var PTE_UR = new Long(0x8, 0x0);
+    var PTE_UW = new Long(0x10, 0x0);
+    var PTE_UX = new Long(0x20, 0x0);
+    var PTE_SR = new Long(0x40, 0x0);
+    var PTE_SW = new Long(0x80, 0x0);
+    var PTE_SX = new Long(0x100, 0x0);
+
+
+/*
+
+
+
+
 // object with attached helper methods for a page table entry or virtual address
 // get_pgoff is for virtual address, all others in the 12-0 range are for pt entry
 function page_table_entry_addr(entryin) {
@@ -13,45 +40,43 @@ function page_table_entry_addr(entryin) {
 
 
 
-    function get_T() {
+    function get_V() {
         return this.entry.getLowBits() & 0x1;
     }
 
-    function get_E() {
+    function get_T() {
         return (this.entry.getLowBits() >> 1) & 0x1;
     }
 
-    function get_R() {
+    function get_G() {
         return (this.entry.getLowBits() >> 2) & 0x1;
     }
 
-    function get_D() {
+    function get_UR() {
         return (this.entry.getLowBits() >> 3) & 0x1;
     }
 
-    function get_UX() {
+    function get_UW() {
         return (this.entry.getLowBits() >> 4) & 0x1;
     }
 
-    function get_UW() {
+    function get_UX() {
         return (this.entry.getLowBits() >> 5) & 0x1;
     }
 
-    function get_UR() {
+    function get_SR() {
         return (this.entry.getLowBits() >> 6) & 0x1;
     }
 
-    function get_SX() {
+    function get_SW() {
         return (this.entry.getLowBits() >> 7) & 0x1;
     }
 
-    function get_SW() {
+    function get_SX() {
         return (this.entry.getLowBits() >> 8) & 0x1;
     }
 
-    function get_SR() {
-        return (this.entry.getLowBits() >> 9) & 0x1;
-    }
+    // FIXED ABOVE
 
     function get_ppn0() {
         return (this.entry.getLowBits() >> 13) & 0x3FF;
@@ -112,16 +137,15 @@ function page_table_entry_addr(entryin) {
         return this.entry.shiftRightUnsigned(13);
     }
 
+    this.get_V = get_V;
     this.get_T = get_T;
-    this.get_E = get_E;
-    this.get_R = get_R;
-    this.get_D = get_D;
-    this.get_UX = get_UX;
-    this.get_UW = get_UW;
+    this.get_G = get_G;
     this.get_UR = get_UR;
-    this.get_SX = get_SX;
-    this.get_SW = get_SW;
+    this.get_UW = get_UW;
+    this.get_UX = get_UX;
     this.get_SR = get_SR;
+    this.get_SW = get_SW;
+    this.get_SX = get_SX;
     this.get_ppn0 = get_ppn0;
     this.set_ppn0 = set_ppn0;
     this.get_ppn1 = get_ppn1;
@@ -134,7 +158,7 @@ function page_table_entry_addr(entryin) {
     this.get_vpn2 = get_vpn2;
     this.get_ppn = get_ppn;
 }
-
+*/
 
 // performs address translation
 function translate(addr, access_type) {
@@ -151,121 +175,102 @@ function translate(addr, access_type) {
     } 
 
     addr = new Long(addr, 0x0);
-    var vaddr = addr;
-    //console.log("USING ADDR TRANSLATION");
-    // addr is address
-    // access_type: indicates 0 for read, 1 for write, 2 for exec
-    addr = new page_table_entry_addr(addr);
-    var ptbr = RISCV.priv_reg[PCR["PCR_PTBR"]["num"]]; // hardcoded update later    
 
-    var pte2 = RISCV.load_double_from_mem((ptbr.add(new Long(addr.get_vpn2()*8, 0x0))).getLowBits(), false);
+    var pte = walk(addr);
 
-    //console.log(stringIntHex(pte2));
-    pte2 = new page_table_entry_addr(pte2);
-    
-//    if (pte2.get_E() != 0x1) {
-//        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
-//    }
-    if (pte2.get_T() != 0x1) {
-        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
+    var mode = RISCV.priv_reg[PCR["PCR_SR"]["num"]];
+
+    console.log("page table entry " + stringIntHex(pte));
+
+/*    // validity check does not belong here
+    if ((pte.and(PTE_V)).equals(new Long(0x0, 0x0))) {
+        console.log("fault in validity check");
+        throw new RISCVTrap(throwTrap, addr.getLowBits());
+    }
+*/
+
+
+    // permissions check
+    if (mode & SR["SR_S"] != 0) {
+        // we are in supervisor mode
+        if (access_type == CONSTS.READ && (pte.and(PTE_SR)).equals(new Long(0x0, 0x0))) {
+            throw new RISCVTrap(throwTrap, addr.getLowBits());
+        } else if (access_type == CONSTS.WRITE && (pte.and(PTE_SW)).equals(new Long(0x0, 0x0))) {
+            throw new RISCVTrap(throwTrap, addr.getLowBits());
+        } else if (access_type == CONSTS.EXEC && (pte.and(PTE_SX)).equals(new Long(0x0, 0x0))) {
+            throw new RISCVTrap(throwTrap, addr.getLowBits());
+        } else {
+            // do nothing 
+        }
+    } else { 
+        // we are in user mode
+        if (access_type == CONSTS.READ && (pte.and(PTE_UR)).equals(new Long(0x0, 0x0))) {
+            throw new RISCVTrap(throwTrap, addr.getLowBits());
+        } else if (access_type == CONSTS.WRITE && (pte.and(PTE_UW)).equals(new Long(0x0, 0x0))) {
+            throw new RISCVTrap(throwTrap, addr.getLowBits());
+        } else if (access_type == CONSTS.EXEC && (pte.and(PTE_UX)).equals(new Long(0x0, 0x0))) {
+            throw new RISCVTrap(throwTrap, addr.getLowBits());
+        } else {
+            // do nothing 
+        }
     }
 
-
-    // TODO: check permission bits
-//    permission_check(pte2, access_type, vaddr);
- 
-    var baseaddr1 = pte2.get_ppn().shiftLeft(13); 
-    var pte1 = RISCV.load_double_from_mem((baseaddr1.add(new Long(addr.get_vpn1()*8, 0x0))).getLowBits(), false);
-
-    pte1 = new page_table_entry_addr(pte1);
-
-//    if (pte1.get_E() != 0x1) {
-//        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
-//    }
-    if (pte1.get_T() != 0x1) {
-        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
-    }
-
-
-//    permission_check(pte1, access_type, vaddr);
-
-    var baseaddr0 = pte1.get_ppn().shiftLeft(13);
-    var pte0 = RISCV.load_double_from_mem((baseaddr0.add(new Long(addr.get_vpn0()*8, 0x0))).getLowBits(), false); 
-    pte0 = new page_table_entry_addr(pte0);
- 
-    if (pte0.get_E() != 0x1) {
-        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
-    }
-//    if (pte0.get_T() != 0x1) {
-//        throw new RISCVTrap(throwTrap, vaddr.getLowBits()); // need to update later
-//    }
-
-
-    permission_check(pte0, access_type, vaddr);
+    var pgoff = addr.and(PGSIZE.subtract(new Long(0x1, 0x0)));
+    var pgbase = (pte.shiftRightUnsigned(PGSHIFT.getLowBits())).shiftLeft(PGSHIFT.getLowBits());
+    var paddr = pgbase.add(pgoff);
     
-    addr.set_ppn0(pte0.get_ppn0());
-    addr.set_ppn1(pte0.get_ppn1());
-    addr.set_ppn2(pte0.get_ppn2()); 
-
-    //console.log(addr.entry.getLowBits());
-//    throw new RISCVError("FINISHED ONE TRANSLATION");
-    return addr.entry.getLowBits();
-    
+    return paddr.getLowBits();    
 }
 
 
-function permission_check(pte, access_type, vaddr) {
-    // check if access is valid
-    // follows same convention for access_type as translate()
-    var throwTrap;
-    if (access_type == CONSTS.READ) {
-        throwTrap = "Load Access Fault";
-    } else if (access_type == CONSTS.WRITE) {
-        throwTrap = "Store Access Fault";
-    } else if (access_type == CONSTS.EXEC) {
-        throwTrap = "Instruction Access Fault";
-    } else {
-        throw new RISCVError("Invalid access_type in permission_check");
-    } 
-    var isSupervisor = ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) != 0x0); // hardcoded 0 update later
-    if (isSupervisor == 0x1) {  
-        // if running in supervisor mode
-        if (access_type == CONSTS.READ && pte.get_SR() == 0x1) {
-            return;
-        } else if (access_type == CONSTS.WRITE && pte.get_SW() == 0x1) {
-            return;
-        } else if (access_type == CONSTS.EXEC && pte.get_SX() == 0x1) {
-            return;
-        } else {
-            throw RISCVTrap(throwTrap, vaddr.getLowBits()); 
-        }
-    } else if (isSupervisor == 0x0) {
-        // if running in user mode
-        if (access_type == CONSTS.READ && pte.get_UR() == 0x1) {
-            return;
-        } else if (access_type == CONSTS.WRITE && pte.get_UW() == 0x1) {
-            return;
-        } else if (access_type == CONSTS.EXEC && pte.get_UX() == 0x1) {
-            return;
-        } else {
-            throw RISCVTrap(throwTrap, vaddr.getLowBits()); 
-        }
-    } else {
-        throw new RISCVError("invalid CPU mode in permission check");
-    }
-}
+// does the page table walk only - no permission checks here
+// vaddr is Long
+function walk(vaddr) {
+    // TODO: add additional checking from the top of mmu.cc's walk here later
 
-function throw_address_error(vaddr, access_type) {
-    if (access_type == 0) {
-        // READ
-        throw new RISCVTrap("Load Access Fault");
-    } else if (access_type == 1) {
-        // WRITE
-        throw new RISCVTrap("Store Access Fault");
-    } else if (access_type == 2) {
-        // EXEC
-        throw new RISCVTrap("Instruction Access Fault");
-    } else {
-        throw new RISCVError("INVALID ACCESS TYPE GIVEN TO throw_address_error");
+    var pte = new Long(0x0, 0x0);
+
+    var ptbr = RISCV.priv_reg[PCR["PCR_PTBR"]["num"]]; // this is a Long
+   
+    var ptshift = (LEVELS.subtract(new Long(0x1, 0x0))).multiply(PTIDXBITS);
+
+    console.log("translating vaddr: " + stringIntHex(vaddr));
+
+    // main walk for loop
+    for (var i = 0; i < LEVELS.getLowBits(); ptshift = ptshift.subtract(PTIDXBITS)) {
+        console.log("running translation loop" + i);
+        var idx = (vaddr.shiftRightUnsigned((PGSHIFT.add(ptshift)).getLowBits())).and(((new Long(0x1, 0x0)).shiftLeft(PTIDXBITS.getLowBits())).subtract(new Long(0x1, 0x0)));
+        console.log("pt index " + stringIntHex(idx));
+        var pte_addr = ptbr.add(idx.multiply(new Long(0x8, 0x0)));
+        
+        console.log("loading pte from " + stringIntHex(pte_addr));
+
+        var pt_data = RISCV.load_double_from_mem(pte_addr.getLowBits(), false);
+
+        console.log("pt_data " + stringIntHex(pt_data));
+
+        if ((pt_data.and(PTE_V)).equals(new Long(0x0, 0x0))) {
+            // INVALID MAPPING
+            console.log("INVALID MAPPING");
+            break;
+        } else if ((pt_data.and(PTE_T)).notEquals(new Long(0x0, 0x0))) {
+            // Next level of page table
+            console.log("MOVING TO NEXT T");
+            console.log(stringIntHex(pt_data));
+            console.log(stringIntHex(PTE_T));
+            console.log(stringIntHex(pt_data.and(PTE_T)));
+            ptbr = (pt_data.shiftRightUnsigned(PGSHIFT.getLowBits())).shiftLeft(PGSHIFT.getLowBits());
+        } else {
+            // The actual pte
+            var vpn = vaddr.shiftRightUnsigned(PGSHIFT.getLowBits());
+            console.log("right before or " + stringIntHex(pt_data));
+            pt_data = pt_data.or((vpn.and(((new Long(0x1, 0x0)).shiftLeft(ptshift.getLowBits())).subtract(new Long(0x1, 0x0)))).shiftLeft(PGSHIFT.getLowBits()));
+
+            //supposed to be a mem bounds fault check here but ignore for now:
+            pte = pt_data;
+            break;
+        }
+        i += 1;
     }
+    return pte;
 }

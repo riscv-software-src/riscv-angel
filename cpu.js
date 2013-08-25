@@ -385,7 +385,6 @@ function status_reg_init(vm, im, ip) {
     srinit = srinit & (~SR["SR_PS"]);
     // VM is off at boot, turned on by kernel
     srinit = srinit & (~SR["SR_VM"]);
-//    srinit = srinit | (SR["SR_VM"]);
 
     // now force implementation defined presets
     srinit = status_reg_force(srinit);
@@ -403,7 +402,7 @@ function status_reg_force(input) {
     input = input & (~SR["SR_EF"]) & (~SR["SR_PEI"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
 
-    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
+//    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
 
     // clear bit 2 and bits 9-15 (hardwired zeroes)
     input = input & ~(1 << 2);

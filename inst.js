@@ -1036,8 +1036,12 @@ function runInstruction(inst, RISCV) {
                     } else {
                         oldsr = oldsr & (~SR["SR_S"]);
                     }
-                    // set ET
-                    oldsr = oldsr | SR["SR_EI"];
+                    // set EI
+                    if (oldsr & SR["SR_PEI"] != 0) {
+                        oldsr = oldsr | SR["SR_EI"];
+                    } else {
+                        oldsr = oldsr & (~SR["SR_EI"]);
+                    }
         
                     // store updated SR back:
                     RISCV.priv_reg[PCR["PCR_SR"]["num"]] = oldsr;
