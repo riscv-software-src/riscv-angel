@@ -406,7 +406,7 @@ function status_reg_force(input) {
     input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
 
     // clear bit 2 and bits 9-15 (hardwired zeroes)
-    input = input & ~(1 << 2);
-    input = input & ~(0x7F << 9);
+//    input = input & ~(1 << 2);
+//    input = input & ~(0x7F << 9);
     return input;
 }
