@@ -25,7 +25,7 @@ function handle_trap(trap){
         oldsr = oldsr & (~SR["SR_PS"]);
     }
 
-    if ((oldsr & SR["SR_EI"] != 0)) {
+    if ((oldsr & SR["SR_EI"]) != 0) {
         oldsr = oldsr | SR["SR_PEI"];
     } else {
         oldsr = oldsr & (~SR["SR_PEI"]);

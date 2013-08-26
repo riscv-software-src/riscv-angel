@@ -159,7 +159,6 @@ function bytes_to_int(input, addr, numbytes, end) {
 
 function chainedFileLoader(binFile, filename, filesList) {
         // add binFile and filename to global array
-        console.log('called for ' + filename);
         RISCV.pname_fd[filename] = RISCV.next_fd;
         RISCV.fd_pname[RISCV.next_fd] = filename;
         RISCV.binaries[RISCV.next_fd] = binFile;

@@ -1037,7 +1037,7 @@ function runInstruction(inst, RISCV) {
                         oldsr = oldsr & (~SR["SR_S"]);
                     }
                     // set EI
-                    if (oldsr & SR["SR_PEI"] != 0) {
+                    if ((oldsr & SR["SR_PEI"]) != 0) {
                         oldsr = oldsr | SR["SR_EI"];
                     } else {
                         oldsr = oldsr & (~SR["SR_EI"]);

@@ -5,6 +5,12 @@ function elfRunNextInst() {
 
     var instVal;
 
+    if (RISCV.oldpc == RISCV.pc) {
+        document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
+        pauseExec = true;
+        throw new RISCVError("Execution completed");
+    }
+
 
     // write out to console to indicate booting
     if (RISCV.pc == 0x2000) {
@@ -16,7 +22,7 @@ function elfRunNextInst() {
     }
 
     // run instruction
-//    console.log(RISCV.pc.toString(16));
+    console.log(RISCV.pc.toString(16));
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
@@ -70,7 +76,7 @@ function elfRunNextInst() {
 
 
     // terminate if PC is unchanged
-    if (RISCV.pc == RISCV.oldpc) {
+//    if (RISCV.pc == RISCV.oldpc) {
 
     /* EVENTUALLY MOVE THIS TO SYSCALL HANDLER
         // check TOHOST in case this is a test
@@ -96,8 +102,8 @@ function elfRunNextInst() {
             console.log(passCount.toString() + " tests passed out of " + testCount.toString());
         }
     */
-        return;
-    }
+//        return;
+//    }
 
     if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
         update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);

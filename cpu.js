@@ -377,8 +377,10 @@ function status_reg_init(vm, im, ip) {
 
     // at RESET, processor starts with ET=0, S=1, VM=0
     var srinit = 0x0;
-    // set ET to zero
+    // set EI to zero
     srinit = srinit & (~SR["SR_EI"]);
+    // set PEI to one (UNDOCUMENTED, IS THIS SUPPOSED TO BE THIS WAY?)
+//    srinit = srinit | (SR["SR_PEI"]);
     // set S = 1 here
     srinit = srinit | SR["SR_S"];
     // set PS = 0 here
@@ -396,13 +398,12 @@ function status_reg_init(vm, im, ip) {
 // "hardwired" values that need to be forced every time status reg is modified
 function status_reg_force(input) {
     // force EF to zero here (no FP insts)
-    // force EC to zero here (no compressed insts)
     // force U64 to 1 here
     // force S64 to 1 here
-    input = input & (~SR["SR_EF"]) & (~SR["SR_PEI"]);
+    input = input & (~SR["SR_EF"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
 
-//    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
+    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
 
     // clear bit 2 and bits 9-15 (hardwired zeroes)
     input = input & ~(1 << 2);
