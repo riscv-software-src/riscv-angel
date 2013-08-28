@@ -91,8 +91,12 @@ function sys_close() {
 
 }
 
-function sys_fstat() {
-    throw new RISCVError("NOT YET IMPLEMENTED"); 
+function sys_fstat(fd, pbuf, a2, a3) {
+    console.log(stringIntHex(fd));
+    console.log(stringIntHex(pbuf));
+
+    // try doing nothing
+    return [0, 0];
 }
 
 function sys_lseek() {

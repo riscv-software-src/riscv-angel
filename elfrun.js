@@ -5,6 +5,13 @@ function elfRunNextInst() {
 
     var instVal;
 
+
+    //TODO: remove: hack fix of printf
+    RISCV.store_double_to_mem(0xE0 + 8, new Long(0x1, 0x0));
+
+
+
+
     if (RISCV.oldpc == RISCV.pc) {
         document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
         pauseExec = true;
