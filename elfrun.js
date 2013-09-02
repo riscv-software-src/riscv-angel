@@ -29,7 +29,7 @@ function elfRunNextInst() {
     }
 
     // run instruction
-    console.log(RISCV.pc.toString(16));
+    //console.log(RISCV.pc.toString(16));
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
