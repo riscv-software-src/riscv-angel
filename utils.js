@@ -2,8 +2,6 @@
 
 // Fill HTML register table for user 
 function update_html_regtable(RISCV, tab) {
-    return;
-
     for (var i = 0; i < RISCV.gen_reg.length; i++) {
         tab.rows[i+1].cells[1].innerHTML = stringLongHex(RISCV.gen_reg[i]);
         tab.rows[i+1].cells[2].innerHTML = longtoStringUnsigned(RISCV.gen_reg[i]).toString();
@@ -11,7 +9,6 @@ function update_html_regtable(RISCV, tab) {
 }
 
 function update_elf_proptable(elf, tab) {
-    return;
     var elfprops = ["e_type", "e_machine", "e_version", "e_entry", "e_phoff",
                     "e_shoff", "e_flags", "e_ehsize", "e_phentsize", "e_phnum",
                     "e_shentsize", "e_shnum", "e_shstrndx"];
@@ -25,7 +22,6 @@ function update_elf_proptable(elf, tab) {
 }
 
 function update_debug_table(propsarr, tab) {
-    return;
     var propnames = ["Last instruction executed addr.", "Last instruction executed", "Next instruction to execute addr."];
 
     var samplerow = "<tr><td>Debug Stats</td><td>Value</td></tr>";
