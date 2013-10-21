@@ -111,10 +111,10 @@ function elfRunNextInst() {
     */
 //        return;
 //    }
-
+    /*
     if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
         update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);
         update_html_regtable(RISCV, tab);
-    }
+    }*/
 
 }

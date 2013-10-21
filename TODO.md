@@ -20,6 +20,8 @@ TODO before release:
 6) UI improvements
     - More data to user about ELF file
 
+7) Eventually make ANGEL like a web-based MARS for RISCV?
+
 Not being implemented:
 ================
 

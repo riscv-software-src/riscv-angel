@@ -1,4 +1,4 @@
-angel
+riscv-angel
 =====
 
 Javascript RISC-V ISA (RV64) Simulator

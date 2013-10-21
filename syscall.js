@@ -1,8 +1,5 @@
 // handle syscalls
 //
-
-
-
 function handle_syscall(payload) {
     // read 8 words starting at payload
     var eMem = [];
