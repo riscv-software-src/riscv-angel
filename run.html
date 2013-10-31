@@ -62,6 +62,14 @@ Long = goog.math.Long;
 <script>
 
 function runCodeC(userIn) {
+
+
+    $.post("http://ec2.sagark.org:40000", userIn, function (data) {
+        console.log(data);
+    });
+
+
+
     console.log(userIn);
 }
 
