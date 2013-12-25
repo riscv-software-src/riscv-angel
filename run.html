@@ -377,6 +377,7 @@ int main() {
             <div id="consoleCursor">$ </div>
             </div>
 
+            <div id="regBoxWrapper">
             <div id="regLabel"><h5>Register Values</h5></div>
 
             <div style="font-family: Monaco, Consolas, Lucida Console, monospace;">
@@ -550,11 +551,13 @@ int main() {
             </div>
         </div>
 
+        </div>
     </div>
 
-    <div class="footer">
-        Based on <a href="http://inst.eecs.berkeley.edu/~cs152/sp12/handouts/riscv-spec.pdf">The RISC-V Instruction Set Manual</a> <br>
-        Source on <a href="https://github.com/sagark/angel">Github</a>
+    <br><br>
+    <div class="footer" style="text-align: center;">
+        Based on <a href="http://riscv.org">The RISC-V Instruction Set Manual</a> <br>
+        Source on <a href="https://github.com/ucb-bar/riscv-angel">Github</a>
     </div>
 
 </div>
@@ -565,8 +568,14 @@ int main() {
     // enable bootstrap tooltips
     $('a').tooltip();
 
+    $('#regBoxWrapper').toggle();
+
     $('#debugtoggle').change(function() {
         $('#debugbox').toggle();
+    });
+
+    $('#updatetoggle').change(function() {
+        $('#regBoxWrapper').toggle();
     });
 
     fileNamePairs = new Array(); // global filename, filecontents pairs
