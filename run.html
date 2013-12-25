@@ -10,6 +10,10 @@ goog.require("goog.math.Long");
 </script>
 <script src="lib/javascript-biginteger/biginteger.js"></script>
 
+<!-- load codemirror for C editing -->
+<script src="lib/codemirror/lib/codemirror.js"></script>
+<link rel="stylesheet" href="lib/codemirror/lib/codemirror.css">
+<script src="lib/codemirror/mode/clike/clike.js"></script>
 
 <!-- map to Long for convenience -->
 <script>
@@ -65,7 +69,7 @@ Long = goog.math.Long;
 
 // capture the tab key, make it enter four spaces in the Write C box
 // adapted from: http://stackoverflow.com/a/6637396 
-$(document).on('keydown', '#userCodeC', function(e) { 
+/*$(document).on('keydown', '#userCodeC', function(e) { 
     var keyCode = e.keyCode || e.which; 
 
     if (keyCode == 9) { 
@@ -81,7 +85,7 @@ $(document).on('keydown', '#userCodeC', function(e) {
         $(this).get(0).selectionStart = $(this).get(0).selectionEnd = start + 4;
 
     } 
-});
+});*/
 
 function runCodeC(userIn) {
     compilestat = document.getElementById("compilestatus");
@@ -259,10 +263,10 @@ End: addi s9, s9, 200</textarea>
 #include&lt;stdio.h&gt;
 
 int main() {
-    printf("asdf\\n");
+    printf("asdf\n");
 }</textarea> <br>
 <div id="compilestatus"> Compile Status: Waiting for user input. </div>
-<br> <a class="btn btn-large btn-success" onclick="runCodeC(document.getElementById('userCodeC').value)">Compile</a>
+<br> <a class="btn btn-large btn-success" onclick="runCodeC(myCodeMirror.getValue().replace('\\', '\\\\'))">Compile</a>
 
 <a class="btn btn-large btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" disabled='disabled'>Run</a>
 
@@ -586,7 +590,13 @@ int main() {
     runCode("addi zero, zero, 0");
 
     // file handler for "Run from file"
-    document.getElementById("files").addEventListener('change', handle_file, false);
+    //document.getElementById("files").addEventListener('change', handle_file, false);
+
+    var myCodeMirror = CodeMirror(function(elt) {
+        userCodeC = document.getElementById("userCodeC");
+        userCodeC.parentNode.replaceChild(elt, userCodeC);
+    }, {value: userCodeC.value, lineNumbers: true});
+
 </script>
 
 </html>
