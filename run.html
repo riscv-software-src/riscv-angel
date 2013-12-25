@@ -66,7 +66,13 @@ function runCodeC(userIn) {
 
     userIn = "'" + userIn + "'";
     $.post("http://192.168.1.17:40000", userIn, function (data) {
-        console.log(data);
+
+        filesList = ["lib/riscv_compiled/pk", "compileserver/a.out"];
+
+        handle_file_continue(filesList);
+
+        RISCV = new CPU();
+
     });
 
 
@@ -74,18 +80,10 @@ function runCodeC(userIn) {
     // pk exists at /pk
     // [todo] - make more robust
 
-    console.log(userIn);
+    //console.log(userIn);
 
     //GetBinaryFile("pk"); // load pk
 
-    filesList = ["lib/riscv_compiled/pk", "compileserver/a.out"];
-
-
-//    RISCV = new CPU();
-
-    handle_file_continue(filesList);
-
-    RISCV = new CPU();
 }
 
 

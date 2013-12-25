@@ -14,8 +14,6 @@ http.createServer(function (req, res) {
                     recstr += chunk.toString();
                 });
                 req.on('end', function() {
-                    res.writeHead(200, "OK", {'Content-Type': 'text/plain', 'charset': 'x-user-defined', 'Access-Control-Allow-Origin': '*'});
-
                     var sys = require('util')
                     var exec = require('child_process').exec
                     var child;
@@ -23,13 +21,16 @@ http.createServer(function (req, res) {
                     // run riscv-gcc on the user C code
                     child = exec("echo " + recstr + " | riscv-gcc -xc -" , function (error, stdout, stderr) {
                         // don't console.log / output anything
-                        //sys.print('stdout: ' + stdout + "\n");
-                        //sys.print('stderr: ' + stderr + "\n");
+                        sys.print('stdout: ' + stdout + "\n");
+                        sys.print('stderr: ' + stderr + "\n");
                         //if (error !== null) {
                         //    console.log('exec error: ' + error);
                         //}
-                    });
 
+                        res.writeHead(200, "OK", {'Content-Type': 'text/plain', 'charset': 'x-user-defined', 'Access-Control-Allow-Origin': '*'});
+                        res.end();
+
+                    });
                 });
             }
             break;
