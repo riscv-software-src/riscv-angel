@@ -288,7 +288,7 @@ int compute_fib(int n) {
 }
 </textarea> <br>
 <div id="compilestatus"> Compile Status: Waiting for user input. </div>
-<br> <a class="btn btn-large btn-success" onclick="runCodeC(myCodeMirror.getValue().replace('\\', '\\\\'))">Compile</a>
+<br> <a class="btn btn-large btn-success" onclick="runCodeC(myCodeMirror.getValue().replace(/\\/g, '\\\\'))">Compile</a>
 
 <a class="btn btn-large btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" disabled='disabled'>Run</a>
 

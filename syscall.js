@@ -53,6 +53,7 @@ function sys_write(fd, pbuf, len, a3) {
             buildStr += String.fromCharCode(RISCV.load_byte_from_mem(pbuf.getLowBits() + i));
         }    
         buildStr = "<br>" + buildStr;
+        buildStr = buildStr.replace(/ /g, "&nbsp;"); // handle spaces better
         console.log(buildStr);
         document.getElementById("console").innerHTML += buildStr;
         forceConsoleDivDown();
