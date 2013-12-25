@@ -54,7 +54,7 @@ Long = goog.math.Long;
         max-width: 960px;
     }
 
-    #userCode {
+    #userCodeC {
         font-family: Monaco, Consolas, Lucida Console, monospace;
     }
 </style>
@@ -62,7 +62,30 @@ Long = goog.math.Long;
 <!-- angel functions -->
 <script>
 
+
+// capture the tab key, make it enter four spaces in the Write C box
+// adapted from: http://stackoverflow.com/a/6637396 
+$(document).on('keydown', '#userCodeC', function(e) { 
+    var keyCode = e.keyCode || e.which; 
+
+    if (keyCode == 9) { 
+        e.preventDefault(); 
+
+        var start = $(this).get(0).selectionStart;
+        var end = $(this).get(0).selectionEnd;
+
+        // set textarea value to: text before caret + tab + text after caret
+        $(this).val($(this).val().substring(0, start) + "    " + $(this).val().substring(end));
+
+        // put caret at right position again
+        $(this).get(0).selectionStart = $(this).get(0).selectionEnd = start + 4;
+
+    } 
+});
+
 function runCodeC(userIn) {
+    compilestat = document.getElementById("compilestatus");
+    compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
 
     userIn = "'" + userIn + "'";
     $.post("http://192.168.1.17:40000", userIn, function (data) {
@@ -72,6 +95,10 @@ function runCodeC(userIn) {
         handle_file_continue(filesList);
 
         RISCV = new CPU();
+
+        compilestat = document.getElementById("compilestatus");
+        compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute.";
+        $('#WriteCRun').removeAttr('disabled');
 
     });
 
@@ -202,16 +229,42 @@ End: addi s9, s9, 200</textarea>
                         <br>
                         <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a> <br>
                     </div> -->
-                    <div class="tab-pane active" id="tab1">
+                    <div class="tab-pane active" id="tab1"> 
+                        <div id="aboutContent"> 
+                            <!-- Button trigger modal -->
+                            <a data-toggle="modal" data-target="#myModal">
+                                 How does ANGEL work?
+                            </a>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                            <h4 class="modal-title" id="myModalLabel">How ANGEL Works:</h4>
+                                        </div>
+                                        <div class="modal-body"> 
+                                            <img src="images/about_angel.png"> </img>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
+                                        </div>
+                                    </div><!-- /.modal-content -->
+                                </div><!-- /.modal-dialog -->
+                            </div><!-- /.modal --> 
+                        </div> <br>
                         <textarea id="userCodeC" class="row-fluid" rows="20">
 #include&lt;stdio.h&gt;
 
 int main() {
     printf("asdf\\n");
-}</textarea>
+}</textarea> <br>
+<div id="compilestatus"> Compile Status: Waiting for user input. </div>
 <br> <a class="btn btn-large btn-success" onclick="runCodeC(document.getElementById('userCodeC').value)">Compile</a>
 
-<a class="btn btn-large btn-success"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" >Run</a>
+<a class="btn btn-large btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" disabled='disabled'>Run</a>
 
 <br>
 
@@ -219,14 +272,14 @@ int main() {
 
                     <div class="tab-pane" id="tab2">
                         <div><h4>Command Line Arguments:</h4> <input type="text" style="height: 32px; width:100%;" id="cmdargs" /> </div>
-
+<!-- 
                     <div class="fileupload fileupload-new" data-provides="fileupload">
                         <div class="input-append">
                             <div class="uneditable-input">
                                 <i class="icon-file fileupload-exists"></i> 
                                 <span class="fileupload-preview" style="color:#000000;"></span>
                             </div>
-                            <span class="btn btn-file">
+                           <span class="btn btn-file">
                                 <span class="fileupload-new">> Load Binary to Exec.</span>
                                 <span class="fileupload-exists">Change</span>
                                 <input type="file" id="files" name="files[]" multiple />
@@ -234,7 +287,7 @@ int main() {
                             <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
                        </div>
                     </div>
-
+-->
 
 
 <div id="debugbuttons" style="position:relative;">
