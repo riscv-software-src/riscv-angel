@@ -260,11 +260,33 @@ End: addi s9, s9, 200</textarea>
                             </div><!-- /.modal --> 
                         </div> <br>
                         <textarea id="userCodeC" class="row-fluid" rows="20">
+// print the first NUM_FIB fibonacci numbers
 #include&lt;stdio.h&gt;
+#define NUM_FIB 10
+
+int compute_fib(int n);
 
 int main() {
-    printf("asdf\n");
-}</textarea> <br>
+    int x;
+    for(x = 0; x &lt; NUM_FIB; x++) {
+        printf("%d\n", compute_fib(x));
+    }
+}
+
+// compute the nth fibonacci number
+int compute_fib(int n) {
+    int first = 0;
+    int second = 1;
+    int temp;
+    int x = 0;
+    for(; x &lt; n-1; x++) {
+        temp = first;
+        first = second;
+        second = temp + second; 
+    }
+    return n ? second : 0;
+}
+</textarea> <br>
 <div id="compilestatus"> Compile Status: Waiting for user input. </div>
 <br> <a class="btn btn-large btn-success" onclick="runCodeC(myCodeMirror.getValue().replace('\\', '\\\\'))">Compile</a>
 
