@@ -17,6 +17,7 @@ Long = goog.math.Long;
 </script>
 
 <!-- load angel -->
+<script src="lib/binfile/binfile.js"></script>
 <script src="timeoutfix.js"></script>
 <script src="nodepmappings.js"></script>
 <script src="utils.js"></script>
@@ -64,13 +65,27 @@ Long = goog.math.Long;
 function runCodeC(userIn) {
 
     userIn = "'" + userIn + "'";
-    $.post("http://ec2.sagark.org:40000", userIn, function (data) {
+    $.post("http://192.168.1.17:40000", userIn, function (data) {
         console.log(data);
     });
 
 
+    // at this point, assume the server has created /a.out for your use and that
+    // pk exists at /pk
+    // [todo] - make more robust
 
     console.log(userIn);
+
+    //GetBinaryFile("pk"); // load pk
+
+    filesList = ["lib/riscv_compiled/pk", "compileserver/a.out"];
+
+
+//    RISCV = new CPU();
+
+    handle_file_continue(filesList);
+
+    RISCV = new CPU();
 }
 
 
@@ -126,18 +141,13 @@ function handle_file_continue(filesList) {
     // execution pause
     pauseExec = false;
 
-    var file = filesList[0];
-    filesList = filesList.slice(1, filesList.length);
-    var reader = new FileReader();
 //    RISCV = new CPU();
+    console.log("HERE");
+// GET BIN FILE WRAPPER GOES AROUND THIS
+    GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
+    //chainedFileLoader(e.target.result, theFile.name, filesList);
 
-    reader.onload = (function(theFile, filesList) {
-        return function(e) {
-            chainedFileLoader(e.target.result, theFile.name, filesList);
-        };
-    })(file, filesList);
-
-    reader.readAsBinaryString(file);
+    //reader.readAsBinaryString(file);
 }
 
 function elfRunCompletion() {
@@ -286,7 +296,7 @@ End: addi s9, s9, 200</textarea>
 #include&lt;stdio.h&gt;
 
 int main() {
-    printf("asdf");
+    printf("asdf\\n");
 }</textarea>
 <br> <a class="btn btn-large btn-success" onclick="runCodeC(document.getElementById('userCodeC').value)">Compile and Run</a> <br>
 

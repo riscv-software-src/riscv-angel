@@ -4,6 +4,7 @@
 // - May assume access to RISCV (the processor). 
 // - Setup done in run.html
 function loadElf(binfile, filename, filesList) {
+    //binfile = binfile.Content;
     globfilename = filename; // global access to filename
     document.getElementById("testresult").innerHTML = "Loading " + filename;
     var elf = {};

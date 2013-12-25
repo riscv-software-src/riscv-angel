@@ -1,4 +1,6 @@
 var http = require('http');
+//var app = require('app');
+
 
 http.createServer(function (req, res) {
     switch(req.url) {
@@ -10,8 +12,8 @@ http.createServer(function (req, res) {
                     recstr += chunk.toString();
                 });
                 req.on('end', function() {
-                    res.writeHead(200, "OK", {'Content-Type': 'text/html'});
-                    res.end();
+                    res.writeHead(200, "OK", {'Content-Type': 'text/plain', 'charset': 'x-user-defined', 'Access-Control-Allow-Origin': '*'});
+//                    res.end();
                     console.log(recstr);
 
 
@@ -21,12 +23,40 @@ http.createServer(function (req, res) {
 
 
 
-                    child = exec("echo " + recstr + " | gcc -xc -" , function (error, stdout, stderr) {
+                    child = exec("echo " + recstr + " | riscv-gcc -xc -" , function (error, stdout, stderr) {
                         sys.print('stdout: ' + stdout + "\n");
                         sys.print('stderr: ' + stderr + "\n");
                         if (error !== null) {
                             console.log('exec error: ' + error);
                         }
+//                        res.write(stdout);
+//                        res.end();
+
+                        /// TEST WRITING TO FILE
+                        var fs = require('fs');                       
+
+                        fs.readFile('a.out', function (err, data) {
+                            if(err) throw err;
+                            console.log(data);
+                            res.write(data);
+                            res.end();
+
+                fs.writeFile("a.out2", data, function(err) {
+                    if(err) {
+                        console.log(err);
+                    } else {
+                        console.log("The file was saved!");
+                    }
+                }); 
+
+
+
+
+
+                        });
+
+
+                        /// END TEST WRITING TO FILE
 
                     });
 
