@@ -21,8 +21,8 @@ http.createServer(function (req, res) {
                     // run riscv-gcc on the user C code
                     child = exec("echo " + recstr + " | riscv-gcc -xc -" , function (error, stdout, stderr) {
                         // don't console.log / output anything
-                        sys.print('stdout: ' + stdout + "\n");
-                        sys.print('stderr: ' + stderr + "\n");
+                        //sys.print('stdout: ' + stdout + "\n");
+                        //sys.print('stderr: ' + stderr + "\n");
                         //if (error !== null) {
                         //    console.log('exec error: ' + error);
                         //}
