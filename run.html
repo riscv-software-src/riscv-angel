@@ -174,12 +174,12 @@ function elfRunCompletion() {
 
             <div class="tabbable">
                 <ul class="nav nav-tabs">
-                    <li><a href="#tab1" data-toggle="tab">Type Assembly</a></li>
-                    <li class="active"><a href="#tab2" data-toggle="tab">Run from File</a></li>
-                    <li><a href="#tab3" data-toggle="tab">Write C</a></li>
+                    <!--<li><a href="#tab1" data-toggle="tab">Type Assembly</a></li>-->
+                    <li class="active"><a href="#tab1" data-toggle="tab">Write C</a></li>
+                    <li><a href="#tab2" data-toggle="tab">Advanced Controls</a></li>
                 </ul>
                 <div class="tab-content">
-                    <div class="tab-pane" id="tab1">
+<!--                    <div class="tab-pane" id="tab1">
                         Your code here:
                         <textarea id="userCode" class="row-fluid" rows="20">
 Sample: addi s0, s0, -1
@@ -201,8 +201,23 @@ jalr.r zero, ra, 0
 End: addi s9, s9, 200</textarea>
                         <br>
                         <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a> <br>
+                    </div> -->
+                    <div class="tab-pane active" id="tab1">
+                        <textarea id="userCodeC" class="row-fluid" rows="20">
+#include&lt;stdio.h&gt;
+
+int main() {
+    printf("asdf\\n");
+}</textarea>
+<br> <a class="btn btn-large btn-success" onclick="runCodeC(document.getElementById('userCodeC').value)">Compile</a>
+
+<a class="btn btn-large btn-success"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" >Run</a>
+
+<br>
+
                     </div>
-                    <div class="tab-pane active" id="tab2">
+
+                    <div class="tab-pane" id="tab2">
                         <div><h4>Command Line Arguments:</h4> <input type="text" style="height: 32px; width:100%;" id="cmdargs" /> </div>
 
                     <div class="fileupload fileupload-new" data-provides="fileupload">
@@ -236,7 +251,7 @@ End: addi s9, s9, 200</textarea>
         <h4><a href="#" data-toggle="tooltip" data-container="body" data-placement="bottom" title="Toggle updating register info. Off for increased clock freq.">Update Regboxes</a>:</h4> 
     </div>
     <div id="updatetoggle" class="make-switch" data-on-label="ON" data-off-label="OFF" style="height: 30px; width: 30%; float:right; right: 0;">
-        <input type="checkbox" id="regtablecheckbox" checked="checked" />
+        <input type="checkbox" id="regtablecheckbox" <!--checked="checked"--> />
     </div>
 </div>
 
@@ -286,17 +301,6 @@ End: addi s9, s9, 200</textarea>
                         <div id="testresult">ELF not loaded</div>
 
 </div>
-
-                    </div>
-
-                    <div class="tab-pane" id="tab3">
-                        <textarea id="userCodeC" class="row-fluid" rows="20">
-#include&lt;stdio.h&gt;
-
-int main() {
-    printf("asdf\\n");
-}</textarea>
-<br> <a class="btn btn-large btn-success" onclick="runCodeC(document.getElementById('userCodeC').value)">Compile and Run</a> <br>
 
                     </div>
 
