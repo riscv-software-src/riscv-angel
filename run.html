@@ -92,9 +92,11 @@ function runCodeC(userIn) {
     compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
 
     userIn = "'" + userIn + "'";
-    $.post("http://192.168.1.17:40000", userIn, function (data) {
+    $.post("http://192.168.1.3:40000", userIn, function (data) {
 
-        filesList = ["lib/riscv_compiled/pk", "compileserver/a.out"];
+        //console.log(data);
+
+        filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
 
         handle_file_continue(filesList);
 
@@ -258,7 +260,13 @@ End: addi s9, s9, 200</textarea>
                                     </div><!-- /.modal-content -->
                                 </div><!-- /.modal-dialog -->
                             </div><!-- /.modal --> 
-                        </div> <br>
+                        </div> <!--
+                        <div id="examplePrograms">Sample Programs:
+                        Fib | Cowsay | 
+                        </div>
+
+                        <br>
+                        -->
                         <textarea id="userCodeC" class="row-fluid" rows="20">
 // print the first NUM_FIB fibonacci numbers
 #include&lt;stdio.h&gt;
@@ -617,7 +625,10 @@ int compute_fib(int n) {
     var myCodeMirror = CodeMirror(function(elt) {
         userCodeC = document.getElementById("userCodeC");
         userCodeC.parentNode.replaceChild(elt, userCodeC);
-    }, {value: userCodeC.value, lineNumbers: true});
+    }, {value: userCodeC.value, 
+        lineNumbers: true,
+        indentUnit: 4,
+    });
 
 </script>
 

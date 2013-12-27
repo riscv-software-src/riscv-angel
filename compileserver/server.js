@@ -18,8 +18,10 @@ http.createServer(function (req, res) {
                     var exec = require('child_process').exec
                     var child;
 
+                    var binname = Math.floor(Math.random()*1000).toString() + (new Date).getTime().toString();
+
                     // run riscv-gcc on the user C code
-                    child = exec("echo " + recstr + " | riscv-gcc -xc -" , function (error, stdout, stderr) {
+                    child = exec("echo " + recstr + " | riscv-gcc -o binaries/" + binname + " -xc -" , function (error, stdout, stderr) {
                         // don't console.log / output anything
                         //sys.print('stdout: ' + stdout + "\n");
                         //sys.print('stderr: ' + stderr + "\n");
@@ -28,7 +30,7 @@ http.createServer(function (req, res) {
                         //}
 
                         res.writeHead(200, "OK", {'Content-Type': 'text/plain', 'charset': 'x-user-defined', 'Access-Control-Allow-Origin': '*'});
-                        res.end();
+                        res.end(binname);
 
                     });
                 });
