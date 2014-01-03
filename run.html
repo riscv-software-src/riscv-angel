@@ -66,6 +66,11 @@ Long = goog.math.Long;
         font-family: Monaco, Consolas, Lucida Console, monospace;
     }
 
+    #fillobjdumpout {
+        font-family: Monaco, Consolas, Lucida Console, monospace;
+    }
+
+
 </style>
 
 <!-- angel functions -->
@@ -89,18 +94,24 @@ function runCodeC(userIn) {
 
             compilestat = document.getElementById("compilestatus");
             if (compileres.innerHTML === "") {
-                compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute.";
 
-                filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
+                $("#fillobjdumpout").load("compileserver/objdumpresults/" + data, function() {
+                    fillobj = document.getElementById("fillobjdumpout");
+                    fillobj.innerHTML = fillobj.innerHTML.replace(/\n/g, "<br>").replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+         
+                    compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute. <a data-toggle='modal' data-target='#objdumpModal'>objdump output</a>";
 
-                handle_file_continue(filesList);
+                    filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
 
-                RISCV = new CPU();
+                    handle_file_continue(filesList);
+
+                    RISCV = new CPU();
 
 
 
 
-                $('#WriteCRun').removeAttr('disabled');
+                    $('#WriteCRun').removeAttr('disabled');
+                });
             } else {
                 compilestat.innerHTML = "Compile Status: Compile complete. Errors detected:";
             }
@@ -198,6 +209,24 @@ function elfRunCompletion() {
 </head>
 
 <body>
+
+<div class="modal fade" id="objdumpModal" tabindex="-1" role="dialog" aria-labelledby="objdumpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="objdumpModalLabel">riscv-objdump -d output</h4>
+            </div>
+            <div class="modal-body"> 
+                <div id="fillobjdumpout">sample out here </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal --> 
+
 <div class="container-narrow">
     <div class="masthead" align="center">
         <h3><a href="#" data-toggle="tooltip" data-placement="bottom" title="ANGEL is Naturally Good at Executing Linux">ANGEL</a> - Browser-based RISC-V ISA simulator</h3>
@@ -208,34 +237,10 @@ function elfRunCompletion() {
 
             <div class="tabbable">
                 <ul class="nav nav-tabs">
-                    <!--<li><a href="#tab1" data-toggle="tab">Type Assembly</a></li>-->
                     <li class="active"><a href="#tab1" data-toggle="tab">Write C</a></li>
                     <li><a href="#tab2" data-toggle="tab">Advanced Controls</a></li>
                 </ul>
                 <div class="tab-content">
-<!--                    <div class="tab-pane" id="tab1">
-                        Your code here:
-                        <textarea id="userCode" class="row-fluid" rows="20">
-Sample: addi s0, s0, -1
-sw s0, -4(sp)
-lw s1, -4(sp)
-lh s2, -4(sp)
-lb s3, -4(sp)
-lhu s4, -4(sp)
-lbu s5, -4(sp)
-sb zero, -4(sp)
-sb zero, -3(sp)
-lw s6, -4(sp)
-sh s0, -8(sp)
-lh s7, -8(sp)
-jal AddOne
-j End
-AddOne: addi s8, s8, 1
-jalr.r zero, ra, 0
-End: addi s9, s9, 200</textarea>
-                        <br>
-                        <a class="btn btn-large btn-success" onclick="runCode(document.getElementById('userCode').value)">Run</a> <br>
-                    </div> -->
                     <div class="tab-pane active" id="tab1"> 
                         <div id="aboutContent"> 
                             <!-- Button trigger modal -->
@@ -256,7 +261,6 @@ End: addi s9, s9, 200</textarea>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                            <!--<button type="button" class="btn btn-primary">Save changes</button>-->
                                         </div>
                                     </div><!-- /.modal-content -->
                                 </div><!-- /.modal-dialog -->

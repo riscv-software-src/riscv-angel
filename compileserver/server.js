@@ -29,8 +29,11 @@ http.createServer(function (req, res) {
                         //    console.log('exec error: ' + error);
                         //}
 
-                        res.writeHead(200, "OK", {'Content-Type': 'text/plain', 'charset': 'x-user-defined', 'Access-Control-Allow-Origin': '*'});
-                        res.end(binname);
+                        exec("riscv-objdump -d binaries/" + binname + " > objdumpresults/" + binname, function (error, stdout, stderr) {
+
+                            res.writeHead(200, "OK", {'Content-Type': 'text/plain', 'charset': 'x-user-defined', 'Access-Control-Allow-Origin': '*'});
+                            res.end(binname);
+                        });
 
                     });
                 });
