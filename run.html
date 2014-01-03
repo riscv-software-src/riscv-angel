@@ -86,15 +86,20 @@ function runCodeC(userIn) {
 
             //console.log(data);
 
-            filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
-
-            handle_file_continue(filesList);
-
-            RISCV = new CPU();
 
             compilestat = document.getElementById("compilestatus");
             if (compileres.innerHTML === "") {
                 compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute.";
+
+                filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
+
+                handle_file_continue(filesList);
+
+                RISCV = new CPU();
+
+
+
+
                 $('#WriteCRun').removeAttr('disabled');
             } else {
                 compilestat.innerHTML = "Compile Status: Compile complete. Errors detected:";
