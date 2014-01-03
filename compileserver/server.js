@@ -21,7 +21,7 @@ http.createServer(function (req, res) {
                     var binname = Math.floor(Math.random()*1000).toString() + (new Date).getTime().toString();
 
                     // run riscv-gcc on the user C code
-                    child = exec("echo " + recstr + " | riscv-gcc -o binaries/" + binname + " -xc -" , function (error, stdout, stderr) {
+                    child = exec("echo " + recstr + " | riscv-gcc -o binaries/" + binname + " -xc - > gccresults/" + binname + " 2>&1", function (error, stdout, stderr) {
                         // don't console.log / output anything
                         //sys.print('stdout: ' + stdout + "\n");
                         //sys.print('stderr: ' + stderr + "\n");

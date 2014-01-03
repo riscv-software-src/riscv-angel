@@ -61,50 +61,46 @@ Long = goog.math.Long;
     #userCodeC {
         font-family: Monaco, Consolas, Lucida Console, monospace;
     }
+
+    #compileresult {
+        font-family: Monaco, Consolas, Lucida Console, monospace;
+    }
+
 </style>
 
 <!-- angel functions -->
 <script>
-
-
-// capture the tab key, make it enter four spaces in the Write C box
-// adapted from: http://stackoverflow.com/a/6637396 
-/*$(document).on('keydown', '#userCodeC', function(e) { 
-    var keyCode = e.keyCode || e.which; 
-
-    if (keyCode == 9) { 
-        e.preventDefault(); 
-
-        var start = $(this).get(0).selectionStart;
-        var end = $(this).get(0).selectionEnd;
-
-        // set textarea value to: text before caret + tab + text after caret
-        $(this).val($(this).val().substring(0, start) + "    " + $(this).val().substring(end));
-
-        // put caret at right position again
-        $(this).get(0).selectionStart = $(this).get(0).selectionEnd = start + 4;
-
-    } 
-});*/
-
 function runCodeC(userIn) {
     compilestat = document.getElementById("compilestatus");
     compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
 
     userIn = "'" + userIn + "'";
-    $.post("http://192.168.1.3:40000", userIn, function (data) {
+    $.post("http://192.168.1.17:40000", userIn, function (data) {
 
-        //console.log(data);
 
-        filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
+        // handle filling in gcc response here and continue
+        $("#compileresult").load("compileserver/gccresults/" + data, function() {
+            compileres = document.getElementById("compileresult");
+            compileres.innerHTML = compileres.innerHTML.replace(/\n/g, "<br>");
+    
 
-        handle_file_continue(filesList);
+            //console.log(data);
 
-        RISCV = new CPU();
+            filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
 
-        compilestat = document.getElementById("compilestatus");
-        compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute.";
-        $('#WriteCRun').removeAttr('disabled');
+            handle_file_continue(filesList);
+
+            RISCV = new CPU();
+
+            compilestat = document.getElementById("compilestatus");
+            if (compileres.innerHTML === "") {
+                compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute.";
+                $('#WriteCRun').removeAttr('disabled');
+            } else {
+                compilestat.innerHTML = "Compile Status: Compile complete. Errors detected:";
+            }
+
+        });
 
     });
 
@@ -296,6 +292,7 @@ int compute_fib(int n) {
 }
 </textarea> <br>
 <div id="compilestatus"> Compile Status: Waiting for user input. </div>
+<div id="compileresult"></div>
 <br> <a class="btn btn-large btn-success" onclick="runCodeC(myCodeMirror.getValue().replace(/\\/g, '\\\\'))">Compile</a>
 
 <a class="btn btn-large btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" disabled='disabled'>Run</a>
