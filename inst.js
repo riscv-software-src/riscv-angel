@@ -754,44 +754,41 @@ function runInstruction(inst, RISCV) {
 
                 // ADDIW
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (signExt(inst.get_imm("I"), 11)|0), 31);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (inst.get_I_imm()|0), 31);
                     RISCV.pc += 4;
                     break;
 
 
                 // SLLIW
                 case 0x1:
-                    if ((inst.get_imm("I") >>> 6) != 0) {
+                    if ((inst.get_I_imm() >>> 6) != 0) {
                         //this is a bad inst, but not a trap, according to ISA doc
                         throw new RISCVError("ERR IN SLLI");
                         break;
                     }
-                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0) {
+                    if (((inst.get_I_imm() >>> 5) & 0x1) != 0) {
                         throw new RISCVTrap("Illegal Instruction");
                         break;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() << (inst.get_imm("I") & 0x003F), 31);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() << (inst.get_I_imm() & 0x003F), 31);
                     RISCV.pc += 4;
                     break;
 
 
                 // SRLIW and SRAIW
                 case 0x5:
-                    if (((inst.get_imm("I") >>> 5) & 0x1) != 0) {
+                    if (((inst.get_I_imm() >>> 5) & 0x1) != 0) {
                         throw new RISCVTrap("Illegal Instruction");
                         break;
                     }
-                    var aldiff = (inst.get_imm("I") >>> 6);
+                    var aldiff = (inst.get_I_imm() >>> 6);
                     if (aldiff === 0) {
                         // SRLIW
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >>> (inst.get_imm("I") & 0x003F), 31);
-                    } else if (aldiff === 1) {
-                        // SRAIW
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >> (inst.get_imm("I") & 0x003F), 31);
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >>> (inst.get_I_imm() & 0x003F), 31);
                     } else {
-                        throw new RISCVError("Bad inst");
-                        break;
-                    }
+                        // SRAIW
+                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >> (inst.get_I_imm() & 0x003F), 31);
+                    } 
                     RISCV.pc += 4;
                     break;
 
@@ -804,7 +801,7 @@ function runInstruction(inst, RISCV) {
 
         // more 32 bit int compute
         case 0x3B:
-            var funct10 = inst.get_funct10();
+            var funct10 = (inst.get_funct7() << 3) | inst.get_funct3();
             switch(funct10) {
 
                 // ADDW
@@ -814,7 +811,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // SUBW
-                case 0x200:
+                case 0x100:
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) - (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
                     RISCV.pc += 4;
                     break;
@@ -832,7 +829,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // SRAW
-                case 0x205:
+                case 0x105:
                     RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) >> (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0), 31);
                     RISCV.pc += 4;
                     break;
