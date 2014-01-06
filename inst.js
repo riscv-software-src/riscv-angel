@@ -30,23 +30,34 @@ instruction.prototype.get_funct7 = function() {
     return ((this.inst >>> 25) & 0x0000007F);
 };
 
-/* lower 12 bits of return value contain immediate */
+/* returns 12 bit immediate sign-extended to 32 bits */
 instruction.prototype.get_I_imm = function() { // NEW
-    return ((this.inst >>> 20) & 0x00000FFF);
+    return this.inst >> 20;
 };
 
-/* lower 12 bits of return value contain immediate */
+/* returns 12 bit immediate sign-extended to 32 bits */
 instruction.prototype.get_S_imm = function() { // NEW
-    return (((this.inst >>> 25) & 0x0000007F) << 5) | ((this.inst >>> 7) & 0x0000001F);
+    return ((this.inst >> 20) & 0xFFFFFFE0) | ((this.inst >>> 7) & 0x0000001F);
 };
 
-/* lower 20 bits of return value contain immediate */
+/* returns 12 bit immediate left shifted by one and sign-extended to 32 bits */
+instruction.prototype.get_B_imm = function() { // NEW
+    var temp = ((this.inst >> 20) & 0xFFFFFFE0) | ((this.inst >>> 7) & 0x0000001F);
+    return (temp & 0xFFFFF7FE) | ((temp & 0x00000001) << 11;
+};
+
+/* return instruction with lower 12 bits cleared (upper 20 bits contain imm) */
 instruction.prototype.get_U_imm = function() { // NEW
-    return ((this.inst >>> 12) & 0x000FFFFF);
+    return this.inst & 0xFFFFF000;
+};
+
+/* return jump immediate */
+instruction.prototype.get_J_imm = function() { // NEW
+    var temp = (this.inst >> 20) & 0xFFF007FE;
+    return temp | ((this.inst >>> 9) & 0x00000800) | (this.inst & 0x000FF000);
 };
 
 /* End Methods for instruction objects */
-
 
 
 // "sign extend" the quantity based on bit
@@ -97,24 +108,19 @@ function runInstruction(inst, RISCV) {
                 
                 // ADDI
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].add(signExtLT32_64(inst.get_imm("I"), 11));
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].add(signExtLT32_64(inst.get_I_imm(), 31));
                     RISCV.pc += 4;
                     break;
 
                 // SLLI                   
                 case 0x1:
-                    if ((inst.get_imm("I") >>> 6) != 0) {
-                        //this is a bad inst, but not a trap, according to ISA doc
-                        throw new RISCVError("ERR IN SLLI");
-                        break;
-                    }
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft(inst.get_imm("I") & 0x003F);
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft(inst.get_I_imm() & 0x003F);
                     RISCV.pc += 4;
                     break;
 
                 // SLTI 
                 case 0x2:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_imm("I"), 11))) {
+                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_I_imm(), 31))) {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -124,7 +130,7 @@ function runInstruction(inst, RISCV) {
 
                 // SLTIU, need to check signExt here
                 case 0x3:
-                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], signExtLT32_64(inst.get_imm("I"), 11))) {
+                    if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], signExtLT32_64(inst.get_I_imm(), 31))) {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
@@ -134,35 +140,32 @@ function runInstruction(inst, RISCV) {
                 
                 // XORI
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).xor(signExtLT32_64(inst.get_imm("I"), 11));
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).xor(signExtLT32_64(inst.get_I_imm(), 31));
                     RISCV.pc += 4;
                     break;
 
                 // SRLI and SRAI
                 case 0x5:
-                    var aldiff = (inst.get_imm("I") >>> 6);
+                    var aldiff = (inst.get_I_imm() >>> 6);
                     if (aldiff === 0) {
                         // SRLI
-                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRightUnsigned(inst.get_imm("I") & 0x003F);
-                    } else if (aldiff === 1) {
-                        // SRAI
-                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRight(inst.get_imm("I") & 0x003F);
+                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRightUnsigned(inst.get_I_imm() & 0x003F);
                     } else {
-                        throw new RISCVError("Bad inst");
-                        break;
-                    }
+                        // SRAI
+                        RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRight(inst.get_I_imm() & 0x003F);
+                    } 
                     RISCV.pc += 4;
                     break;
 
                 // ORI 
                 case 0x6:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).or(signExtLT32_64(inst.get_imm("I"), 11));
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).or(signExtLT32_64(inst.get_I_imm(), 31));
                     RISCV.pc += 4;
                     break;
 
                 // ANDI
                 case 0x7:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).and(signExtLT32_64(inst.get_imm("I"), 11));
+                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).and(signExtLT32_64(inst.get_I_imm(), 31));
                     RISCV.pc += 4;
                     break;
 
@@ -175,7 +178,7 @@ function runInstruction(inst, RISCV) {
 
         // R-TYPE, opcode: 0b0110011
         case 0x33:
-            var funct10 = inst.get_funct10();
+            var funct10 = (inst.get_funct7() << 3) | inst.get_funct3();
 
             switch(funct10) {
 
@@ -186,7 +189,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // SUB
-                case 0x200:
+                case 0x100:
                     RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).subtract(RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.pc += 4;
                     break;
@@ -230,7 +233,7 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // SRA
-                case 0x205:
+                case 0x105:
                     RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftRight((RISCV.gen_reg[inst.get_rs2()]).getLowBits() & 0x3F);
                     RISCV.pc += 4;
                     break;
