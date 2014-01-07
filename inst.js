@@ -1278,7 +1278,7 @@ function runInstruction(inst, RISCV) {
 
         // FMADD.S, FMADD.D
         case 0x43:
-            var funct5low = inst.get_funct5() & 0x3;
+            var funct5low = inst.get_funct7() & 0x3;
             if (funct5low == 0x0 || funct5low == 0x1) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
@@ -1288,7 +1288,7 @@ function runInstruction(inst, RISCV) {
 
         // FMSUB.S, FMSUB.D
         case 0x47:
-            var funct5low = inst.get_funct5() & 0x3;
+            var funct5low = inst.get_funct7() & 0x3;
             if (funct5low == 0x0 || funct5low == 0x1) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
@@ -1298,7 +1298,7 @@ function runInstruction(inst, RISCV) {
 
         // FNMSUB.S, FNMSUB.D
         case 0x4B:
-            var funct5low = inst.get_funct5() & 0x3;
+            var funct5low = inst.get_funct7() & 0x3;
             if (funct5low == 0x0 || funct5low == 0x1) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
@@ -1308,7 +1308,7 @@ function runInstruction(inst, RISCV) {
 
         // FNMADD.S, FNMADD.D
         case 0x4F:
-            var funct5low = inst.get_funct5() & 0x3;
+            var funct5low = inst.get_funct7() & 0x3;
             if (funct5low == 0x0 || funct5low == 0x1) {
                 throw new RISCVTrap("Floating-Point Disabled");
             }
@@ -1318,6 +1318,14 @@ function runInstruction(inst, RISCV) {
 
         // REMAINING FP INSTRUCTIONS (ALL OPCODE 0b1010011)
         case 0x53:
+            // for now do it the lazy way
+            // [todo] - update to make this work "correctly"
+            // but this should work for now as long as there are no
+            // malformed floating point instructions
+            throw new RISCVTrap("Floating-Point Disabled");
+            // end
+
+
             var funct5 = inst.get_funct5();
             var funct5low = funct5 & 0x3; 
             var funct5high = (funct5 >> 2) & 0x7;
