@@ -1018,9 +1018,9 @@ function runInstruction(inst, RISCV) {
             break;
 
         // atomic memory instructions 
-        case 0x2B:
-            var funct10 = inst.get_funct10();
-            switch(funct10) {
+        case 0x2F:
+            var funct8 = ((inst.get_funct7() >> 2) << 3) | inst.get_funct3();
+            switch(funct8) {
 
                 // AMOADD.W
                 case 0x2:
@@ -1191,35 +1191,35 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // LR.W
-                case 0x202:
+                case 0x12:
                     // This acts just like a lw in this implementation (no need for sync)
                     // (except there's no immediate)
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]), 31);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBits()|0), 31);
                     RISCV.pc += 4;
                     break;
 
                 // LR.D
-                case 0x203:
+                case 0x13:
                     // This acts just like a ld in this implementation (no need for sync)
                     // (except there's no immediate)
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()]);
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()].getLowBits()|0);
                     RISCV.pc += 4;
                     break;
 
                 // SC.W
-                case 0x20A:
+                case 0x1A:
                     // this acts just like a sd in this implementation, but it will
-                    // always set the check register to 1 (indicating load success)
+                    // always set the check register to 0 (indicating load success)
                     RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBits()|0, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0); // indicate success
                     RISCV.pc += 4;
                     break;
 
                 // SC.D
-                case 0x20B:
+                case 0x1B:
                     // this acts just like a sd in this implementation, but it will
-                    // always set the check register to 1 (indicating load success)
-                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()]);
+                    // always set the check register to 0 (indicating load success)
+                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()].getLowBits()|0, RISCV.gen_reg[inst.get_rs2()]);
                     RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0); // indicate success
                     RISCV.pc += 4;
                     break;
