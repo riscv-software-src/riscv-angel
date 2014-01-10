@@ -1,14 +1,18 @@
 // Contains various mappings/hardcoded values used by the disassembler and cpu
 
+// much of this file is now incorrect. however this won't be updated unless we
+// need the JS assembler back
+
 // register mappings from disasm.cc
 var reg_maps = [
     "zero", "ra", "s0", "s1",  "s2",  "s3",  "s4",  "s5",
     "s6", "s7", "s8", "s9", "sA", "sB",  "sp",  "tp",
     "v0", "v1", "a0", "a1",  "a2",  "a3",  "a4",  "a5",
-    "a6", "a7", "t0", "t1", "t2", "t3", "t4", "t5",
+    "a6", "a7", "t0", "t1", "t2", "t3", "t4", "gp",
 ]
 
 
+// start non-updated mappings
 var inst_to_type = {
     // control transfer instructions
     "j": Jtype,
@@ -266,27 +270,41 @@ var Rfields = {
     
     "mtpcr": new cRtype(0x7B, 0x3),
 }; 
+// end non-updated mappings
+
 
 var PCR = {
-    "PCR_SUP0"       :{"num": 0, "width": 64,},
-    "PCR_SUP1"      :{"num": 1, "width": 64,}, // normally 64, modded for imp restrictions
-    "PCR_EPC" :{"num": 2, "width": 64,}, // normally 64, modded for imp restrictions
-    "PCR_BADVADDR"     :{"num": 3, "width": 64,}, // normally 64, modded for imp restrictions
-    "PCR_PTBR"    :{"num": 4, "width": 64,},
-    "PCR_ASID"  :{"num": 5, "width": 64,},
-    "PCR_COUNT"    :{"num": 6, "width": 32,},
-    "PCR_COMPARE"     :{"num": 7, "width": 32,},
-    "PCR_EVEC" :{"num": 8, "width": 64,}, // not sure here
-    "PCR_CAUSE"  :{"num": 9, "width": 64,}, // not sure here
-    "PCR_SR"   :{"num": 10, "width": 32,},
-    "PCR_HARTID"     :{"num": 11, "width": 64,}, // not sure here
-    "PCR_IMPL"       :{"num": 12, "width": 64,},
-    "PCR_FATC"       :{"num": 13, "width": 64,},
-    "PCR_VECBANK"  :{"num": 18, "width": 64,},
-    "PCR_VECCFG"   :{"num": 19, "width": 64,}, //not sure here
-    "PCR_RESET"    :{"num": 29, "width": 32,}, // not sure here
-    "PCR_TOHOST"   :{"num": 30, "width": 64,},
-    "PCR_FROMHOST" :{"num": 31, "width": 64,},
+    "CSR_FFLAGS":    {"num": 0x001, "width": 64,}, // width not confirmed
+    "CSR_FRM":       {"num": 0x002, "width": 64,}, // width not confirmed
+    "CSR_FCSR":      {"num": 0x003, "width": 64,}, // width not confirmed
+
+    "CSR_SUP0":      {"num": 0x500, "width": 64,},
+    "CSR_SUP1":      {"num": 0x501, "width": 64,},
+    "CSR_EPC":       {"num": 0x502, "width": 64,},
+    "CSR_BADVADDR":  {"num": 0x503, "width": 64,},
+    "CSR_PTBR":      {"num": 0x504, "width": 64,},
+    "CSR_ASID":      {"num": 0x505, "width": 64,}, // implementation defined
+    "CSR_COUNT":     {"num": 0x506, "width": 32,},
+    "CSR_COMPARE":   {"num": 0x507, "width": 32,},
+    "CSR_EVEC":      {"num": 0x508, "width": 64,},
+    "CSR_CAUSE":     {"num": 0x509, "width": 64,},
+    "CSR_STATUS":    {"num": 0x50A, "width": 32,},
+    "CSR_HARTID":    {"num": 0x50B, "width": 64,},
+    "CSR_IMPL":      {"num": 0x50C, "width": 64,},
+    "CSR_FATC":      {"num": 0x50D, "width": 64,}, // implementation defined (by ASIDLEN)
+    "CSR_SEND_IPI":  {"num": 0x50E, "width": 64,},
+    "CSR_CLEAR_IPI": {"num": 0x50F, "width": 64,},
+
+    "CSR_STATS":     {"num": 0x51C, "width": 64,}, // width not confirmed
+    "CSR_RESET":     {"num": 0x51D, "width": 64,}, // width not confirmed
+
+    "CSR_TOHOST":    {"num": 0x51E, "width": 64,},
+    "CSR_FROMHOST":  {"num": 0x51F, "width": 64,},
+
+    // [todo] - actually use these to handle cycle counts, time, instret
+    "CSR_CYCLE":     {"num": 0xC00, "width": 64,}, // width not confirmed
+    "CSR_TIME":      {"num": 0xC01, "width": 64,}, // width not confirmed
+    "CSR_INSTRET":   {"num": 0xC02, "width": 64,}, // width not confirmed
 };
 
 
@@ -300,7 +318,7 @@ var SR = {
     "SR_U64"   :  0x00000020,
     "SR_S64" :  0x00000040,
     "SR_VM" :  0x00000080,
-    "SR_EV"  :  0x00000100,
+    "SR_EA"  :  0x00000100,
     "SR_IM"  :  0x00FF0000,
     "SR_IP"  :  0xFF000000,
 };
@@ -318,6 +336,7 @@ var TRAPS = {
     "Store Address Misaligned": 0x9, // now thrown
     "Load Access Fault": 0xA, // requires VM?
     "Store Access Fault": 0xB, // requires VM?
+    "Accelerator Disabled": 0xC, // not used here
 };
 
 var SYSCALLS = {
