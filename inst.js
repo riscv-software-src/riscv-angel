@@ -713,7 +713,7 @@ function runInstruction(inst, RISCV) {
 
                 // RDCYCLE
                 case 0x6002:
-                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.cycle_count|0, 0x0);
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]];
                     RISCV.pc += 4;
                     break;
 
@@ -726,15 +726,15 @@ function runInstruction(inst, RISCV) {
                     // need to be careful here: the subtraction needs to be
                     // done as a float to cut down to reasonable number of
                     // bits, then or with zero to get close by int value
-                    var result = (nowtime - RISCV.boot_time) | 0;
-                    RISCV.gen_reg[inst.get_rd()] = new Long(result, 0x0);
+                    var result = nowtime - RISCV.priv_reg[PCR["CSR_TIME"]["num"]].toNumber();
+                    RISCV.gen_reg[inst.get_rd()] = Long.fromNumber(result);
                     RISCV.pc += 4;
                     break;
 
                 // RDINSTRET
                 case 0x6012:
                     // for our purposes, this is the same as RDCYCLE:
-                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.cycle_count|0, 0x0);
+                    RISCV.gen_reg[inst.get_rd()] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]];
                     RISCV.pc += 4;
                     break;
 
@@ -1608,7 +1608,7 @@ function runInstruction(inst, RISCV) {
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = new Long(0x0, 0x0);
 
-    // finally, increment cycle counter:
-    RISCV.cycle_count = (RISCV.cycle_count|0) + 1;
-
+    // finally, increment cycle counter, instret counter:
+    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(new Long(0x1, 0x0));
+    RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(new Long(0x1, 0x0));
 }

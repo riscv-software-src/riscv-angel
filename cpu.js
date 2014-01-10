@@ -14,7 +14,7 @@ function CPU(memamt) {
     memamt *= 1048576 // convert to Bytes
     this.memory = new Uint8Array(memamt);
 
-    // FOR DEBUGGING ONLY TODO: REMOVE
+    // [todo] - FOR DEBUGGING ONLY TODO: REMOVE
     this.memory[0] = 0x1;
     
     // PC, defaults to 0x2000 according to the ISA, documented in 
@@ -51,7 +51,7 @@ function CPU(memamt) {
     }
 
     // privileged control registers
-    this.priv_reg = new Array(32);
+    this.priv_reg = new Array(4096);
     
     for (var key in PCR) {
         if (PCR.hasOwnProperty(key)) {
@@ -65,37 +65,25 @@ function CPU(memamt) {
     }
 
     // init status register
-    this.priv_reg[PCR["PCR_SR"]["num"]] = status_reg_init(0, 0, 0);
+    this.priv_reg[PCR["CSR_SR"]["num"]] = status_reg_init(0, 0, 0);
 
     // initialize stack pointer to highest mem addr
     // needs to be modified if > 4GiB mem
     this.gen_reg[reg_maps.indexOf("sp")] = new Long(memamt, 0x0);
 
-    //UNUSED: fp status register
-    //this.fsr = 0x0000;
-
-    //UNUSED: floating-point registers, fp_reg[0] is f0, etc.
-    //this.fp_reg = new Uint32Array(32);
-
     // endianness: "big" and "little" allowed
     this.endianness = "big";
-
-    // cycle counter : this should only be incremented by inst.runInstruction
-    // it is the number of cycles already executed (completed)
-    // therefore, if first instruction is rdcycle, the dest will be set to zero
-    this.cycle_count = new Long(0x0, 0x0);
 
     // record cpu boot time (in ms since jan 1, 1970) for rdtime instruction
     // for better measurement, this should be reset right before first instruction
     // is exec'd
-    // TODO: what to do with 64 bit here?
     var start = new Date();
-    this.boot_time = start.getTime();
+    this.priv_reg[PCR["CSR_TIME"]["num"]] = Long.fromNumber(start.getTime());
 
     function reset_wall_clock() {
         // this should be called once, right before exec of first instruction
         var start = new Date();
-        this.boot_time = start.getTime();
+        this.priv_reg[PCR["CSR_TIME"]["num"]] = Long.fromNumber(start.getTime());
     }
 
 
@@ -105,7 +93,7 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -143,7 +131,7 @@ function CPU(memamt) {
     }
 
     function store_word_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -168,7 +156,7 @@ function CPU(memamt) {
     }
 
     function store_half_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -189,7 +177,7 @@ function CPU(memamt) {
     }
 
     function store_byte_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -199,7 +187,7 @@ function CPU(memamt) {
     }
 
     function load_double_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -236,7 +224,7 @@ function CPU(memamt) {
     }
 
     function load_word_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -263,7 +251,7 @@ function CPU(memamt) {
     }
 
     function load_half_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -286,7 +274,7 @@ function CPU(memamt) {
     }
 
     function load_byte_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -308,13 +296,13 @@ function CPU(memamt) {
     // set indicated PCR - need to make sure to prevent changes to hardwired vals
     function set_pcr(num, val) {
         switch(num) {
-            case PCR["PCR_SR"]["num"]:
+            case PCR["CSR_SR"]["num"]:
                 // assuming 32 bit status reg
                 this.priv_reg[num] = status_reg_force(val);
                 break;
 
             // need to fill in all cases here (i.e. when implementing interrupts)
-            case PCR["PCR_TOHOST"]["num"]:
+            case PCR["CSR_TOHOST"]["num"]:
                 if (this.priv_reg[num].equals(new Long(0x0, 0x0))) {
                     this.priv_reg[num] = val;
                 }
@@ -331,7 +319,7 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 2);

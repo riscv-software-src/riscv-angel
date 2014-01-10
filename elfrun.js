@@ -6,11 +6,8 @@ function elfRunNextInst() {
     var instVal;
 
 
-    //TODO: remove: hack fix of printf
+    // [todo] -  remove: hack fix of printf
     RISCV.store_double_to_mem(0xE0 + 8, new Long(0x1, 0x0));
-
-
-
 
     if (RISCV.oldpc == RISCV.pc) {
         document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
@@ -48,11 +45,11 @@ function elfRunNextInst() {
         }
     }
 
-    var toHostVal = RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]];
+    var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
     if (toHostVal.notEquals(new Long(0x0, 0x0))){
         console.log("Output on toHost:");
-        console.log(stringLongHex(RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]]));
+        console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
 
 
         // now on every run, we need to check to see if a syscall is happening
@@ -67,7 +64,7 @@ function elfRunNextInst() {
                 // this is for testing (Pass/Fail) report for test programs
                 // all other programs cannot have this bit set (since it's an
                 // address)
-                if (RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]].equals(new Long(0x1, 0x0))) {
+                if (RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]].equals(new Long(0x1, 0x0))) {
                     // set to true in case this is a test
                     RISCV.testSuccess = true;
                 }
@@ -78,7 +75,7 @@ function elfRunNextInst() {
 
         }
 
-        RISCV.priv_reg[PCR["PCR_TOHOST"]["num"]] = new Long(0x0, 0x0);
+        RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);
     } 
 
 

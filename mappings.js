@@ -301,7 +301,6 @@ var PCR = {
     "CSR_TOHOST":    {"num": 0x51E, "width": 64,},
     "CSR_FROMHOST":  {"num": 0x51F, "width": 64,},
 
-    // [todo] - actually use these to handle cycle counts, time, instret
     "CSR_CYCLE":     {"num": 0xC00, "width": 64,}, // width not confirmed
     "CSR_TIME":      {"num": 0xC01, "width": 64,}, // width not confirmed
     "CSR_INSTRET":   {"num": 0xC02, "width": 64,}, // width not confirmed
