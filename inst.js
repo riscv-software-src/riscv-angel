@@ -30,6 +30,11 @@ instruction.prototype.get_funct7 = function() {
     return ((this.inst >>> 25) & 0x0000007F);
 };
 
+/* returns 12 bit immediate zero-extended to 32 bits */
+instruction.prototype.get_CSR_imm = function() { // NEW
+    return this.inst >>> 20;
+};
+
 /* returns 12 bit immediate sign-extended to 32 bits */
 instruction.prototype.get_I_imm = function() { // NEW
     return this.inst >> 20;
@@ -696,7 +701,7 @@ function runInstruction(inst, RISCV) {
 
         // R-TYPES (continued): System instructions
         case 0x73:
-            var superfunct = inst.get_funct3() | inst.get_rs2() << 3 | inst.get_funct7 << 8;
+            var superfunct = inst.get_funct3() | inst.get_rs2() << 3 | inst.get_funct7() << 8;
             switch(superfunct) {
 
                 // SCALL
@@ -706,9 +711,42 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 // SBREAK
-                case 0x20:
+                case 0x8:
                     throw new RISCVTrap("Breakpoint");
                     RISCV.pc += 4;
+                    break;
+
+                // SRET
+                case 0x4000:
+                    // [todo] - need to check for supervisor?
+                    // first, confirm that we're in supervisor mode
+//                    if ((RISCV.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_S"]) == 0) {
+//                        throw new RISCVTrap("Privileged Instruction");
+//                    }
+                    // do eret stuff here
+                    var oldsr = RISCV.priv_reg[PCR["CSR_SR"]["num"]];
+                    // set SR[S] = SR[PS], don't touch SR[PS]
+                    if ((oldsr & SR["SR_PS"]) != 0) {
+                        // PS is set
+                        oldsr = oldsr | SR["SR_S"];
+                    } else {
+                        oldsr = oldsr & (~SR["SR_S"]);
+                    }
+                    // set EI
+                    if ((oldsr & SR["SR_PEI"]) != 0) {
+                        oldsr = oldsr | SR["SR_EI"];
+                    } else {
+                        oldsr = oldsr & (~SR["SR_EI"]);
+                    }
+        
+                    // store updated SR back:
+                    RISCV.priv_reg[PCR["CSR_SR"]["num"]] = oldsr;
+
+
+
+                    // set pc to value stored in EPC
+                    RISCV.pc = RISCV.priv_reg[PCR["CSR_EPC"]["num"]].getLowBits();
+//                    RISCV.pc += 4;
                     break;
 
                 // RDCYCLE
@@ -739,7 +777,108 @@ function runInstruction(inst, RISCV) {
                     break;
 
                 default:
-                    throw new RISCVTrap("Illegal Instruction");
+                    // if none of the above are triggered, try handling as CSR inst
+                    var funct3 = inst.get_funct3();
+                    switch(funct3) {
+
+                        // [todo] - currently does not perform permission check
+
+                        // CSRRW
+                        case 0x1:
+                            var temp = RISCV.priv_reg[inst.get_CSR_imm()];
+                            if (typeof temp === "number") {
+                                RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                                temp = RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned();
+                            } else {
+                                //temp is a long
+                                RISCV.gen_reg[inst.get_rd()] = temp;
+                                temp = RISCV.gen_reg[inst.get_rs1()];
+                            }
+                            RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            RISCV.pc += 4;
+                            break;
+
+                        // CSRRS
+                        case 0x2:
+                            var temp = RISCV.priv_reg[inst.get_CSR_imm()];
+                            if (typeof temp === "number") {
+                                RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                                temp = temp | RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned();
+                            } else {
+                                //temp is a long
+                                RISCV.gen_reg[inst.get_rd()] = temp;
+                                temp = temp.or(RISCV.gen_reg[inst.get_rs1()]);
+                            }
+                            RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            RISCV.pc += 4;
+                            break;
+
+                        // CSRRC
+                        case 0x3:
+                            var temp = RISCV.priv_reg[inst.get_CSR_imm()];
+                            if (typeof temp === "number") {
+                                RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                                temp = temp & ~(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                            } else {
+                                //temp is a long
+                                RISCV.gen_reg[inst.get_rd()] = temp;
+                                temp = temp.and(RISCV.gen_reg[inst.get_rs1()].not());
+                            }
+                            RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            RISCV.pc += 4;
+                            break;
+
+                        // CSRRWI
+                        case 0x5:
+                            var temp = RISCV.priv_reg[inst.get_CSR_imm()];
+                            if (typeof temp === "number") {
+                                RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                                temp = inst.get_rs1() & 0x0000001F;
+                            } else {
+                                //temp is a long
+                                RISCV.gen_reg[inst.get_rd()] = temp;
+                                temp = new Long(inst.get_rs1() & 0x0000001F, 0x0);
+                            }
+                            RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            RISCV.pc += 4;
+                            break;
+
+                        // CSRRSI
+                        case 0x6:
+                            var temp = RISCV.priv_reg[inst.get_CSR_imm()];
+                            if (typeof temp === "number") {
+                                RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                                temp = temp | (inst.get_rs1() & 0x0000001F);
+                            } else {
+                                //temp is a long
+                                RISCV.gen_reg[inst.get_rd()] = temp;
+                                temp = temp.or(new Long(inst.get_rs1() & 0x0000001F, 0x0));
+                            }
+                            RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            RISCV.pc += 4;
+                            break;
+
+                        // CSRRCI
+                        case 0x7:
+                            var temp = RISCV.priv_reg[inst.get_CSR_imm()];
+                            if (typeof temp === "number") {
+                                RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
+                                temp = temp & ~(inst.get_rs1() & 0x0000001F);
+                            } else {
+                                //temp is a long
+                                RISCV.gen_reg[inst.get_rd()] = temp;
+                                temp = temp.and(new Long(inst.get_rs1() & 0x0000001F, 0x0).not());
+                            }
+                            RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            RISCV.pc += 4;
+                            break;
+
+
+                        default:
+                            throw new RISCVTrap("Illegal Instruction");
+                            break;
+
+                    }
                     break;
 
             }
@@ -894,126 +1033,6 @@ function runInstruction(inst, RISCV) {
                     throw new RISCVTrap("Illegal Instruction");
                     break;
          
-            }
-            break;
-
-        // I/R-TYPES Privileged insts - opcode: 0b1111011
-        case 0x73:
-            var funct3 = inst.get_funct3();
-
-            switch(funct3) {
-
-                // CLEARPCR
-                case 0x3:
-                    // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
-                        throw new RISCVTrap("Privileged Instruction");
-                    }
-
-                    // may be a Long or a Number
-                    var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number") {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
-                        temp = temp | (~inst.get_imm("I"));
-                    } else {
-                        //temp is a long
-                        RISCV.gen_reg[inst.get_rd()] = temp;
-                        temp = temp.and((new Long(inst.get_imm("I"), 0x0)).not);
-                    }
-                    RISCV.set_pcr(inst.get_rs1(), temp);
-                    RISCV.pc += 4;
-                    break;
-
-
-                // SETPCR
-                case 0x2:
-                    // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
-                        throw new RISCVTrap("Privileged Instruction");
-                    }
-
-                    // may be a Long or a Number
-                    var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number") {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
-                        temp = temp | inst.get_imm("I");
-                    } else {
-                        //temp is a long
-                        RISCV.gen_reg[inst.get_rd()] = temp;
-                        temp = temp.or(new Long(inst.get_imm("I"), 0x0));
-                    }
-                    RISCV.set_pcr(inst.get_rs1(), temp);
-                    RISCV.pc += 4;
-                    break;
-
-                // MFPCR
-                case 0x1:
-                    // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
-                        throw new RISCVTrap("Privileged Instruction");
-                    }
-
-                    var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number") {
-                        temp = new Long(temp, 0x0);
-                    } 
-                    RISCV.gen_reg[inst.get_rd()] = temp;
-                    RISCV.pc += 4; 
-                    break;
-
-                // MTPCR
-                case 0x0:
-                    // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
-                        throw new RISCVTrap("Privileged Instruction");
-                    }
-
-                    var temp = RISCV.priv_reg[inst.get_rs1()];
-                    if (typeof temp === "number") {
-                        temp = new Long(temp, 0x0);
-                        RISCV.set_pcr(inst.get_rs1(), RISCV.gen_reg[inst.get_rs2()].getLowBits());
-                    } else {
-                        RISCV.set_pcr(inst.get_rs1(), RISCV.gen_reg[inst.get_rs2()]);
-                    }
-                    RISCV.gen_reg[inst.get_rd()] = temp;
-                    RISCV.pc += 4;
-                    break;
-
-                // ERET
-                case 0x4:
-                    // first, confirm that we're in supervisor mode
-                    if ((RISCV.priv_reg[PCR["PCR_SR"]["num"]] & SR["SR_S"]) == 0) {
-                        throw new RISCVTrap("Privileged Instruction");
-                    }
-                    // do eret stuff here
-                    var oldsr = RISCV.priv_reg[PCR["PCR_SR"]["num"]];
-                    // set SR[S] = SR[PS], don't touch SR[PS]
-                    if ((oldsr & SR["SR_PS"]) != 0) {
-                        // PS is set
-                        oldsr = oldsr | SR["SR_S"];
-                    } else {
-                        oldsr = oldsr & (~SR["SR_S"]);
-                    }
-                    // set EI
-                    if ((oldsr & SR["SR_PEI"]) != 0) {
-                        oldsr = oldsr | SR["SR_EI"];
-                    } else {
-                        oldsr = oldsr & (~SR["SR_EI"]);
-                    }
-        
-                    // store updated SR back:
-                    RISCV.priv_reg[PCR["PCR_SR"]["num"]] = oldsr;
-
-
-
-                    // set pc to value stored in EPC
-                    RISCV.pc = RISCV.priv_reg[PCR["PCR_EPC"]["num"]].getLowBits();
-//                    RISCV.pc += 4;
-                    break;
-
-                default:
-                    throw new RISCVTrap("Illegal Instruction");
-                    break;
             }
             break;
 
