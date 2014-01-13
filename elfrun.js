@@ -2,19 +2,13 @@
 
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
-
     var instVal;
-
-
-    // [todo] -  remove: hack fix of printf
-    RISCV.store_double_to_mem(0xE0 + 8, new Long(0x1, 0x0));
 
     if (RISCV.oldpc == RISCV.pc) {
         document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
         pauseExec = true;
         throw new RISCVError("Execution completed");
     }
-
 
     // write out to console to indicate booting
     if (RISCV.pc == 0x2000) {
@@ -24,9 +18,6 @@ function elfRunNextInst() {
         // indicate finished booting
         document.getElementById("console").innerHTML += "<br>Boot finished, running user program...";
     }
-
-    // run instruction
-    //console.log(RISCV.pc.toString(16));
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
@@ -51,7 +42,6 @@ function elfRunNextInst() {
         console.log("Output on toHost:");
         console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
 
-
         // now on every run, we need to check to see if a syscall is happening
         // check device / cmd
         var device = (toHostVal.getHighBits >> 24) & 0xFF;
@@ -72,42 +62,10 @@ function elfRunNextInst() {
                 // this is for normal syscalls (not testing)
                 handle_syscall(payload);
             }
-
         }
 
         RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);
     } 
-
-
-    // terminate if PC is unchanged
-//    if (RISCV.pc == RISCV.oldpc) {
-
-    /* EVENTUALLY MOVE THIS TO SYSCALL HANDLER
-        // check TOHOST in case this is a test
-        if (RISCV.testSuccess) {
-            document.getElementById("testresult").innerHTML = filename + " PASSED";
-            console.log(filename + " PASSED");
-            passCount++;
-            testCount++;
-            //console.log(passCount.toString() + " tests passed out of " + testCount.toString());
-        } else {
-            document.getElementById("testresult").innerHTML = filename + " FAILED";
-            console.log(filename + " FAILED");
-            testCount++;
-            //console.log(passCount.toString() + " tests passed out of " + testCount.toString());
-        }
-
-        // Terminate
-        //throw new RISCVError("PC Repeat. In single CPU imp, this means inf loop. Terminated. Current PC: " + RISCV.pc.toString(16));
-        //
-        if (filesList.length > 0) {
-            handle_file_continue(filesList);
-        } else {
-            console.log(passCount.toString() + " tests passed out of " + testCount.toString());
-        }
-    */
-//        return;
-//    }
     
     if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
         update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);

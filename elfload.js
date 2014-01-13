@@ -95,8 +95,8 @@ function loadElf(binfile, filename, filesList) {
     }
 
 
-    // TODO: Detect when this is the proxy kernel
-    // ASSUME THAT THIS IS THE PROXY KERNEL
+    // [todo] - Detect when this is the proxy kernel
+    // FOR NOW, ASSUME THAT THIS IS THE PROXY KERNEL
     RISCV.store_word_to_mem(0, 1) // single core
     RISCV.store_word_to_mem(4, RISCV.memamount); // amount of memory in MiB
 
@@ -107,10 +107,6 @@ function loadElf(binfile, filename, filesList) {
     // reset clock
     RISCV.reset_wall_clock();
 
-    // TODO: modify this so that it detects the end of _exit and stops
-    //while(RISCV.pc != 0) {
-
-
     // GET breakpoints and make global dict
     breakpoints = document.getElementById("breakpoints").value;
     breakpoints = breakpoints.trim();
@@ -120,9 +116,6 @@ function loadElf(binfile, filename, filesList) {
     for (var i = 0; i < breakpoints.length; i++) {
         breaks[parseInt(breakpoints[i], 16)] = 0x1;
     }
-
-    //}
-
 
     // show register contents to user
     update_html_regtable(RISCV, tab);
@@ -155,8 +148,6 @@ function bytes_to_int(input, addr, numbytes, end) {
     }
     return output;
 }
-
-
 
 function chainedFileLoader(binFile, filename, filesList) {
         // add binFile and filename to global array

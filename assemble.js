@@ -136,7 +136,7 @@ function Itype() {
         var binned = 0;
         binned = binned | this.opcode;
         binned = binned | (this.funct3 << 7);
-        // TODO: edge cases with immediates / sign ext
+        // [todo] - edge cases with immediates / sign ext
         binned = binned | ((this.imm & 0x0FFF) << 10);
         binned = binned | (this.rs1 << 22);
         binned = binned | (this.rd << 27);

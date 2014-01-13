@@ -35,7 +35,7 @@ function page_table_entry_addr(entryin) {
 
 
 
-    // TODO: fix this with 
+    // [todo] - fix this with 
     // https://github.com/ucb-bar/riscv-pk/blob/186ae3cc353fa3115d4ee0c9fcb18d8b2370c68c/pk/pcr.h
 
 
@@ -226,7 +226,7 @@ function translate(addr, access_type) {
 // does the page table walk only - no permission checks here
 // vaddr is Long
 function walk(vaddr) {
-    // TODO: add additional checking from the top of mmu.cc's walk here later
+    // [todo] - add additional checking from the top of mmu.cc's walk here later
 
     var pte = new Long(0x0, 0x0);
 

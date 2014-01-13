@@ -14,9 +14,6 @@ function CPU(memamt) {
     memamt *= 1048576 // convert to Bytes
     this.memory = new Uint8Array(memamt);
 
-    // [todo] - FOR DEBUGGING ONLY TODO: REMOVE
-    this.memory[0] = 0x1;
-    
     // PC, defaults to 0x2000 according to the ISA, documented in 
     // processor.cc
     // Even in RV64, this must remain as a Number (not a Long) because
@@ -40,8 +37,6 @@ function CPU(memamt) {
     this.binaries = [];
     // next unused file-descriptor. start at 0x3
     this.next_fd = 3;
-
-
 
     // general-purpose registers, gen_reg[0] is x0, etc.
     this.gen_reg = [];
@@ -85,7 +80,6 @@ function CPU(memamt) {
         var start = new Date();
         this.priv_reg[PCR["CSR_TIME"]["num"]] = Long.fromNumber(start.getTime());
     }
-
 
     // for the following calls - by default, will use VM bit to determine if
     // address translation should be used. however sometimes, it must be forced
@@ -360,7 +354,7 @@ function CPU(memamt) {
     this.load_inst_from_mem = load_inst_from_mem;
 }
 
-// TODO: make arguments (im, ip) init, right now just dummies
+// [todo] - make arguments (im, ip) init, right now just dummies
 function status_reg_init(vm, im, ip) {
 
     // at RESET, processor starts with ET=0, S=1, VM=0

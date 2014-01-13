@@ -14,7 +14,7 @@ function handle_syscall(payload) {
 
 
     //not sure if this is supposed to happen, but set fromhost to one
-    //TODO: figure out if this is supposed to be here
+    // [todo] - figure out if this is supposed to be here
     RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
 
 }
@@ -44,10 +44,10 @@ function sys_read(fd, pbuf, len, a3) {
 
 function sys_write(fd, pbuf, len, a3) {
 
-    // TODO: implement writing to files. currently only stdout/stderr
+    // [todo] - implement writing to files. currently only stdout/stderr
 //    if (fd.getLowBits() < 0x3) {
     if (true) {
-        // stdin, stdout, stderr TODO: stdin shouldn't really be here
+        // [todo] - stdin, stdout, stderr,  stdin shouldn't really be here
         var buildStr = "";
         for (var i = 0; i < len.getLowBits(); i++) {
             buildStr += String.fromCharCode(RISCV.load_byte_from_mem(pbuf.getLowBits() + i));
@@ -74,7 +74,7 @@ function sys_open(pname, len, flags, mode) {
         nameStr = nameStr + String.fromCharCode(nameArr[i]);
     }
 
-    //TODO: incorporate flags and mode?
+    // [todo] - incorporate flags and mode?
 
     // return the file descriptor (stdout, stderr, stdin account for others)
     return [RISCV.pname_fd[nameStr], 0];
@@ -83,7 +83,7 @@ function sys_open(pname, len, flags, mode) {
 function sys_close() {
 
     // do nothing for our current implementation
-    // TODO: handle running user code that works with files
+    // [todo] - handle running user code that works with files
     return [0, 0];
 
 
@@ -130,7 +130,7 @@ function sys_pread(fd, pbuf, len, off) {
     //assume same endianness
     // load from offset to min(binary.length, len.getLowBits())
 
-    // TODO: EVENTUALLY FIX FOR LARGE FILES, where we may be loading weirdly / too much
+    // [todo] - EVENTUALLY FIX FOR LARGE FILES, where we may be loading weirdly / too much
     var loadlen = Math.min(binary.length, len.getLowBits());
 
 /*    if (len.getLowBits() + off.getLowBits() <= binary.length) {
@@ -185,7 +185,7 @@ function sys_getmainvars(mm1, mm2, mm3, mm4) {
 
     if (sz.greaterThan(mm2)) {
         // mm2 is limit
-        // TODO: what is ENOMEM? for now junk def:
+        // [todo] - what is ENOMEM? for now junk def:
         var ENOMEM = -1;
         return [-1, ENOMEM]
     } 
