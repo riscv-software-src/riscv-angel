@@ -80,7 +80,7 @@ function runCodeC(userIn) {
     compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
 
     userIn = "'" + userIn + "'";
-    $.post("http://192.168.1.17:40000", userIn, function (data) {
+    $.post("http://192.168.1.10:40000", userIn, function (data) {
 
 
         // handle filling in gcc response here and continue

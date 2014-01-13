@@ -48,7 +48,7 @@ instruction.prototype.get_S_imm = function() { // NEW
 /* returns 12 bit immediate left shifted by one and sign-extended to 32 bits */
 instruction.prototype.get_B_imm = function() { // NEW
     var temp = ((this.inst >> 20) & 0xFFFFFFE0) | ((this.inst >>> 7) & 0x0000001F);
-    return (temp & 0xFFFFF7FE) | ((temp & 0x00000001) << 11;
+    return (temp & 0xFFFFF7FE) | ((temp & 0x00000001) << 11);
 };
 
 /* return instruction with lower 12 bits cleared (upper 20 bits contain imm) */
@@ -497,7 +497,7 @@ function runInstruction(inst, RISCV) {
             break;
 
         // J-TYPE (JAL) - opcode: 0b1101111
-        case 0x6F:
+        case 0x67:
             RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
             RISCV.pc = (RISCV.pc|0) + inst.get_J_imm();
             break;
@@ -571,7 +571,7 @@ function runInstruction(inst, RISCV) {
 
 
         // I-TYPES (JALR)
-        case 0x67:
+        case 0x6F:
             var funct3 = inst.get_funct3();
             if (funct3 == 0x0) {
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
@@ -691,7 +691,7 @@ function runInstruction(inst, RISCV) {
             if (funct3 == 0x1) {
                 // FENCE.I is no-op in this implementation
                 RISCV.pc += 4;
-            } else if (funct3 = 0x0) {
+            } else if (funct3 == 0x0) {
                 // FENCE is no-op in this implementation
                 RISCV.pc += 4;
             } else {
@@ -720,11 +720,11 @@ function runInstruction(inst, RISCV) {
                 case 0x4000:
                     // [todo] - need to check for supervisor?
                     // first, confirm that we're in supervisor mode
-//                    if ((RISCV.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_S"]) == 0) {
+//                    if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_S"]) == 0) {
 //                        throw new RISCVTrap("Privileged Instruction");
 //                    }
                     // do eret stuff here
-                    var oldsr = RISCV.priv_reg[PCR["CSR_SR"]["num"]];
+                    var oldsr = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]];
                     // set SR[S] = SR[PS], don't touch SR[PS]
                     if ((oldsr & SR["SR_PS"]) != 0) {
                         // PS is set
@@ -740,7 +740,7 @@ function runInstruction(inst, RISCV) {
                     }
         
                     // store updated SR back:
-                    RISCV.priv_reg[PCR["CSR_SR"]["num"]] = oldsr;
+                    RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = oldsr;
 
 
 

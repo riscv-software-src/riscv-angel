@@ -65,7 +65,7 @@ function CPU(memamt) {
     }
 
     // init status register
-    this.priv_reg[PCR["CSR_SR"]["num"]] = status_reg_init(0, 0, 0);
+    this.priv_reg[PCR["CSR_STATUS"]["num"]] = status_reg_init(0, 0, 0);
 
     // initialize stack pointer to highest mem addr
     // needs to be modified if > 4GiB mem
@@ -93,7 +93,7 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -131,7 +131,7 @@ function CPU(memamt) {
     }
 
     function store_word_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -156,7 +156,7 @@ function CPU(memamt) {
     }
 
     function store_half_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -177,7 +177,7 @@ function CPU(memamt) {
     }
 
     function store_byte_to_mem(addr, val, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
@@ -187,7 +187,7 @@ function CPU(memamt) {
     }
 
     function load_double_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -224,7 +224,7 @@ function CPU(memamt) {
     }
 
     function load_word_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -251,7 +251,7 @@ function CPU(memamt) {
     }
 
     function load_half_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -274,7 +274,7 @@ function CPU(memamt) {
     }
 
     function load_byte_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
@@ -296,7 +296,7 @@ function CPU(memamt) {
     // set indicated PCR - need to make sure to prevent changes to hardwired vals
     function set_pcr(num, val) {
         switch(num) {
-            case PCR["CSR_SR"]["num"]:
+            case PCR["CSR_STATUS"]["num"]:
                 // assuming 32 bit status reg
                 this.priv_reg[num] = status_reg_force(val);
                 break;
@@ -319,7 +319,7 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr, tr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 2);

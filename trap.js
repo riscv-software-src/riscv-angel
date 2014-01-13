@@ -3,7 +3,7 @@
 function handle_trap(trap){
     //first, need to check ET bit. if it is not one, processor enters ERROR
     //mode (throw new RISCVError("ERROR");)
-    if ((RISCV.priv_reg[PCR["CSR_SR"]["num"]] & SR["SR_EI"]) == 0x0) {
+    if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) == 0x0) {
         // this means exceptions are disabled
         // enter ERROR mode:
         throw new RISCVError("Exceptions are Disabled but Trap Occurred, Terminating");
@@ -16,7 +16,7 @@ function handle_trap(trap){
     var causeLong = new Long(trap.exceptionCode, trap.interruptBit << 31);
     RISCV.priv_reg[PCR["CSR_CAUSE"]["num"]] = causeLong;
 
-    var oldsr = RISCV.priv_reg[PCR["CSR_SR"]["num"]];
+    var oldsr = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]];
     // set SR[PS] = SR[S]
     if ((oldsr & SR["SR_S"]) != 0) {
         // S is set
@@ -38,7 +38,7 @@ function handle_trap(trap){
     oldsr = oldsr & (~SR["SR_EI"]);
 
     // store modified SR
-    RISCV.priv_reg[PCR["CSR_SR"]["num"]] = oldsr;
+    RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = oldsr;
 
     // if trap is load/store misaligned address or access fault, 
     // set badvaddr to faulting address
