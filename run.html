@@ -80,7 +80,7 @@ function runCodeC(userIn) {
     compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
 
     userIn = "'" + userIn + "'";
-    $.post("http://192.168.1.10:40000", userIn, function (data) {
+    $.post("http://" + location.host + ":40000", userIn, function (data) {
 
 
         // handle filling in gcc response here and continue
@@ -184,8 +184,6 @@ function handle_file_continue(filesList) {
     // execution pause
     pauseExec = false;
 
-//    RISCV = new CPU();
-    console.log("HERE");
 // GET BIN FILE WRAPPER GOES AROUND THIS
     GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
     //chainedFileLoader(e.target.result, theFile.name, filesList);

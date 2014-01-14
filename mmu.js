@@ -178,7 +178,7 @@ function translate(addr, access_type) {
 
     var pte = walk(addr);
 
-    var mode = RISCV.priv_reg[PCR["PCR_SR"]["num"]];
+    var mode = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]];
 
     console.log("page table entry " + stringIntHex(pte));
 
@@ -230,7 +230,7 @@ function walk(vaddr) {
 
     var pte = new Long(0x0, 0x0);
 
-    var ptbr = RISCV.priv_reg[PCR["PCR_PTBR"]["num"]]; // this is a Long
+    var ptbr = RISCV.priv_reg[PCR["CSR_PTBR"]["num"]]; // this is a Long
    
     var ptshift = (LEVELS.subtract(new Long(0x1, 0x0))).multiply(PTIDXBITS);
 
