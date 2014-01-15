@@ -60,7 +60,7 @@ function CPU(memamt) {
     }
 
     // init status register
-    this.priv_reg[PCR["CSR_STATUS"]["num"]] = status_reg_init(0, 0, 0);
+    this.priv_reg[PCR["CSR_STATUS"]["num"]] = status_reg_init();
 
     // initialize stack pointer to highest mem addr
     // needs to be modified if > 4GiB mem
@@ -354,15 +354,12 @@ function CPU(memamt) {
     this.load_inst_from_mem = load_inst_from_mem;
 }
 
-// [todo] - make arguments (im, ip) init, right now just dummies
-function status_reg_init(vm, im, ip) {
+function status_reg_init() {
 
     // at RESET, processor starts with ET=0, S=1, VM=0
     var srinit = 0x0;
     // set EI to zero
     srinit = srinit & (~SR["SR_EI"]);
-    // set PEI to one (UNDOCUMENTED, IS THIS SUPPOSED TO BE THIS WAY?)
-//    srinit = srinit | (SR["SR_PEI"]);
     // set S = 1 here
     srinit = srinit | SR["SR_S"];
     // set PS = 0 here
@@ -387,8 +384,5 @@ function status_reg_force(input) {
 
     input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
 
-    // clear bit 2 and bits 9-15 (hardwired zeroes)
-//    input = input & ~(1 << 2);
-//    input = input & ~(0x7F << 9);
     return input;
 }

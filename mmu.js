@@ -4,7 +4,7 @@
 
 
     // CONSTANTS HERE
-    var LEVELS = new Long(0x3, 0x0);
+    var LEVELS = 3;
     var PTIDXBITS = new Long(0xA, 0x0);
     var PGSHIFT = new Long(0xD, 0x0);
     var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT.getLowBits());
@@ -232,12 +232,12 @@ function walk(vaddr) {
 
     var ptbr = RISCV.priv_reg[PCR["CSR_PTBR"]["num"]]; // this is a Long
    
-    var ptshift = (LEVELS.subtract(new Long(0x1, 0x0))).multiply(PTIDXBITS);
+    var ptshift = new Long((LEVELS-1), 0x0).multiply(PTIDXBITS);
 
     console.log("translating vaddr: " + stringIntHex(vaddr));
 
     // main walk for loop
-    for (var i = 0; i < LEVELS.getLowBits(); ptshift = ptshift.subtract(PTIDXBITS)) {
+    for (var i = 0; i < LEVELS; ptshift = ptshift.subtract(PTIDXBITS)) {
         console.log("running translation loop" + i);
         var idx = (vaddr.shiftRightUnsigned((PGSHIFT.add(ptshift)).getLowBits())).and(((new Long(0x1, 0x0)).shiftLeft(PTIDXBITS.getLowBits())).subtract(new Long(0x1, 0x0)));
         console.log("pt index " + stringIntHex(idx));

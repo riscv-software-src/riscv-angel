@@ -497,7 +497,7 @@ function runInstruction(inst, RISCV) {
             break;
 
         // J-TYPE (JAL) - opcode: 0b1101111
-        case 0x67:
+        case 0x6F:
             RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
             RISCV.pc = (RISCV.pc|0) + inst.get_J_imm();
             break;
@@ -571,7 +571,7 @@ function runInstruction(inst, RISCV) {
 
 
         // I-TYPES (JALR)
-        case 0x6F:
+        case 0x67:
             var funct3 = inst.get_funct3();
             if (funct3 == 0x0) {
                 RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4, 31);
