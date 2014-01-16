@@ -26,7 +26,7 @@ function elfRunNextInst() {
     RISCV.oldpc = RISCV.pc;
 
     try {
-        console.log(num_to_hexstr(RISCV.pc));
+        //console.log(num_to_hexstr(RISCV.pc));
         instVal = RISCV.load_inst_from_mem(RISCV.pc);
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
