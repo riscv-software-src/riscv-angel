@@ -1,5 +1,7 @@
 // run one instruction at a time, isolate from elfload
 
+indicatedBoot = false;
+
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
@@ -14,9 +16,10 @@ function elfRunNextInst() {
     if (RISCV.pc == 0x2000) {
         // indicate booting
         document.getElementById("console").innerHTML += "Booting proxy_kernel...";
-    } else if (RISCV.pc == 0x10000) {
+    } else if (RISCV.pc == 0x10000 && !indicatedBoot) {
         // indicate finished booting
         document.getElementById("console").innerHTML += "<br>Boot finished, running user program...";
+        indicatedBoot = true;
     }
 
     // set last PC value for comparison

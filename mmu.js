@@ -1,164 +1,24 @@
 // simulated memory management unit,
 // needs to intercept all memory loading calls
 
+// CONSTANTS HERE
+var LEVELS = 3;
+var PTIDXBITS = new Long(0xA, 0x0);
+var PGSHIFT = new Long(0xD, 0x0);
+var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT.getLowBits());
+var VPN_BITS = new Long(30, 0x0);
+var PPN_BITS = new Long(51, 0x0);
+var VA_BITS = new Long(43, 0x0);
 
-
-    // CONSTANTS HERE
-    var LEVELS = 3;
-    var PTIDXBITS = new Long(0xA, 0x0);
-    var PGSHIFT = new Long(0xD, 0x0);
-    var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT.getLowBits());
-    var VPN_BITS = new Long(30, 0x0);
-    var PPN_BITS = new Long(51, 0x0);
-    var VA_BITS = new Long(43, 0x0);
-
-    var PTE_V = new Long(0x1, 0x0);
-    var PTE_T = new Long(0x2, 0x0);
-    var PTE_G = new Long(0x4, 0x0);
-    var PTE_UR = new Long(0x8, 0x0);
-    var PTE_UW = new Long(0x10, 0x0);
-    var PTE_UX = new Long(0x20, 0x0);
-    var PTE_SR = new Long(0x40, 0x0);
-    var PTE_SW = new Long(0x80, 0x0);
-    var PTE_SX = new Long(0x100, 0x0);
-
-
-/*
-
-
-
-
-// object with attached helper methods for a page table entry or virtual address
-// get_pgoff is for virtual address, all others in the 12-0 range are for pt entry
-function page_table_entry_addr(entryin) {
-    this.entry = entryin; // entryin MUST be a long
-
-
-
-    // [todo] - fix this with 
-    // https://github.com/ucb-bar/riscv-pk/blob/186ae3cc353fa3115d4ee0c9fcb18d8b2370c68c/pk/pcr.h
-
-
-
-    function get_V() {
-        return this.entry.getLowBits() & 0x1;
-    }
-
-    function get_T() {
-        return (this.entry.getLowBits() >> 1) & 0x1;
-    }
-
-    function get_G() {
-        return (this.entry.getLowBits() >> 2) & 0x1;
-    }
-
-    function get_UR() {
-        return (this.entry.getLowBits() >> 3) & 0x1;
-    }
-
-    function get_UW() {
-        return (this.entry.getLowBits() >> 4) & 0x1;
-    }
-
-    function get_UX() {
-        return (this.entry.getLowBits() >> 5) & 0x1;
-    }
-
-    function get_SR() {
-        return (this.entry.getLowBits() >> 6) & 0x1;
-    }
-
-    function get_SW() {
-        return (this.entry.getLowBits() >> 7) & 0x1;
-    }
-
-    function get_SX() {
-        return (this.entry.getLowBits() >> 8) & 0x1;
-    }
-
-    // FIXED ABOVE
-
-    function get_ppn0() {
-        return (this.entry.getLowBits() >> 13) & 0x3FF;
-    }
-
-    function set_ppn0(val) {
-        var update32 = this.entry.getLowBits();
-        update32 = update32 & (~(0x3FF << 13));
-        update32 = update32 | (val << 13);
-        this.entry = new Long(update32, this.entry.getHighBits());
-    }
-
-    function get_ppn1() {
-        return ((this.entry.getLowBits() >> 23) & 0x1FF) | ((this.entry.getHighBits() & 0x1) << 9);
-    }
-
-    function set_ppn1(val) {
-        var updatehigh32 = this.entry.getHighBits();
-        var updatelow32 = this.entry.getLowBits();
-        updatehigh32 = updatehigh32 & (~(0x1));
-        updatehigh32 = updatehigh32 | ((val >> 9) & 0x1);
-        updatelow32 = updatelow32 & (~(0x1FF << 23));
-        updatelow32 = updatelow32 | ((val & 0x1FF) << 23);
-        this.entry = new Long(updatelow32, updatehigh32);
-    }
-
-    function get_ppn2() {
-        return ((this.entry.getHighBits() >> 1) & 0x7FFFFFFF);
-    }
-
-    function set_ppn2(val) {
-        var update32 = this.entry.getHighBits();
-        update32 = update32 & (~0x1);
-        update32 = update32 | (val << 1);
-        this.entry = new Long(this.entry.getLowBits(), update32);
-    }
-
-    function get_pgoff() {
-        return ((this.entry.getLowBits) & 0x1FFF)
-    }
-
-    function get_vpn0() {
-        // gets same bits as ppn0, just for clarity in code
-        return this.get_ppn0();
-    }
-
-    function get_vpn1() {
-        // gets same bits as ppn1, just for clarity in code
-        return this.get_ppn1();
-    }
-
-    function get_vpn2() {
-        // gets same bits as ppn2, just for clarity in code
-        return this.get_ppn2();
-    }
-
-    function get_ppn() {
-        return this.entry.shiftRightUnsigned(13);
-    }
-
-    this.get_V = get_V;
-    this.get_T = get_T;
-    this.get_G = get_G;
-    this.get_UR = get_UR;
-    this.get_UW = get_UW;
-    this.get_UX = get_UX;
-    this.get_SR = get_SR;
-    this.get_SW = get_SW;
-    this.get_SX = get_SX;
-    this.get_ppn0 = get_ppn0;
-    this.set_ppn0 = set_ppn0;
-    this.get_ppn1 = get_ppn1;
-    this.set_ppn1 = set_ppn1;
-    this.get_ppn2 = get_ppn2;
-    this.set_ppn2 = set_ppn2;
-    this.get_pgoff = get_pgoff;
-    this.get_vpn0 = get_vpn0;
-    this.get_vpn1 = get_vpn1;
-    this.get_vpn2 = get_vpn2;
-    this.get_ppn = get_ppn;
-}
-*/
+var PTE_V = new Long(0x1, 0x0);
+var PTE_T = new Long(0x2, 0x0);
+var PTE_G = new Long(0x4, 0x0);
+var PTE_UR = new Long(0x8, 0x0);
+var PTE_UW = new Long(0x10, 0x0);
+var PTE_UX = new Long(0x20, 0x0);
+var PTE_SR = new Long(0x40, 0x0);
+var PTE_SW = new Long(0x80, 0x0);
+var PTE_SX = new Long(0x100, 0x0);
 
 // performs address translation
 function translate(addr, access_type) {
