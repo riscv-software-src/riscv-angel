@@ -806,7 +806,6 @@ function runInstruction(inst, RISCV) {
                             if (typeof temp === "number") {
                                 RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
                                 temp = temp | rs1.getLowBitsUnsigned();
-                                console.log(num_to_hexstr(temp));
                             } else {
                                 //temp is a long
                                 RISCV.gen_reg[inst.get_rd()] = temp;
