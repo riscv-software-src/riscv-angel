@@ -120,15 +120,6 @@ function runCodeC(userIn) {
 
     });
 
-
-    // at this point, assume the server has created /a.out for your use and that
-    // pk exists at /pk
-    // [todo] - make more robust
-
-    //console.log(userIn);
-
-    //GetBinaryFile("pk"); // load pk
-
 }
 
 
@@ -184,11 +175,7 @@ function handle_file_continue(filesList) {
     // execution pause
     pauseExec = false;
 
-// GET BIN FILE WRAPPER GOES AROUND THIS
     GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
-    //chainedFileLoader(e.target.result, theFile.name, filesList);
-
-    //reader.readAsBinaryString(file);
 }
 
 function elfRunCompletion() {
@@ -310,23 +297,6 @@ int compute_fib(int n) {
 
                     <div class="tab-pane" id="tab2">
                         <div><h4>Command Line Arguments:</h4> <input type="text" style="height: 32px; width:100%;" id="cmdargs" /> </div>
-<!-- 
-                    <div class="fileupload fileupload-new" data-provides="fileupload">
-                        <div class="input-append">
-                            <div class="uneditable-input">
-                                <i class="icon-file fileupload-exists"></i> 
-                                <span class="fileupload-preview" style="color:#000000;"></span>
-                            </div>
-                           <span class="btn btn-file">
-                                <span class="fileupload-new">> Load Binary to Exec.</span>
-                                <span class="fileupload-exists">Change</span>
-                                <input type="file" id="files" name="files[]" multiple />
-                            </span>
-                            <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
-                       </div>
-                    </div>
--->
-
 
 <div id="debugbuttons" style="position:relative;">
     <div style="float: left; width:40%; left: 0;">
@@ -622,9 +592,6 @@ int compute_fib(int n) {
 
     // init junk cpu to fill table
     runCode("addi zero, zero, 0");
-
-    // file handler for "Run from file"
-    //document.getElementById("files").addEventListener('change', handle_file, false);
 
     var myCodeMirror = CodeMirror(function(elt) {
         userCodeC = document.getElementById("userCodeC");

@@ -7,7 +7,7 @@
 // CPU class. Contains regfile, memory, and special registers
 // memamt is memory size in Mebibytes, default to 32
 function CPU(memamt) {
-    memamt = typeof memamt !== 'undefined' ? memamt : 32;
+    memamt = typeof memamt !== 'undefined' ? memamt : 1;
 
     this.memamount = memamt; // for use by the kernel
     
@@ -382,7 +382,7 @@ function status_reg_force(input) {
     input = input & (~SR["SR_EF"]);
     input = input | SR["SR_U64"] | SR["SR_S64"];
 
-    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
+//    input = input & (~SR["SR_VM"]); // TEMPORARY FORCE VM OFF
 
     return input;
 }

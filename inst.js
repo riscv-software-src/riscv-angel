@@ -779,6 +779,8 @@ function runInstruction(inst, RISCV) {
                 default:
                     // if none of the above are triggered, try handling as CSR inst
                     var funct3 = inst.get_funct3();
+                    //var rd = RISCV.gen_reg[inst.get_rd()];
+                    var rs1 = RISCV.gen_reg[inst.get_rs1()];
                     switch(funct3) {
 
                         // [todo] - currently does not perform permission check
@@ -788,11 +790,11 @@ function runInstruction(inst, RISCV) {
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
                             if (typeof temp === "number") {
                                 RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
-                                temp = RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned();
+                                temp = rs1.getLowBitsUnsigned();
                             } else {
                                 //temp is a long
                                 RISCV.gen_reg[inst.get_rd()] = temp;
-                                temp = RISCV.gen_reg[inst.get_rs1()];
+                                temp = rs1;
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;
@@ -803,11 +805,12 @@ function runInstruction(inst, RISCV) {
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
                             if (typeof temp === "number") {
                                 RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
-                                temp = temp | RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned();
+                                temp = temp | rs1.getLowBitsUnsigned();
+                                console.log(num_to_hexstr(temp));
                             } else {
                                 //temp is a long
                                 RISCV.gen_reg[inst.get_rd()] = temp;
-                                temp = temp.or(RISCV.gen_reg[inst.get_rs1()]);
+                                temp = temp.or(rs1);
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;
@@ -818,11 +821,11 @@ function runInstruction(inst, RISCV) {
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
                             if (typeof temp === "number") {
                                 RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
-                                temp = temp & ~(RISCV.gen_reg[inst.get_rs1()].getLowBitsUnsigned());
+                                temp = temp & ~(rs1.getLowBitsUnsigned());
                             } else {
                                 //temp is a long
                                 RISCV.gen_reg[inst.get_rd()] = temp;
-                                temp = temp.and(RISCV.gen_reg[inst.get_rs1()].not());
+                                temp = temp.and(rs1.not());
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;

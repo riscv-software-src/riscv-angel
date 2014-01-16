@@ -97,8 +97,8 @@ function loadElf(binfile, filename, filesList) {
 
     // [todo] - Detect when this is the proxy kernel
     // FOR NOW, ASSUME THAT THIS IS THE PROXY KERNEL
-    RISCV.store_word_to_mem(0, 1) // single core
-    RISCV.store_word_to_mem(4, RISCV.memamount); // amount of memory in MiB
+    //RISCV.store_word_to_mem(0, 1) // single core
+    RISCV.store_word_to_mem(0, RISCV.memamount); // amount of memory in MiB
 
 
     // start running program
