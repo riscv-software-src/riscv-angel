@@ -48,9 +48,12 @@ function elfRunNextInst() {
 
         // now on every run, we need to check to see if a syscall is happening
         // check device / cmd
-        var device = (toHostVal.getHighBits >> 24) & 0xFF;
-        var cmd = (toHostVal.getHighBits >> 16) & 0xFF;
+        var device = (toHostVal.getHighBits() >> 24) & 0xFF;
+        var cmd = (toHostVal.getHighBits() >> 16) & 0xFF;
         var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
+        console.log("device " + stringIntHex(device));
+        console.log("cmd " + stringIntHex(cmd));
+        console.log("payload " + stringIntHex(payload));
 
         if (device == 0x0 && cmd == 0x0) {
             // this is a syscall
