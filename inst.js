@@ -1647,5 +1647,5 @@ function runInstruction(inst, RISCV) {
     // finally, increment cycle counter, instret counter, count register:
     RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(new Long(0x1, 0x0));
     RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(new Long(0x1, 0x0));
-    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] + 1;
+    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]]&0x1 + 0x1;
 }
