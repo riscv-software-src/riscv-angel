@@ -11,6 +11,8 @@ TODO before release:
 
 4) Performance Testing / Optimization (minify everything? - https://github.com/mishoo/UglifyJS)
 
+Chrome profiler: https://developers.google.com/chrome-developer-tools/docs/commandline-api?hl=fr-FR#profilename
+
 5) More robust assembler
     - Support labels that are on their own line
     - Support hex immediates

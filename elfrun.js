@@ -15,7 +15,7 @@ function elfRunNextInst() {
     // write out to console to indicate booting
     if (RISCV.pc == 0x2000) {
         // indicate booting
-        document.getElementById("console").innerHTML += "Booting proxy_kernel...";
+        //document.getElementById("console").innerHTML += "Booting proxy_kernel...";
     } else if (RISCV.pc == 0x10000 && !indicatedBoot) {
         // indicate finished booting
         document.getElementById("console").innerHTML += "<br>Boot finished, running user program...";
@@ -51,10 +51,6 @@ function elfRunNextInst() {
         var device = (toHostVal.getHighBits() >> 24) & 0xFF;
         var cmd = (toHostVal.getHighBits() >> 16) & 0xFF;
         var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
-        console.log("device " + stringIntHex(device));
-        console.log("cmd " + stringIntHex(cmd));
-        console.log("payload " + stringIntHex(payload));
-
         if (device == 0x0 && cmd == 0x0) {
             // this is a syscall
             if (payload.getLowBits() & 0x1 == 1) {
@@ -69,6 +65,21 @@ function elfRunNextInst() {
                 // this is for normal syscalls (not testing)
                 handle_syscall(payload);
             }
+        } else if (device == 0x1) {
+            // terminal
+            if (cmd == 0x1) {
+               write_to_term(payload.getLowBits() & 0xFF);
+            } else {
+               throw new RISCVError("Other term features not yet implemented"); 
+            } 
+        } else {
+            // unknown device, crash
+            console.log("device " + stringIntHex(device));
+            console.log("cmd " + stringIntHex(cmd));
+            console.log("payload " + stringIntHex(payload));
+            console.log("current PC " + stringIntHex(RISCV.pc));
+            console.log("last PC " + stringIntHex(RISCV.oldpc));
+            throw new RISCVError("unknown device/command combo");
         }
 
         RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);

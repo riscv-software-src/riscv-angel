@@ -7,7 +7,7 @@
 // CPU class. Contains regfile, memory, and special registers
 // memamt is memory size in Mebibytes, default to 32
 function CPU(memamt) {
-    memamt = typeof memamt !== 'undefined' ? memamt : 1;
+    memamt = typeof memamt !== 'undefined' ? memamt : 10;
 
     this.memamount = memamt; // for use by the kernel
     
@@ -87,6 +87,7 @@ function CPU(memamt) {
 
     // unlike word, half, byte, the val arg here is a Long
     function store_double_to_mem(addr, val, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -125,6 +126,7 @@ function CPU(memamt) {
     }
 
     function store_word_to_mem(addr, val, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -150,6 +152,7 @@ function CPU(memamt) {
     }
 
     function store_half_to_mem(addr, val, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -171,6 +174,7 @@ function CPU(memamt) {
     }
 
     function store_byte_to_mem(addr, val, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -181,6 +185,7 @@ function CPU(memamt) {
     }
 
     function load_double_from_mem(addr, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -218,6 +223,7 @@ function CPU(memamt) {
     }
 
     function load_word_from_mem(addr, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -245,6 +251,7 @@ function CPU(memamt) {
     }
 
     function load_half_from_mem(addr, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -268,6 +275,7 @@ function CPU(memamt) {
     }
 
     function load_byte_from_mem(addr, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -313,6 +321,7 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr, tr) {
+        addr = addr_fix(addr);
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
@@ -352,6 +361,11 @@ function CPU(memamt) {
     this.load_to_mem = load_to_mem;
     this.set_pcr = set_pcr;
     this.load_inst_from_mem = load_inst_from_mem;
+}
+
+// [todo] - why do we need this?
+function addr_fix(addr) {
+    return addr & 0x7FFFFFFF;
 }
 
 function status_reg_init() {

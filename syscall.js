@@ -29,17 +29,37 @@ function sys_read(fd, pbuf, len, a3) {
     console.log("pbuf " + stringIntHex(pbuf));
     console.log("len " + stringIntHex(len));
 
-    var binary = RISCV.binaries[fd.getLowBits()];
-    console.log("loaded file to run");
-    //handle loading program to exec    
-    //assume same endianness
-    // load from offset to min(binary.length, len.getLowBits())
-    var loadlen = Math.min(binary.length, len.getLowBits());
-    console.log("loadlen " + stringIntHex(loadlen));
-    for (var i = 0; i < loadlen; i++) {
-        RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
+
+    if (fd.getLowBits() == 0x0) {
+        // [todo] - build a "syscall handler" - watch for the second syscall and
+        // "cancel" it by writing nothing with a loadlen of 0, this should also 
+        // handle splitting user input if it is larger than the buffer size.
+        // Should take user input and then consume it piece by piece, finally
+        // terminating by writing nothing on the last syscall.
+        console.log("handling stdin");
+        //handle feeding stdin
+        var userinput = prompt("stdin", "");
+        var loadlen = Math.min(userinput.length, len.getLowBits());
+        console.log("loadlen " + stringIntHex(loadlen));
+        for (var i = 0; i < loadlen; i++) {
+            RISCV.store_byte_to_mem(pbuf.getLowBits()+i, userinput.charCodeAt(i) & 0xFF);
+        }
+        //RISCV.store_byte_to_mem(pbuf.getLowBits() + loadlen-1, 0xFF);
+        return [loadlen, 0];
+    } else {
+        // handle any other fd
+        var binary = RISCV.binaries[fd.getLowBits()];
+        console.log("loaded file to run");
+        //handle loading program to exec    
+        //assume same endianness
+        // load from offset to min(binary.length, len.getLowBits())
+        var loadlen = Math.min(binary.length, len.getLowBits());
+        console.log("loadlen " + stringIntHex(loadlen));
+        for (var i = 0; i < loadlen; i++) {
+            RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
+        }
+        return [loadlen, 0];
     }
-    return [loadlen, 0];
 }
 
 function sys_write(fd, pbuf, len, a3) {

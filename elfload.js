@@ -84,12 +84,12 @@ function loadElf(binfile, filename, filesList) {
         // check for allocate flag (bit #1) and type != 8 (aka NOT NOBITS)
         if ((((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) && (section_headers[i]["type"] != 8)) {
             for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++) {
-                RISCV.memory[(section_headers[i]["addr"].getLowBits()|0) + j] = binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF;
+                RISCV.memory[(section_headers[i]["addr"].getLowBits()&0x7FFFFFFF) + j] = binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF;
             }
         } else if ((((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) && (section_headers[i]["type"] == 8)) {
             // for .bss, load in zeroes, since it's not actually stored in the elf
             for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++) {
-                RISCV.memory[(section_headers[i]["addr"].getLowBits()|0) + j] = 0x0;
+                RISCV.memory[(section_headers[i]["addr"].getLowBits()&0x7FFFFFFF) + j] = 0x0;
             }
         }
     }
@@ -159,13 +159,13 @@ function chainedFileLoader(binFile, filename, filesList) {
         if (filesList.length > 0) {
             handle_file_continue(filesList);
         } else {
-            // call elfload with pk to start boot
-            loadElf(RISCV.binaries[RISCV.pname_fd["pk"]], "pk", filesList);
+            // call elfload with vmlinux kernel to start boot
+            loadElf(RISCV.binaries[RISCV.pname_fd["vmlinux"]], "vmlinux", filesList);
             // if cmdargs is empty and next fd is 5, assume fd 4 is user prog:
             var cmdargs = document.getElementById("cmdargs");
             var arg = cmdargs.value;
             if (arg === "" && RISCV.next_fd == 5) {
-                if (RISCV.pname_fd["pk"] == 3) {
+                if (RISCV.pname_fd["vmlinux"] == 3) {
                     cmdargs.value = RISCV.fd_pname[4] + "";
                 } else {
                     cmdargs.value = RISCV.fd_pname[3] + "";

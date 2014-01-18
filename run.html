@@ -21,6 +21,7 @@ Long = goog.math.Long;
 </script>
 
 <!-- load angel -->
+<script src="devices/character.js"></script>
 <script src="lib/binfile/binfile.js"></script>
 <script src="timeoutfix.js"></script>
 <script src="nodepmappings.js"></script>
@@ -101,7 +102,7 @@ function runCodeC(userIn) {
          
                     compilestat.innerHTML = "Compile Status: Compile complete. Press Run to execute. <a data-toggle='modal' data-target='#objdumpModal'>objdump output</a>";
 
-                    filesList = ["lib/riscv_compiled/pk", "compileserver/binaries/" + data];
+                    filesList = ["lib/riscv_compiled/vmlinux", "compileserver/binaries/" + data];
 
                     handle_file_continue(filesList);
 
@@ -218,7 +219,7 @@ function elfRunCompletion() {
     </div>
 
     <div class="row-fluid marketing">
-        <div class="span5">
+        <div class="span3">
 
             <div class="tabbable">
                 <ul class="nav nav-tabs">
@@ -375,10 +376,10 @@ int compute_fib(int n) {
             </div>
 
         </div>
-        <div class="span7">
+        <div class="span13">
             <h4>Output:</h4>
             <div id="consoleLabel"><h5>Console:</h5></div>
-            <div id="consoleBox" style="padding:5px; height:300px; background-color:black; color:white;overflow:auto; font-family: Monaco, Consolas, Lucida Console, monospace;">
+            <div id="consoleBox" style="padding:5px; height:300px; background-color:black; color:white; font-size:80%; font-family: Monaco, Consolas, Lucida Console, monospace;">
 
             <div id="console"></div>
 
@@ -573,6 +574,8 @@ int compute_fib(int n) {
 
 <!-- misc end-of-page scripts -->
 <script>
+    init_term();
+
     // enable bootstrap tooltips
     $('a').tooltip();
 
