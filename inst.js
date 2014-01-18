@@ -1642,7 +1642,10 @@ function runInstruction(inst, RISCV) {
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = new Long(0x0, 0x0);
 
-    // finally, increment cycle counter, instret counter:
+
+
+    // finally, increment cycle counter, instret counter, count register:
     RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(new Long(0x1, 0x0));
     RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(new Long(0x1, 0x0));
+    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] + 1;
 }

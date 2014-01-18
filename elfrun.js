@@ -26,7 +26,8 @@ function elfRunNextInst() {
     RISCV.oldpc = RISCV.pc;
 
     try {
-        //console.log(num_to_hexstr(RISCV.pc));
+        //var t = num_to_hexstr(RISCV.pc);
+        //console.log(": core   0: 0xffffffff8" + t.slice(1, t.length));
         instVal = RISCV.load_inst_from_mem(RISCV.pc);
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
@@ -43,8 +44,8 @@ function elfRunNextInst() {
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
     if (toHostVal.notEquals(new Long(0x0, 0x0))){
-        console.log("Output on toHost:");
-        console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
+        //console.log("Output on toHost:");
+        //console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
 
         // now on every run, we need to check to see if a syscall is happening
         // check device / cmd

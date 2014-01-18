@@ -34,14 +34,11 @@ function translate(addr, access_type) {
         throw new RISCVError("Invalid access_type in translate");
     } 
 
-    addr = new Long(addr, 0x0);
+    addr = signExtLT32_64(addr, 31);
 
     var pte = walk(addr);
 
     var mode = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]];
-
-    //console.log("page table entry " + stringIntHex(pte));
-
 
     // permissions check
     if (mode & SR["SR_S"] != 0) {
@@ -84,39 +81,22 @@ function walk(vaddr) {
     var pte = new Long(0x0, 0x0);
 
     var ptbr = RISCV.priv_reg[PCR["CSR_PTBR"]["num"]]; // this is a Long
-   
     var ptshift = new Long((LEVELS-1), 0x0).multiply(PTIDXBITS);
-
-    //console.log("translating vaddr: " + stringIntHex(vaddr));
 
     // main walk for loop
     for (var i = 0; i < LEVELS; ptshift = ptshift.subtract(PTIDXBITS)) {
-        //console.log("running translation loop" + i);
         var idx = (vaddr.shiftRightUnsigned((PGSHIFT.add(ptshift)).getLowBits())).and(((new Long(0x1, 0x0)).shiftLeft(PTIDXBITS.getLowBits())).subtract(new Long(0x1, 0x0)));
-        //console.log("pt index " + stringIntHex(idx));
         var pte_addr = ptbr.add(idx.multiply(new Long(0x8, 0x0)));
-        
-        //console.log("loading pte from " + stringIntHex(pte_addr));
-
         var pt_data = RISCV.load_double_from_mem(pte_addr.getLowBits(), false);
-
-        //console.log("pt_data " + stringIntHex(pt_data));
-
         if ((pt_data.and(PTE_V)).equals(new Long(0x0, 0x0))) {
             // INVALID MAPPING
-            //console.log("INVALID MAPPING");
             break;
         } else if ((pt_data.and(PTE_T)).notEquals(new Long(0x0, 0x0))) {
             // Next level of page table
-            //console.log("MOVING TO NEXT T");
-            //console.log(stringIntHex(pt_data));
-            //console.log(stringIntHex(PTE_T));
-            //console.log(stringIntHex(pt_data.and(PTE_T)));
             ptbr = (pt_data.shiftRightUnsigned(PGSHIFT.getLowBits())).shiftLeft(PGSHIFT.getLowBits());
         } else {
             // The actual pte
             var vpn = vaddr.shiftRightUnsigned(PGSHIFT.getLowBits());
-            //console.log("right before or " + stringIntHex(pt_data));
             pt_data = pt_data.or((vpn.and(((new Long(0x1, 0x0)).shiftLeft(ptshift.getLowBits())).subtract(new Long(0x1, 0x0)))).shiftLeft(PGSHIFT.getLowBits()));
 
             //supposed to be a mem bounds fault check here but ignore for now:

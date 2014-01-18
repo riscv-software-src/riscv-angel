@@ -81,7 +81,7 @@ function elfRunCompletion() {
     // elf run to completion
     elfRunNextInst();
 
-    if (!pauseExec && breaks[RISCV.pc] != 0x1) {
+    if (!pauseExec && breaks[signed_to_unsigned(RISCV.pc)] != 0x1) {
         setZeroTimeout(elfRunCompletion);
     }
 }
