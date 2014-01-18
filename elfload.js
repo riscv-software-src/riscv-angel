@@ -172,4 +172,5 @@ function chainedFileLoader(binFile, filename, filesList) {
                 }
             }
         }
+        $('#WriteCRun').removeAttr('disabled');
 }

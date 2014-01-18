@@ -1,6 +1,6 @@
 riscv-angel
 =====
 
-Javascript RISC-V ISA (RV64) Simulator
+ANGEL is a Javascript RISC-V ISA (RV64) Simulator that runs riscv-linux.
 
-Demo running at: http://skarhome2.dyndns.org/riscv-angel/run.html
+Check out the demo running at: http://skarhome2.dyndns.org/riscv-angel/run.html
