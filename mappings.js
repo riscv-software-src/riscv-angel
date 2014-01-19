@@ -29,8 +29,8 @@ var PCR = {
     "CSR_BADVADDR":  {"num": 0x503, "width": 64,},
     "CSR_PTBR":      {"num": 0x504, "width": 64,},
     "CSR_ASID":      {"num": 0x505, "width": 64,}, // implementation defined
-    "CSR_COUNT":     {"num": 0x506, "width": 32,},
-    "CSR_COMPARE":   {"num": 0x507, "width": 32,},
+    "CSR_COUNT":     {"num": 0x506, "width": 64,},
+    "CSR_COMPARE":   {"num": 0x507, "width": 64,},
     "CSR_EVEC":      {"num": 0x508, "width": 64,},
     "CSR_CAUSE":     {"num": 0x509, "width": 64,},
     "CSR_STATUS":    {"num": 0x50A, "width": 32,},
@@ -67,19 +67,21 @@ var SR = {
 };
 
 
+// TRAPS: [exception code, interruptBit]
 var TRAPS = {
-    "Instruction Address Misaligned": 0x0, // now thrown
-    "Instruction Access Fault": 0x1, // requires VM?
-    "Illegal Instruction": 0x2, // now thrown, should be completely specified
-    "Privileged Instruction": 0x3,
-    "Floating-Point Disabled": 0x4, // now thrown
-    "System Call": 0x6, // now thrown 
-    "Breakpoint": 0x7, // now thrown 
-    "Load Address Misaligned": 0x8, // now thrown
-    "Store Address Misaligned": 0x9, // now thrown
-    "Load Access Fault": 0xA, // requires VM?
-    "Store Access Fault": 0xB, // requires VM?
-    "Accelerator Disabled": 0xC, // not used here
+    "Instruction Address Misaligned": [0x0, 0x0],
+    "Instruction Access Fault": [0x1, 0x0],
+    "Illegal Instruction": [0x2, 0x0],
+    "Privileged Instruction": [0x3, 0x0], 
+    "Floating-Point Disabled": [0x4, 0x0],
+    "System Call": [0x6, 0x0], 
+    "Breakpoint": [0x7, 0x0], 
+    "Load Address Misaligned": [0x8, 0x0], 
+    "Store Address Misaligned": [0x9, 0x0],
+    "Load Access Fault": [0xA, 0x0],
+    "Store Access Fault": [0xB, 0x0],
+    "Accelerator Disabled": [0xC, 0x0],
+    "Timer interrupt": [0x7, 0x1],
 };
 
 var SYSCALLS = {

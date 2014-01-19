@@ -73,8 +73,8 @@ function RISCVTrap(message, memaddr) {
     this.name = "RISCVTrap";
     this.message = (message || "");
     this.memaddr = (memaddr || 0);
-    this.exceptionCode = TRAPS[this.message];
-    this.interruptBit = 0; // by def
+    this.exceptionCode = TRAPS[this.message][0];
+    this.interruptBit = TRAPS[this.message][1]; // by def
     this.e_type = "RISCVTrap";
 }
 

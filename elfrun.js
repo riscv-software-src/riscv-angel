@@ -12,16 +12,6 @@ function elfRunNextInst() {
         throw new RISCVError("Execution completed");
     }
 
-    // write out to console to indicate booting
-    if (RISCV.pc == 0x2000) {
-        // indicate booting
-        //document.getElementById("console").innerHTML += "Booting proxy_kernel...";
-    } else if (RISCV.pc == 0x10000 && !indicatedBoot) {
-        // indicate finished booting
-        document.getElementById("console").innerHTML += "<br>Boot finished, running user program...";
-        indicatedBoot = true;
-    }
-
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
 
@@ -31,6 +21,10 @@ function elfRunNextInst() {
         instVal = RISCV.load_inst_from_mem(RISCV.pc);
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
+
+        // HERE, ALSO CHECK FOR INTERRUPT BITS
+        // can we just generate a fake trap and call handle trap? check kernel
+
     } catch(e) {
         // trap handling
         if (e.e_type === "RISCVTrap") {
@@ -39,6 +33,22 @@ function elfRunNextInst() {
         } else {
             throw e;
         }
+    }
+
+    // handle interrupts here. DO NOT put this in inst.js (exceptions will break interrupts)
+    if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {
+        // interrupts are enabled
+        if (((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] >>> 16) & 0x80) != 0x0) {
+            // timer interrupt is enabled
+            if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].equals(RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]])) {
+                // set IP bit for timer interrupt
+                console.log("Handling timer interrupt");
+                RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x80000000;
+                var InterruptException = new RISCVTrap("Timer interrupt");
+                handle_trap(InterruptException);
+            }
+        }
+
     }
 
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
@@ -54,18 +64,18 @@ function elfRunNextInst() {
         var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
         if (device == 0x0 && cmd == 0x0) {
             // this is a syscall
-            if (payload.getLowBits() & 0x1 == 1) {
+            //if (payload.getLowBits() & 0x1 == 1) {
                 // this is for testing (Pass/Fail) report for test programs
                 // all other programs cannot have this bit set (since it's an
                 // address)
-                if (RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]].equals(new Long(0x1, 0x0))) {
-                    // set to true in case this is a test
-                    RISCV.testSuccess = true;
-                }
-            } else {
+            //    if (RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]].equals(new Long(0x1, 0x0))) {
+            //        // set to true in case this is a test
+            //        RISCV.testSuccess = true;
+            //    }
+            //} else {
                 // this is for normal syscalls (not testing)
-                handle_syscall(payload);
-            }
+            handle_syscall(payload);
+            //}
         } else if (device == 0x1) {
             // terminal
             if (cmd == 0x1) {
