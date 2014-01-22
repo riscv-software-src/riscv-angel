@@ -42,7 +42,7 @@ function elfRunNextInst() {
             // timer interrupt is enabled
             if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].equals(RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]])) {
                 // set IP bit for timer interrupt
-                console.log("Handling timer interrupt");
+                //console.log("Handling timer interrupt");
                 RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x80000000;
                 var InterruptException = new RISCVTrap("Timer interrupt");
                 handle_trap(InterruptException);
@@ -76,13 +76,18 @@ function elfRunNextInst() {
                 // this is for normal syscalls (not testing)
             handle_syscall(payload);
             //}
-        } else if (device == 0x1) {
-            // terminal
+        } else if (device == 0x1 && !(cmd == 0xFF)) {
+            // terminal, but ignore the enumeration
             if (cmd == 0x1) {
                write_to_term(payload.getLowBits() & 0xFF);
             } else {
                throw new RISCVError("Other term features not yet implemented"); 
             } 
+        } else if (cmd == 0xFF) {
+            // try to override enumeration
+            RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
+
+
         } else {
             // unknown device, crash
             console.log("device " + stringIntHex(device));
@@ -90,7 +95,7 @@ function elfRunNextInst() {
             console.log("payload " + stringIntHex(payload));
             console.log("current PC " + stringIntHex(RISCV.pc));
             console.log("last PC " + stringIntHex(RISCV.oldpc));
-            throw new RISCVError("unknown device/command combo");
+            //throw new RISCVError("unknown device/command combo");
         }
 
         RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);

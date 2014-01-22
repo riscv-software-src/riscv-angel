@@ -8,7 +8,7 @@ function handle_trap(trap){
         // enter ERROR mode:
         throw new RISCVError("Exceptions are Disabled but Trap Occurred, Terminating");
     } 
-    console.log("Trap occurred at 0x" + RISCV.pc.toString(16));
+    //console.log("Trap occurred at 0x" + RISCV.pc.toString(16));
 
     // store exception code to cause register
     var trapec = trap.exceptionCode;

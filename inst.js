@@ -100,12 +100,6 @@ function signExtLT32_64(quantity, bit) {
 
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(inst, RISCV) {
-    // TODO: recompile kernel to remove this:
-    if (signed_to_unsigned(RISCV.pc) == 0x80003488) {
-        RISCV.gen_reg[2] = new Long(850000, 0x0);
-        console.log("forcing freq of: " + RISCV.gen_reg[2].toString());
-    }
-
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = new Long(0x0, 0x0);
     var op = inst.get_opcode();
