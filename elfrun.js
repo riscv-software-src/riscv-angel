@@ -7,7 +7,7 @@ function elfRunNextInst() {
     var instVal;
 
     if (RISCV.oldpc == RISCV.pc) {
-        document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
+        //document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
         pauseExec = true;
         throw new RISCVError("Execution completed");
     }
@@ -82,7 +82,8 @@ function elfRunNextInst() {
         } else if (device == 0x1) {
             // terminal, but ignore the enumeration
             if (cmd == 0x1) {
-               write_to_term(payload.getLowBits() & 0xFF);
+               //write_to_term(payload.getLowBits() & 0xFF);
+               postMessage(payload.getLowBits() & 0xFF);
             } else if (cmd == 0xFF) {
                // write "bcd" (block character device) to pbuf here
                 console.log("device " + stringIntHex(device));
@@ -96,9 +97,10 @@ function elfRunNextInst() {
 
 
 
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
 
 
-                throw new RISCVError("request for terminal device");
+                //throw new RISCVError("request for terminal device");
                
             } else {
                throw new RISCVError("Other term features not yet implemented"); 
@@ -123,9 +125,9 @@ function elfRunNextInst() {
         RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);
     } 
     
-    if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
+    /*if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
         update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);
         update_html_regtable(RISCV, tab);
-    }
+    }*/
 
 }

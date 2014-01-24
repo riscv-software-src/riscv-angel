@@ -75,7 +75,7 @@ function sys_write(fd, pbuf, len, a3) {
         buildStr = "<br>" + buildStr;
         buildStr = buildStr.replace(/ /g, "&nbsp;"); // handle spaces better
         console.log(buildStr);
-        document.getElementById("console").innerHTML += buildStr;
+        //document.getElementById("console").innerHTML += buildStr;
         forceConsoleDivDown();
     }
     return [0, 0];
@@ -180,7 +180,7 @@ function sys_getmainvars(mm1, mm2, mm3, mm4) {
     console.log(stringLongHex(mm4));
     console.log(globfilename);
     // cleanup input
-    var argsstring = document.getElementById("cmdargs").value;
+    var argsstring = ""; //document.getElementById("cmdargs").value;
     argsstring = argsstring.trim(); // trim leading / trailing whitespace
     argsstring = argsstring.replace(/ +(?= )/g, ""); // strip extra spaces
     var args = argsstring.split(" ");

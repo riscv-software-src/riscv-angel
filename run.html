@@ -86,6 +86,14 @@ function elfRunCompletion() {
     }
 }
 
+function runWorker() {
+    var myWorker = new Worker("webworker.js");
+    myWorker.onmessage = function(oEvent) {
+        write_to_term(oEvent.data);
+    };
+}
+
+
 </script>
 </head>
 
@@ -107,8 +115,8 @@ function elfRunCompletion() {
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
                         <div id="buttonbox">
-                        <br> <a class="btn btn-medium btn-success" onclick="runCodeC()">Load Kernel</a>
-                        <a class="btn btn-medium btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion(); $('#buttonbox').fadeOut();" disabled='disabled'>Boot Linux</a>
+                        <br> <a class="btn btn-medium btn-success" onclick="runWorker()">Boot Linux</a>
+                        <!--<a class="btn btn-medium btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion(); $('#buttonbox').fadeOut();" disabled='disabled'>Boot Linux</a>-->
                         <br><br>
                     </div>
 

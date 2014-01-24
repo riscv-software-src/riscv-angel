@@ -6,7 +6,7 @@
 function loadElf(binfile, filename, filesList) {
     //binfile = binfile.Content;
     globfilename = filename; // global access to filename
-    document.getElementById("testresult").innerHTML = "Loading " + filename;
+    //document.getElementById("testresult").innerHTML = "Loading " + filename;
     var elf = {};
     var magic = ((binfile.charCodeAt(0) & 0xFF) << 24) | ((binfile.charCodeAt(1) & 0xFF) << 16) |
                 ((binfile.charCodeAt(2) & 0xFF) << 8) | (binfile.charCodeAt(3) & 0xFF);
@@ -61,7 +61,7 @@ function loadElf(binfile, filename, filesList) {
     elf["e_shstrndx"] = bytes_to_int(binfile, 62, 2, end);
 
     // show elf header information to the user
-    update_elf_proptable(elf, elfproptab);
+    //update_elf_proptable(elf, elfproptab);
 
     // step through section headers, build up array
     var section_headers = [];
@@ -108,7 +108,7 @@ function loadElf(binfile, filename, filesList) {
     RISCV.reset_wall_clock();
 
     // GET breakpoints and make global dict
-    breakpoints = document.getElementById("breakpoints").value;
+    breakpoints = "";
     breakpoints = breakpoints.trim();
     breakpoints = breakpoints.replace(/ +(?= )/g, ""); // strip extra spaces
     breakpoints = breakpoints.split(" ");
@@ -118,7 +118,7 @@ function loadElf(binfile, filename, filesList) {
     }
 
     // show register contents to user
-    update_html_regtable(RISCV, tab);
+    //update_html_regtable(RISCV, tab);
 }
 
 // numbytes must always be 8, keep it as an arg for consistency
@@ -162,8 +162,7 @@ function chainedFileLoader(binFile, filename, filesList) {
             // call elfload with vmlinux kernel to start boot
             loadElf(RISCV.binaries[RISCV.pname_fd["vmlinux"]], "vmlinux", filesList);
             // if cmdargs is empty and next fd is 5, assume fd 4 is user prog:
-            var cmdargs = document.getElementById("cmdargs");
-            var arg = cmdargs.value;
+            var arg = "";
             if (arg === "" && RISCV.next_fd == 5) {
                 if (RISCV.pname_fd["vmlinux"] == 3) {
                     cmdargs.value = RISCV.fd_pname[4] + "";
@@ -171,6 +170,13 @@ function chainedFileLoader(binFile, filename, filesList) {
                     cmdargs.value = RISCV.fd_pname[3] + "";
                 }
             }
+
+            // now, run!
+            while (true) {
+                elfRunNextInst();
+            }
+
+
         }
-        $('#WriteCRun').removeAttr('disabled');
+        //$('#WriteCRun').removeAttr('disabled');
 }
