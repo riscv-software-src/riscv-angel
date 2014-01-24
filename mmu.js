@@ -37,15 +37,15 @@ function translate(addr, access_type) {
     } else {
         throw new RISCVError("Invalid access_type in translate");
     } 
-
-    addr = signExtLT32_64(addr, 31);
-
+    
+    var origaddr = addr;
 
     if (TLB.hasOwnProperty(addr)) {
         // return value from TLB
         return TLB[addr];
     }
 
+    addr = signExtLT32_64(addr, 31);
 
     var pte = walk(addr);
 
@@ -81,7 +81,7 @@ function translate(addr, access_type) {
     var paddr = pgbase.add(pgoff);
    
     // [todo] - populate TLB
-    TLB[addr] = paddr.getLowBits();
+    TLB[origaddr] = paddr.getLowBits();
 
 
     return paddr.getLowBits();    
