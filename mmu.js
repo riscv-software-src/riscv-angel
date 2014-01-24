@@ -20,6 +20,10 @@ var PTE_SR = new Long(0x40, 0x0);
 var PTE_SW = new Long(0x80, 0x0);
 var PTE_SX = new Long(0x100, 0x0);
 
+// [todo] - simple TLB (try just a dictionary)
+
+var TLB = {};
+
 // performs address translation
 function translate(addr, access_type) {
     // decide which trap to throw in case
@@ -35,6 +39,13 @@ function translate(addr, access_type) {
     } 
 
     addr = signExtLT32_64(addr, 31);
+
+
+    if (TLB.hasOwnProperty(addr)) {
+        // return value from TLB
+        return TLB[addr];
+    }
+
 
     var pte = walk(addr);
 
@@ -68,7 +79,11 @@ function translate(addr, access_type) {
     var pgoff = addr.and(PGSIZE.subtract(new Long(0x1, 0x0)));
     var pgbase = (pte.shiftRightUnsigned(PGSHIFT.getLowBits())).shiftLeft(PGSHIFT.getLowBits());
     var paddr = pgbase.add(pgoff);
-    
+   
+    // [todo] - populate TLB
+    TLB[addr] = paddr.getLowBits();
+
+
     return paddr.getLowBits();    
 }
 

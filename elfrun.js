@@ -51,6 +51,9 @@ function elfRunNextInst() {
 
     }
 
+
+    // [todo] - register syscall handler
+
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
     if (toHostVal.notEquals(new Long(0x0, 0x0))){
@@ -76,17 +79,36 @@ function elfRunNextInst() {
                 // this is for normal syscalls (not testing)
             handle_syscall(payload);
             //}
-        } else if (device == 0x1 && !(cmd == 0xFF)) {
+        } else if (device == 0x1) {
             // terminal, but ignore the enumeration
             if (cmd == 0x1) {
                write_to_term(payload.getLowBits() & 0xFF);
+            } else if (cmd == 0xFF) {
+               // write "bcd" (block character device) to pbuf here
+                console.log("device " + stringIntHex(device));
+                console.log("cmd " + stringIntHex(cmd));
+                console.log("payload " + stringIntHex(payload));
+                console.log("current PC " + stringIntHex(RISCV.pc));
+                console.log("last PC " + stringIntHex(RISCV.oldpc));
+
+
+                addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
+
+
+
+
+
+                throw new RISCVError("request for terminal device");
+               
             } else {
                throw new RISCVError("Other term features not yet implemented"); 
             } 
         } else if (cmd == 0xFF) {
             // try to override enumeration
-            RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
+            //if (device == 0x0) {
+            //    // need to write "bcd" to pbuf here
 
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
 
         } else {
             // unknown device, crash
@@ -95,7 +117,7 @@ function elfRunNextInst() {
             console.log("payload " + stringIntHex(payload));
             console.log("current PC " + stringIntHex(RISCV.pc));
             console.log("last PC " + stringIntHex(RISCV.oldpc));
-            //throw new RISCVError("unknown device/command combo");
+            throw new RISCVError("unknown device/command combo");
         }
 
         RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);
