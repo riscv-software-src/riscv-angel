@@ -2,6 +2,7 @@
 //
 function handle_syscall(payload) {
     // read 8 words starting at payload
+    console.log("handling syscall");
     var eMem = [];
     for (var i = 0; i < 8; i++){
         eMem.push(RISCV.load_double_from_mem(payload.getLowBits() + i*8));

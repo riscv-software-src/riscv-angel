@@ -64,7 +64,7 @@ function CPU(memamt) {
 
     // initialize stack pointer to highest mem addr
     // needs to be modified if > 4GiB mem
-    this.gen_reg[reg_maps.indexOf("sp")] = new Long(memamt, 0x0);
+//    this.gen_reg[reg_maps.indexOf("sp")] = new Long(memamt, 0x0);
 
     // endianness: "big" and "little" allowed
     this.endianness = "big";

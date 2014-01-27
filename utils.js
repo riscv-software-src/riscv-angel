@@ -61,7 +61,7 @@ function RISCVError(message) {
     this.e_type = "RISCVError";
     console.log(stringIntHex(RISCV.pc));
     console.log(stringIntHex(RISCV.oldpc));
-    update_html_regtable(RISCV, tab);
+    //update_html_regtable(RISCV, tab);
 }
 
 // Make it a real Error

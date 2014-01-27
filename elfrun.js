@@ -2,6 +2,11 @@
 
 indicatedBoot = false;
 
+passedPCpoint = false;
+
+printCount = 0;
+encounteredOnce = false;
+
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
@@ -12,6 +17,43 @@ function elfRunNextInst() {
         throw new RISCVError("Execution completed");
     }
 
+//    if ((RISCV.pc & 0x80000000) == 0x0) {
+//        console.log(stringIntHex(RISCV.pc));
+//    }
+
+
+    if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
+        console.log("stack pointer initial");
+        console.log(stringIntHex(RISCV.gen_reg[14]));
+        RISCV.gen_reg[14] = new Long(0xffae5e78, 0x3ff);
+        console.log("stack pointer forced");
+        console.log(stringIntHex(RISCV.gen_reg[14]));
+    }
+
+    /*
+    if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
+        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & ~(SR["SR_VM"]);
+    }*/
+
+    //if (signed_to_unsigned(RISCV.pc) == 0x801593d4) {
+    //    console.log(stringIntHex(RISCV.pc));
+    //    console.log(stringIntHex(RISCV.oldpc));
+    //}
+
+/*    if (passedPCpoint && printCount < 100000) {
+        console.log(stringIntHex(RISCV.pc));
+        printCount++;
+//    } else if (signed_to_unsigned(RISCV.pc) == 0x801592b8) {
+    } else if (signed_to_unsigned(RISCV.pc) == 0x000132f4) {
+        console.log(stringIntHex(RISCV.pc));
+        passedPCpoint = true;
+//        printCount++;
+    //} else if (signed_to_unsigned(RISCV.pc) == 0x00010000 && !encounteredOnce) {
+    //    encounteredOnce = true;
+    } else if (signed_to_unsigned(RISCV.pc) == 0x801593d4) {
+        passedPCpoint = false;
+    }
+*/
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
 
@@ -65,23 +107,38 @@ function elfRunNextInst() {
         var device = (toHostVal.getHighBits() >> 24) & 0xFF;
         var cmd = (toHostVal.getHighBits() >> 16) & 0xFF;
         var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
-        if (device == 0x0 && cmd == 0x0) {
+        if (device == 0x0) {
             // this is a syscall
-            //if (payload.getLowBits() & 0x1 == 1) {
-                // this is for testing (Pass/Fail) report for test programs
-                // all other programs cannot have this bit set (since it's an
-                // address)
-            //    if (RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]].equals(new Long(0x1, 0x0))) {
-            //        // set to true in case this is a test
-            //        RISCV.testSuccess = true;
-            //    }
-            //} else {
-                // this is for normal syscalls (not testing)
-            handle_syscall(payload);
-            //}
+            // this is for normal syscalls (not testing)
+            if (cmd == 0x0) {
+                handle_syscall(payload);
+            } else if (cmd == 0xFF) {
+
+                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
+                var what = payload.getLowBits() & 0xFF;
+
+
+
+                if (what == 0xFF) {
+                    var toWrite = "syscall_proxy";
+                }
+                if (what == 0x0) {
+                    var toWrite = "syscall";
+                } 
+                for (var i = 0; i < toWrite.length; i++) {
+                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
+                }
+                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
+
+
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
+            }
         } else if (device == 0x1) {
             // terminal, but ignore the enumeration
-            if (cmd == 0x1) {
+            if (cmd == 0x0) {
+               // this is read
+            } else if (cmd == 0x1) {
+               // this is a write
                //write_to_term(payload.getLowBits() & 0xFF);
                postMessage(payload.getLowBits() & 0xFF);
             } else if (cmd == 0xFF) {
@@ -93,8 +150,27 @@ function elfRunNextInst() {
                 console.log("last PC " + stringIntHex(RISCV.oldpc));
 
 
-                addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
 
+
+                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
+                var what = payload.getLowBits() & 0xFF;
+
+
+
+                if (what == 0xFF) {
+                    var toWrite = "bcd";
+                }
+                if (what == 0x0) {
+                    var toWrite = "read";
+                } 
+                if (what == 0x1) {
+                    var toWrite = "write";
+                }
+
+                for (var i = 0; i < toWrite.length; i++) {
+                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
+                }
+                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
 
 
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
@@ -103,12 +179,23 @@ function elfRunNextInst() {
                 //throw new RISCVError("request for terminal device");
                
             } else {
-               throw new RISCVError("Other term features not yet implemented"); 
+               throw new RISCVError("Other term features not yet implemented " + stringIntHex(cmd)); 
             } 
         } else if (cmd == 0xFF) {
             // try to override enumeration
             //if (device == 0x0) {
             //    // need to write "bcd" to pbuf here
+
+                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
+                var what = payload.getLowBits() & 0xFF;
+
+                if (what == 0xFF) {
+                    var toWrite = "";
+                }
+                for (var i = 0; i < toWrite.length; i++) {
+                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
+                }
+                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
 
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
 

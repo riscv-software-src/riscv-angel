@@ -23,6 +23,7 @@ var PTE_SX = new Long(0x100, 0x0);
 // [todo] - simple TLB (try just a dictionary)
 
 var TLB = {};
+var TLBON = false;
 
 // performs address translation
 function translate(addr, access_type) {
@@ -40,7 +41,7 @@ function translate(addr, access_type) {
     
     var origaddr = addr;
 
-    if (TLB.hasOwnProperty(addr)) {
+    if (TLBON && TLB.hasOwnProperty(addr)) {
         // return value from TLB
         return TLB[addr];
     }
@@ -81,8 +82,9 @@ function translate(addr, access_type) {
     var paddr = pgbase.add(pgoff);
    
     // [todo] - populate TLB
-    TLB[origaddr] = paddr.getLowBits();
-
+    if (TLBON) {
+        TLB[origaddr] = paddr.getLowBits();
+    }
 
     return paddr.getLowBits();    
 }
