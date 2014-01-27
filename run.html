@@ -86,10 +86,18 @@ function elfRunCompletion() {
     }
 }
 
+
+
 function runWorker() {
     var myWorker = new Worker("webworker.js");
     myWorker.onmessage = function(oEvent) {
-        write_to_term(oEvent.data);
+        if (oEvent.data.type == "t") {
+            // handle term event
+            write_to_term(oEvent.data.d);
+        } else if (oEvent.data.type == "p") {
+            // handle prog bar event
+            document.getElementById("bar").style.width = (oEvent.data.d*100).toString() + "%";
+        }
     };
 }
 
@@ -114,8 +122,14 @@ function runWorker() {
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
-                        <div id="buttonbox">
-                        <br> <a class="btn btn-medium btn-success" onclick="runWorker()">Boot Linux</a>
+                        <div id="buttonbox" class="span12"><div class="span2">
+                                <a class="btn btn-medium btn-success" onclick="runWorker()">Boot Linux</a> </div>
+                            <div class="span3" align="right">Kernel download progress: </div>
+                            <div id="progbar" class="progress progress-striped active span7" >
+                                <div id="bar" class="bar" style="width: 0%;"></div>
+                            </div>
+
+
                         <!--<a class="btn btn-medium btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion(); $('#buttonbox').fadeOut();" disabled='disabled'>Boot Linux</a>-->
                         <br><br>
                     </div>
@@ -395,6 +409,7 @@ function runWorker() {
 
 <!-- misc end-of-page scripts -->
 <script>
+
     init_term();
 
     // enable bootstrap tooltips

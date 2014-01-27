@@ -96,7 +96,7 @@ function elfRunNextInst() {
             } else if (cmd == 0x1) {
                // this is a write
                //write_to_term(payload.getLowBits() & 0xFF);
-               postMessage(payload.getLowBits() & 0xFF);
+               postMessage({"type": "t", "d": payload.getLowBits() & 0xFF});
             } else if (cmd == 0xFF) {
                // write "bcd" (block character device) to pbuf here
                 console.log("device " + stringIntHex(device));
