@@ -36,14 +36,14 @@ function update_debug_table(propsarr, tab) {
 
 
 function flashConsoleCursor() {
-    inner = document.getElementById("consoleCursor").innerHTML;
-    if (inner == "$ ") {
+    inner = document.getElementById("flashingBox").innerHTML;
+    if (inner == "&nbsp;") {
         //inner = "$ " + String.fromCharCode(9609);
-        inner = "$ " + String.fromCharCode(0x2588);
+        inner = "&nbsp;" + String.fromCharCode(0x2588);
     } else {
-        inner = "$ ";
+        inner = "&nbsp;";
     }
-    document.getElementById("consoleCursor").innerHTML = inner;
+    document.getElementById("flashingBox").innerHTML = inner;
     setTimeout(flashConsoleCursor, 1000);
 }
 

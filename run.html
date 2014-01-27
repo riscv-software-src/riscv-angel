@@ -51,6 +51,11 @@ Long = goog.math.Long;
         margin: 0 auto;
         max-width: 960px;
     }
+
+    .consBoxNoGlow:focus {
+        outline: none;
+        border: none;
+    }
 </style>
 
 <!-- angel functions -->
@@ -123,9 +128,9 @@ function runWorker() {
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
                         <div id="buttonbox" class="span12"><div class="span2">
-                                <a class="btn btn-medium btn-success" onclick="runWorker()">Boot Linux</a> </div>
+                                <a class="btn btn-medium btn-success" onclick="runWorker(); $('#consoleBox').focus();">Boot Linux</a> </div>
                             <div class="span3" align="right">Kernel download progress: </div>
-                            <div id="progbar" class="progress progress-striped span7" >
+                            <div id="progbar" class="progress progress-success span7" >
                                 <div id="bar" class="bar" style="width: 0%;"></div>
                             </div>
 
@@ -134,11 +139,11 @@ function runWorker() {
                         <br><br>
                     </div>
 
-            <div id="consoleBox" style="padding:5px; height:500px; background-color:black; overflow: auto; color:white; font-size:80%; font-family: Monaco, Consolas, Lucida Console, monospace;">
+            <div id="consoleBox" tabindex="1" class="consBoxNoGlow" style="padding:5px; height:500px; background-color:black; overflow: auto; color:white; font-size:80%; font-family: Monaco, Consolas, Lucida Console, monospace;">
 
             <div id="console"></div>
 
-            <div id="consoleCursor">$ </div>
+            <div id="consoleCursor">$ <span id="enteredContents"></span><span id="flashingBox"></span></div>
             </div>
                     </div>
 
@@ -430,6 +435,26 @@ function runWorker() {
 
     flashConsoleCursor(); // start flashing console
 
+    entered = document.getElementById("enteredContents");
+
+    $("#consoleBox").bind('keypress', function(event) {
+        if (event.keyCode == 13) {
+            //user hit enter
+            cons.innerHTML += entered.innerHTML + "<br>";
+            forceConsoleDivDown();
+            entered.innerHTML = "";
+        } else if (event.keyCode == 32) {
+            //user hit space
+            entered.innerHTML += "&nbsp;"         
+        } else {
+            entered.innerHTML += String.fromCharCode(event.keyCode);
+        }
+        //console.log(event.keyCode);
+    });
+
+$(function() {
+   $('#consoleBox').focus();
+});
 </script>
 
 </html>
