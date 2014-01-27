@@ -1,12 +1,5 @@
 // run one instruction at a time, isolate from elfload
 
-indicatedBoot = false;
-
-passedPCpoint = false;
-
-printCount = 0;
-encounteredOnce = false;
-
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
@@ -17,43 +10,6 @@ function elfRunNextInst() {
         throw new RISCVError("Execution completed");
     }
 
-//    if ((RISCV.pc & 0x80000000) == 0x0) {
-//        console.log(stringIntHex(RISCV.pc));
-//    }
-
-
-/*    if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
-        console.log("stack pointer initial");
-        console.log(stringIntHex(RISCV.gen_reg[14]));
-        RISCV.gen_reg[14] = new Long(0xffae5e78, 0x3ff);
-        console.log("stack pointer forced");
-        console.log(stringIntHex(RISCV.gen_reg[14]));
-    }*/
-
-    /*
-    if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
-        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & ~(SR["SR_VM"]);
-    }*/
-
-    //if (signed_to_unsigned(RISCV.pc) == 0x801593d4) {
-    //    console.log(stringIntHex(RISCV.pc));
-    //    console.log(stringIntHex(RISCV.oldpc));
-    //}
-
-/*    if (passedPCpoint && printCount < 100000) {
-        console.log(stringIntHex(RISCV.pc));
-        printCount++;
-//    } else if (signed_to_unsigned(RISCV.pc) == 0x801592b8) {
-    } else if (signed_to_unsigned(RISCV.pc) == 0x000132f4) {
-        console.log(stringIntHex(RISCV.pc));
-        passedPCpoint = true;
-//        printCount++;
-    //} else if (signed_to_unsigned(RISCV.pc) == 0x00010000 && !encounteredOnce) {
-    //    encounteredOnce = true;
-    } else if (signed_to_unsigned(RISCV.pc) == 0x801593d4) {
-        passedPCpoint = false;
-    }
-*/
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
 

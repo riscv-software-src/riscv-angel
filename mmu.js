@@ -23,7 +23,7 @@ var PTE_SX = new Long(0x100, 0x0);
 // [todo] - simple TLB (try just a dictionary)
 
 var TLB = {};
-var TLBON = false;
+var TLBON = true;
 
 // performs address translation
 // addr MUST BE A LONG
@@ -40,11 +40,11 @@ function translate(addr, access_type) {
         throw new RISCVError("Invalid access_type in translate");
     } 
     
-    var origaddr = addr;
+    var origaddr = addr.getLowBitsUnsigned();
 
-    if (TLBON && TLB.hasOwnProperty(addr)) {
+    if (TLBON && TLB.hasOwnProperty(origaddr)) {
         // return value from TLB
-        return TLB[addr];
+        return TLB[origaddr];
     }
 
     //addr = signExtLT32_64(addr, 31);
