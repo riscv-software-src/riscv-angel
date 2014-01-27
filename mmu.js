@@ -26,6 +26,7 @@ var TLB = {};
 var TLBON = false;
 
 // performs address translation
+// addr MUST BE A LONG
 function translate(addr, access_type) {
     // decide which trap to throw in case
     var throwTrap;
@@ -46,7 +47,7 @@ function translate(addr, access_type) {
         return TLB[addr];
     }
 
-    addr = signExtLT32_64(addr, 31);
+    //addr = signExtLT32_64(addr, 31);
 
     var pte = walk(addr);
 
@@ -104,7 +105,7 @@ function walk(vaddr) {
     for (var i = 0; i < LEVELS; ptshift = ptshift.subtract(PTIDXBITS)) {
         var idx = (vaddr.shiftRightUnsigned((PGSHIFT.add(ptshift)).getLowBits())).and(((new Long(0x1, 0x0)).shiftLeft(PTIDXBITS.getLowBits())).subtract(new Long(0x1, 0x0)));
         var pte_addr = ptbr.add(idx.multiply(new Long(0x8, 0x0)));
-        var pt_data = RISCV.load_double_from_mem(pte_addr.getLowBits(), false);
+        var pt_data = RISCV.load_double_from_mem(pte_addr, false);
         if ((pt_data.and(PTE_V)).equals(new Long(0x0, 0x0))) {
             // INVALID MAPPING
             break;

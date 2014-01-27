@@ -22,13 +22,13 @@ function elfRunNextInst() {
 //    }
 
 
-    if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
+/*    if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
         console.log("stack pointer initial");
         console.log(stringIntHex(RISCV.gen_reg[14]));
         RISCV.gen_reg[14] = new Long(0xffae5e78, 0x3ff);
         console.log("stack pointer forced");
         console.log(stringIntHex(RISCV.gen_reg[14]));
-    }
+    }*/
 
     /*
     if (signed_to_unsigned(RISCV.pc) == 0x132f4) {
@@ -60,7 +60,7 @@ function elfRunNextInst() {
     try {
         //var t = num_to_hexstr(RISCV.pc);
         //console.log(": core   0: 0xffffffff8" + t.slice(1, t.length));
-        instVal = RISCV.load_inst_from_mem(RISCV.pc);
+        instVal = RISCV.load_inst_from_mem(signExtLT32_64(RISCV.pc, 31));
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
 

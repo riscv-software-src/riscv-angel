@@ -5,13 +5,13 @@ function handle_syscall(payload) {
     console.log("handling syscall");
     var eMem = [];
     for (var i = 0; i < 8; i++){
-        eMem.push(RISCV.load_double_from_mem(payload.getLowBits() + i*8));
+        eMem.push(RISCV.load_double_from_mem(payload.add(new Long(i*8, 0x0))));
     }
 
     console.log(SYSCALLS[eMem[0]]);
     result = SYSCALL_HANDLERS[SYSCALLS[eMem[0]]](eMem[1], eMem[2], eMem[3], eMem[4]);
-    RISCV.store_double_to_mem(payload.getLowBits(), new Long(result[0], 0x0));
-    RISCV.store_double_to_mem(payload.add(new Long(0x8, 0x0)).getLowBits(), new Long(result[1], 0x0));
+    RISCV.store_double_to_mem(payload, new Long(result[0], 0x0));
+    RISCV.store_double_to_mem(payload.add(new Long(0x8, 0x0)), new Long(result[1], 0x0));
 
 
     //not sure if this is supposed to happen, but set fromhost to one
@@ -43,7 +43,7 @@ function sys_read(fd, pbuf, len, a3) {
         var loadlen = Math.min(userinput.length, len.getLowBits());
         console.log("loadlen " + stringIntHex(loadlen));
         for (var i = 0; i < loadlen; i++) {
-            RISCV.store_byte_to_mem(pbuf.getLowBits()+i, userinput.charCodeAt(i) & 0xFF);
+            RISCV.store_byte_to_mem(pbuf.add(new Long(i, 0x0)), userinput.charCodeAt(i) & 0xFF);
         }
         //RISCV.store_byte_to_mem(pbuf.getLowBits() + loadlen-1, 0xFF);
         return [loadlen, 0];
@@ -57,7 +57,7 @@ function sys_read(fd, pbuf, len, a3) {
         var loadlen = Math.min(binary.length, len.getLowBits());
         console.log("loadlen " + stringIntHex(loadlen));
         for (var i = 0; i < loadlen; i++) {
-            RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i) & 0xFF); 
+            RISCV.store_byte_to_mem(pbuf.add(new Long(i, 0x0)), binary.charCodeAt(i) & 0xFF); 
         }
         return [loadlen, 0];
     }
@@ -71,7 +71,7 @@ function sys_write(fd, pbuf, len, a3) {
         // [todo] - stdin, stdout, stderr,  stdin shouldn't really be here
         var buildStr = "";
         for (var i = 0; i < len.getLowBits(); i++) {
-            buildStr += String.fromCharCode(RISCV.load_byte_from_mem(pbuf.getLowBits() + i));
+            buildStr += String.fromCharCode(RISCV.load_byte_from_mem(pbuf.add(new Long(i, 0x0))));
         }    
         buildStr = "<br>" + buildStr;
         buildStr = buildStr.replace(/ /g, "&nbsp;"); // handle spaces better
@@ -88,7 +88,7 @@ function sys_open(pname, len, flags, mode) {
 
     // these are bytes so ignore endianness
     for (var i = 0; i < len.getLowBits(); i++) {
-        nameArr.push(RISCV.load_byte_from_mem(pname.getLowBits() + i));
+        nameArr.push(RISCV.load_byte_from_mem(pname.add(new Long(i, 0x0))));
     }
 
     for (var i = 0; i < nameArr.length-1; i++) {
@@ -164,7 +164,7 @@ function sys_pread(fd, pbuf, len, off) {
 
     console.log("loadlen " + stringIntHex(loadlen));
     for (var i = 0; i < loadlen; i++) {
-        RISCV.store_byte_to_mem(pbuf.getLowBits()+i, binary.charCodeAt(i+off.getLowBits()) & 0xFF); 
+        RISCV.store_byte_to_mem(pbuf.add(new Long(i, 0x0)), binary.charCodeAt(i+off.getLowBits()) & 0xFF); 
     }
 
     return [loadlen, 0];
@@ -214,7 +214,7 @@ function sys_getmainvars(mm1, mm2, mm3, mm4) {
     // for endianness purposes, copy directly into mem
     // copy in argc, pointers, argv[argc]=NULL, envp[0]=NULL
     for (var i = 0; i < copyToMem.length; i++) {
-        RISCV.store_double_to_mem(mm1.getLowBits()+i*8, copyToMem[i]);
+        RISCV.store_double_to_mem(mm1.add(new Long(i*8, 0x0)), copyToMem[i]);
     } 
 
 

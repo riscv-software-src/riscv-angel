@@ -91,6 +91,8 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
 
         if ((addr % 8) != 0) {
@@ -129,7 +131,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
@@ -154,7 +159,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         if ((addr % 2) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
@@ -175,7 +183,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         this.memory[addr] = val & 0xFF;
     }
@@ -185,7 +196,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         if ((addr % 8) != 0) {
             throw new RISCVTrap("Load Address Misaligned", addr);
@@ -222,7 +236,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Load Address Misaligned", addr);
@@ -249,7 +266,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         if ((addr % 2) != 0) {
             throw new RISCVTrap("Load Address Misaligned", addr);
@@ -272,7 +292,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         var retval = 0;
         retval = retval | this.memory[addr];
@@ -317,7 +340,10 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 2);
+        } else {
+            addr = addr.getLowBitsUnsigned();
         }
+
 
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Instruction Address Misaligned", addr);
