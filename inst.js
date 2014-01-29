@@ -822,6 +822,10 @@ function runInstruction(inst, RISCV) {
                                 temp = rs1;
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            if (inst.get_CSR_imm() == PCR["CSR_FATC"]["num"]) {
+                                TLB = {};
+                                console.log("flushing TLB from CSRRW");
+                            }
                             RISCV.pc += 4;
                             break;
 
@@ -873,6 +877,10 @@ function runInstruction(inst, RISCV) {
                                 temp = new Long(inst.get_rs1() & 0x0000001F, 0x0);
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
+                            if (inst.get_CSR_imm() == PCR["CSR_FATC"]["num"]) {
+                                TLB = {};
+                                console.log("flushing TLB from CSRRWI");
+                            }
                             RISCV.pc += 4;
                             break;
 

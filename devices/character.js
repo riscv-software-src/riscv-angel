@@ -11,7 +11,11 @@ function write_to_term(char_int) {
         charToWrite = "&nbsp;";
     } else if (char_int == 0xD) {
         // turn CR into a line break
-        charToWrite = "<br>";
+        if (cons.innerHTML.slice(-4) === "<br>") {
+            charToWrite = "";
+        } else {
+            charToWrite = "<br>";
+        }
     } else if (char_int == 0xA) {
         // ignore LF since it will be preceded by CR
         charToWrite = "";

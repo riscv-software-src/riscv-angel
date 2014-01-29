@@ -18,32 +18,9 @@ function elfRunNextInst() {
         throw new RISCVError("Execution completed");
     }
 
-/*    if (passedPCpoint && printCount < 10000) {
-        console.log(stringIntHex(RISCV.pc));
-        printCount++;
-    } else if (signed_to_unsigned(RISCV.pc) == 0x80194ce0) {
-        passedPCpoint = true;
-        //console.log(stringIntHex(RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]]));
-        for (var x = 0; x < 32; x++) {
-            console.log(x.toString() + " : " + stringIntHex(RISCV.gen_reg[x]));
-        }
-        printCount++;
-    }*/
-
-    if (signed_to_unsigned(RISCV.pc) == 0x80194ce0 && RISCV.gen_reg[17].equals(new Long(0x55554000, 0x0))) {
-        RISCV.gen_reg[17] = new Long(0x55554000, 0x00000155);
-        console.log("overrode v1");
-    } else if (signed_to_unsigned(RISCV.pc) == 0x80194ce0) {
-        console.log("not overriding");
-        console.log(stringIntHex(RISCV.gen_reg[17]));
-    }
-
-
-
-
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
-
+    
     try {
         //var t = num_to_hexstr(RISCV.pc);
         //console.log(": core   0: 0xffffffff8" + t.slice(1, t.length));
