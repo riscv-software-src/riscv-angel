@@ -94,7 +94,7 @@ function elfRunCompletion() {
 
 
 function runWorker() {
-    var myWorker = new Worker("webworker.js");
+    myWorker = new Worker("webworker.js");
     myWorker.onmessage = function(oEvent) {
         if (oEvent.data.type == "t") {
             // handle term event
@@ -107,6 +107,7 @@ function runWorker() {
             alert("READ HAPPENED");
         }
     };
+//    myWorker.postMessage({"type": "t", "d": "asdf"});
 }
 
 
@@ -146,7 +147,7 @@ function runWorker() {
 
             <div id="console"></div>
 
-            <div id="consoleCursor">$ <span id="enteredContents"></span><span id="flashingBox"></span></div>
+            <!--<div id="consoleCursor">$ <span id="enteredContents"></span><span id="flashingBox"></span></div>-->
             </div>
                     </div>
 
@@ -436,24 +437,45 @@ function runWorker() {
 
     fileNamePairs = new Array(); // global filename, filecontents pairs
 
-    flashConsoleCursor(); // start flashing console
+    //flashConsoleCursor(); // start flashing console
 
     entered = document.getElementById("enteredContents");
 
+    insertsSinceEnter = 0;
     $("#consoleBox").bind('keypress', function(event) {
         if (event.keyCode == 13) {
             //user hit enter
-            cons.innerHTML += entered.innerHTML + "<br>";
             forceConsoleDivDown();
-            entered.innerHTML = "";
+            myWorker.postMessage({"type": "r"});
         } else if (event.keyCode == 32) {
             //user hit space
-            entered.innerHTML += "&nbsp;"         
+            myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
         } else {
-            entered.innerHTML += String.fromCharCode(event.keyCode);
+            myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
         }
         //console.log(event.keyCode);
+        event.preventDefault();
     });
+
+// special backspace handling
+$(document).unbind('keydown').bind('keydown', function (event) {
+    var doPrevent = false;
+    if (event.keyCode === 8) {
+        var d = event.srcElement || event.target;
+        if ((d.tagName.toUpperCase() === 'INPUT' && (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD' || d.type.toUpperCase() === 'FILE')) 
+             || d.tagName.toUpperCase() === 'TEXTAREA') {
+            doPrevent = d.readOnly || d.disabled;
+        }
+        else {
+            doPrevent = true;
+        }
+    }
+
+    if (doPrevent) {
+        event.preventDefault();
+myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
+    }
+});
 
 $(function() {
    $('#consoleBox').focus();

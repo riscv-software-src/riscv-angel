@@ -11,7 +11,22 @@ importScripts("devices/character.js", "lib/binfile/binfile.js", "syscall.js",
         "mappings.js", "utils.js", "mmu.js", "trap.js", "elfload.js", "inst.js",
         "cpu.js", "elfrun.js");
 
+//onmessage = function(oEvent) {
+//            // handle term event
+//            console.log(oEvent.data);
+//};
 
+self.addEventListener("message", function (oEvent) {
+    if (oEvent.data.type == "r") {
+        //continue running
+        readTest.push("\n");
+        runLoop();
+    } else if (oEvent.data.type == "u") {
+        // copy user input
+        readTest.push(oEvent.data.inp);
+        runLoop();
+    }
+}, false);
 
 function runCodeC(userIn) {
     //compilestat = document.getElementById("compilestatus");
@@ -33,6 +48,13 @@ function handle_file_continue(filesList) {
     pauseExec = false;
 
     GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
+}
+
+function runLoop() {
+    cont = true;
+    while(cont){
+        cont = elfRunNextInst();
+    }
 }
 
 runCodeC();

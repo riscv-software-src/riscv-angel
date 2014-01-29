@@ -824,7 +824,7 @@ function runInstruction(inst, RISCV) {
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             if (inst.get_CSR_imm() == PCR["CSR_FATC"]["num"]) {
                                 TLB = {};
-                                console.log("flushing TLB from CSRRW");
+                                //console.log("flushing TLB from CSRRW");
                             }
                             RISCV.pc += 4;
                             break;
@@ -834,7 +834,6 @@ function runInstruction(inst, RISCV) {
 
                             var timm = inst.get_CSR_imm();
                             if ((timm == 0x3 || timm == 0x2 || timm == 0x1) && (inst.get_rs1() == 0x0)) {
-                                console.log("TRIGGERED BY FRSR");
                                 throw new RISCVTrap("Floating-Point Disabled");
                             }
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
@@ -879,7 +878,7 @@ function runInstruction(inst, RISCV) {
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             if (inst.get_CSR_imm() == PCR["CSR_FATC"]["num"]) {
                                 TLB = {};
-                                console.log("flushing TLB from CSRRWI");
+                                //console.log("flushing TLB from CSRRWI");
                             }
                             RISCV.pc += 4;
                             break;

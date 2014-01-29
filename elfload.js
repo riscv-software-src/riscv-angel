@@ -171,12 +171,12 @@ function chainedFileLoader(binFile, filename, filesList) {
                 }
             }
 
+            cont = true;
             // now, run!
-            while (true) {
-                elfRunNextInst();
+            while (cont) {
+                cont = elfRunNextInst();
             }
-
-
+            return;
         }
         //$('#WriteCRun').removeAttr('disabled');
 }
