@@ -28,7 +28,11 @@ function write_to_term(char_int) {
     } else if (char_int == 0x8) {
         // backspace
         ignoreThree = 3;
-        cons.innerHTML = cons.innerHTML.slice(0, -1);
+        if (cons.innerHTML.slice(-6) == "&nbsp;") {
+            cons.innerHTML = cons.innerHTML.slice(0, -6);
+        } else {
+            cons.innerHTML = cons.innerHTML.slice(0, -1);
+        }
         forceConsoleDivDown();
         return;
     }
