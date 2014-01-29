@@ -22,9 +22,10 @@ function elfRunNextInst() {
     } else if (signed_to_unsigned(RISCV.pc) == 0x801539fc) {
         // wait for user input
         //return false;
+        //return false;
         tryCount += 1;
     }
-    if (tryCount > 10000) {
+    if (tryCount > 1000) {
         tryCount = 0;
         //throw Error();
         return false;
