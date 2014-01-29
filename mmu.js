@@ -23,7 +23,7 @@ var PTE_SX = new Long(0x100, 0x0);
 // [todo] - simple TLB (try just a dictionary)
 
 var TLB = {};
-var TLBON = true;
+var TLBON = false;
 
 // performs address translation
 // addr MUST BE A LONG
@@ -57,22 +57,22 @@ function translate(addr, access_type) {
     if (mode & SR["SR_S"] != 0) {
         // we are in supervisor mode
         if (access_type == CONSTS.READ && (pte.and(PTE_SR)).equals(new Long(0x0, 0x0))) {
-            throw new RISCVTrap(throwTrap, addr.getLowBits());
+            throw new RISCVTrap(throwTrap, addr);
         } else if (access_type == CONSTS.WRITE && (pte.and(PTE_SW)).equals(new Long(0x0, 0x0))) {
-            throw new RISCVTrap(throwTrap, addr.getLowBits());
+            throw new RISCVTrap(throwTrap, addr);
         } else if (access_type == CONSTS.EXEC && (pte.and(PTE_SX)).equals(new Long(0x0, 0x0))) {
-            throw new RISCVTrap(throwTrap, addr.getLowBits());
+            throw new RISCVTrap(throwTrap, addr);
         } else {
             // do nothing 
         }
     } else { 
         // we are in user mode
         if (access_type == CONSTS.READ && (pte.and(PTE_UR)).equals(new Long(0x0, 0x0))) {
-            throw new RISCVTrap(throwTrap, addr.getLowBits());
+            throw new RISCVTrap(throwTrap, addr);
         } else if (access_type == CONSTS.WRITE && (pte.and(PTE_UW)).equals(new Long(0x0, 0x0))) {
-            throw new RISCVTrap(throwTrap, addr.getLowBits());
+            throw new RISCVTrap(throwTrap, addr);
         } else if (access_type == CONSTS.EXEC && (pte.and(PTE_UX)).equals(new Long(0x0, 0x0))) {
-            throw new RISCVTrap(throwTrap, addr.getLowBits());
+            throw new RISCVTrap(throwTrap, addr);
         } else {
             // do nothing 
         }

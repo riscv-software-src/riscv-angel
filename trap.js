@@ -8,7 +8,7 @@ function handle_trap(trap){
         // enter ERROR mode:
         throw new RISCVError("Exceptions are Disabled but Trap Occurred, Terminating");
     } 
-    console.log("Trap occurred at " + stringIntHex(RISCV.pc));
+    //console.log("Trap occurred at " + stringIntHex(RISCV.pc));
 
     // store exception code to cause register
     var trapec = trap.exceptionCode;
@@ -42,11 +42,11 @@ function handle_trap(trap){
     // if trap is load/store misaligned address or access fault, 
     // set badvaddr to faulting address
     if (trapec == 0x8 || trapec == 0x9 || trapec == 0xA || trapec == 0xB) {
-        RISCV.priv_reg[PCR["CSR_BADVADDR"]["num"]] = new Long(trap.memaddr, 0x0);
+        RISCV.priv_reg[PCR["CSR_BADVADDR"]["num"]] = trap.memaddr;
     }
 
     // store original PC (addr of inst causing exception) to epc reg
-    RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = new Long(RISCV.pc, 0x0);
+    RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = signExtLT32_64(RISCV.pc, 31);
 
     // set PC = to value in evec register
     RISCV.pc = RISCV.priv_reg[PCR["CSR_EVEC"]["num"]].getLowBits();

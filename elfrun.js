@@ -1,14 +1,45 @@
 // run one instruction at a time, isolate from elfload
 
+printCount = 0;
+passedPCpoint = false;
+instCount = new Long(0x0, 0x0);
+
+
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
 
+    instCount = instCount.add(new Long(0x1, 0x0));
+
+ //   console.log(stringIntHex(RISCV.pc));
     if (RISCV.oldpc == RISCV.pc) {
         //document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
         pauseExec = true;
         throw new RISCVError("Execution completed");
     }
+
+/*    if (passedPCpoint && printCount < 10000) {
+        console.log(stringIntHex(RISCV.pc));
+        printCount++;
+    } else if (signed_to_unsigned(RISCV.pc) == 0x80194ce0) {
+        passedPCpoint = true;
+        //console.log(stringIntHex(RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]]));
+        for (var x = 0; x < 32; x++) {
+            console.log(x.toString() + " : " + stringIntHex(RISCV.gen_reg[x]));
+        }
+        printCount++;
+    }*/
+
+    if (signed_to_unsigned(RISCV.pc) == 0x80194ce0 && RISCV.gen_reg[17].equals(new Long(0x55554000, 0x0))) {
+        RISCV.gen_reg[17] = new Long(0x55554000, 0x00000155);
+        console.log("overrode v1");
+    } else if (signed_to_unsigned(RISCV.pc) == 0x80194ce0) {
+        console.log("not overriding");
+        console.log(stringIntHex(RISCV.gen_reg[17]));
+    }
+
+
+
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
@@ -26,8 +57,14 @@ function elfRunNextInst() {
     } catch(e) {
         // trap handling
         if (e.e_type === "RISCVTrap") {
-            console.log("HANDLING TRAP: " + e.message);
-            handle_trap(e);
+            if (e.message === "Floating-Point Disabled") {
+                // do nothing
+                console.log("ignoring FP instruction at: " + stringIntHex(RISCV.pc));
+                RISCV.pc += 4;
+            } else {
+                //console.log("HANDLING TRAP: " + e.message);
+                handle_trap(e);
+            }
         } else {
             throw e;
         }

@@ -808,6 +808,10 @@ function runInstruction(inst, RISCV) {
 
                         // CSRRW
                         case 0x1:
+                            var timm = inst.get_CSR_imm();
+                            if (timm == 0x3 || timm == 0x2 || timm == 0x1) {
+                                throw new RISCVTrap("Floating-Point Disabled");
+                            }
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
                             if (typeof temp === "number") {
                                 RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
@@ -823,6 +827,12 @@ function runInstruction(inst, RISCV) {
 
                         // CSRRS
                         case 0x2:
+
+                            var timm = inst.get_CSR_imm();
+                            if ((timm == 0x3 || timm == 0x2 || timm == 0x1) && (inst.get_rs1() == 0x0)) {
+                                console.log("TRIGGERED BY FRSR");
+                                throw new RISCVTrap("Floating-Point Disabled");
+                            }
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
                             if (typeof temp === "number") {
                                 RISCV.gen_reg[inst.get_rd()] = new Long(temp, 0x0);
