@@ -102,6 +102,9 @@ function runWorker() {
         } else if (oEvent.data.type == "p") {
             // handle prog bar event
             document.getElementById("bar").style.width = (oEvent.data.d*100).toString() + "%";
+        } else if (oEvent.data.type == "tr") {
+            // handle terminal read
+            alert("READ HAPPENED");
         }
     };
 }

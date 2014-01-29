@@ -3,7 +3,11 @@
 printCount = 0;
 passedPCpoint = false;
 instCount = new Long(0x0, 0x0);
-
+triedOnce = false;
+logPC = false;
+printCount = 0;
+readTest = "echo 'test' \r\n mkdir test\r\nls\r\n".split("");
+tryCount = 0;
 
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
@@ -17,6 +21,27 @@ function elfRunNextInst() {
         pauseExec = true;
         throw new RISCVError("Execution completed");
     }
+
+//    if (cons.innerHTML.slice(-7) === "#&nbsp;") {
+//        console.log(stringIntHex(RISCV.pc));
+//    }
+    if (signed_to_unsigned(RISCV.pc) == 0x80157b5c && readTest.length != 0) { // || (tryCount < 3 && pendingRead))) {
+        console.log("writing to fromhost");
+        RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
+        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
+                var InterruptException = new RISCVTrap("Host interrupt");
+                handle_trap(InterruptException);
+
+    }
+    if (signed_to_unsigned(RISCV.pc) == 0x802740dc) {
+        console.log("HTIF_INPUT_ISR WAS CALLED!!!!");
+        logPC = true;
+    }
+    if (logPC && printCount < 200) {
+        console.log(stringIntHex(RISCV.pc));
+        printCount++;
+    }
+
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
@@ -107,6 +132,12 @@ function elfRunNextInst() {
             // terminal, but ignore the enumeration
             if (cmd == 0x0) {
                // this is read
+               console.log("read happened");
+               //RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
+//        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
+//                var InterruptException = new RISCVTrap("Host interrupt");
+//                handle_trap(InterruptException);
+
             } else if (cmd == 0x1) {
                // this is a write
                //write_to_term(payload.getLowBits() & 0xFF);

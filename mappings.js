@@ -82,6 +82,7 @@ var TRAPS = {
     "Store Access Fault": [0xB, 0x0],
     "Accelerator Disabled": [0xC, 0x0],
     "Timer interrupt": [0x7, 0x1],
+    "Host interrupt": [0x6, 0x1],
 };
 
 var SYSCALLS = {
