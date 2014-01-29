@@ -30,6 +30,8 @@ function write_to_term(char_int) {
         ignoreThree = 3;
         if (cons.innerHTML.slice(-6) == "&nbsp;") {
             cons.innerHTML = cons.innerHTML.slice(0, -6);
+        } else if (cons.innerHTML.slice(-4) == "&gt;" || cons.innerHTML.slice(-4) == "&lt;") {
+            cons.innerHTML = cons.innerHTML.slice(0, -4);
         } else {
             cons.innerHTML = cons.innerHTML.slice(0, -1);
         }
