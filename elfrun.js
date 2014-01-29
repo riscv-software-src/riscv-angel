@@ -14,12 +14,12 @@ function elfRunNextInst() {
         throw new RISCVError("Execution completed");
     }
 
-    if (signed_to_unsigned(RISCV.pc) == 0x80157b5c && readTest.length != 0) {
+    if (signed_to_unsigned(RISCV.pc) == 0x801539fc && readTest.length != 0) {
         RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
         var InterruptException = new RISCVTrap("Host interrupt");
         handle_trap(InterruptException);
-    } else if (signed_to_unsigned(RISCV.pc) == 0x80157b5c) {
+    } else if (signed_to_unsigned(RISCV.pc) == 0x801539fc) {
         // wait for user input
         //return false;
         tryCount += 1;
