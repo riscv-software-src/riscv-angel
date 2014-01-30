@@ -34,16 +34,27 @@ function update_debug_table(propsarr, tab) {
     tab.innerHTML = addinnerhtml;
 }
 
+consoleFlashRegEx = new RegExp(String.fromCharCode(0x2589), "g");
+consoleFlashRegEx2 = new RegExp(String.fromCharCode(0x2581), "g");
 
 function flashConsoleCursor() {
-    inner = document.getElementById("flashingBox").innerHTML;
-    if (inner == "&nbsp;") {
+    inner = document.getElementById("console").innerHTML;
+    if (inner.slice(-1) != String.fromCharCode(0x2589) && inner.slice(-1) != String.fromCharCode(0x2581)) {
         //inner = "$ " + String.fromCharCode(9609);
-        inner = "&nbsp;" + String.fromCharCode(0x2588);
+        inner = inner + String.fromCharCode(0x2589);
+    } else if (inner.slice(-1) != String.fromCharCode(0x2589)) {
+        //inner = "$ " + String.fromCharCode(9609);
+        inner = inner.replace(consoleFlashRegEx2, "");
+        inner = inner + String.fromCharCode(0x2589);
+    } else if (inner.slice(-1) != String.fromCharCode(0x2581)) {
+        //inner = "$ " + String.fromCharCode(9609);
+        inner = inner.replace(consoleFlashRegEx, "");
+        inner = inner + String.fromCharCode(0x2581);
     } else {
-        inner = "&nbsp;";
+        inner = inner.replace(consoleFlashRegEx, "");
     }
-    document.getElementById("flashingBox").innerHTML = inner;
+    document.getElementById("console").innerHTML = inner;
+    forceConsoleDivDown();
     setTimeout(flashConsoleCursor, 1000);
 }
 

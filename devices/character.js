@@ -8,6 +8,9 @@ ignoreThree = 0;
 
 // input char_int is int rep of character
 function write_to_term(char_int) {
+    // turn off the flashing cursor whenever we write
+    cons.innerHTML = cons.innerHTML.replace(consoleFlashRegEx, "");
+    cons.innerHTML = cons.innerHTML.replace(consoleFlashRegEx2, "");
     if (ignoreThree > 0) {
         ignoreThree--;
         return;
