@@ -3,9 +3,9 @@
 
 // CONSTANTS HERE
 var LEVELS = 3;
-var PTIDXBITS = new Long(0xA, 0x0);
-var PGSHIFT = new Long(0xD, 0x0);
-var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT.getLowBits());
+var PTIDXBITS = 0xA;
+var PGSHIFT = 0xD;
+var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT);
 var OFFBITS = (new Long(0x1FFF, 0x0));
 var VPN_BITS = new Long(30, 0x0);
 var PPN_BITS = new Long(51, 0x0);
@@ -80,23 +80,23 @@ function walk(vaddr) {
     var pte = new Long(0x0, 0x0);
 
     var ptbr = RISCV.priv_reg[PCR["CSR_PTBR"]["num"]]; // this is a Long
-    var ptshift = new Long((LEVELS-1), 0x0).multiply(PTIDXBITS);
+    var ptshift = 20;
 
     // main walk for loop
-    for (var i = 0; i < LEVELS; ptshift = ptshift.subtract(PTIDXBITS)) {
-        var idx = (vaddr.shiftRightUnsigned((PGSHIFT.add(ptshift)).getLowBits())).and(((new Long(0x1, 0x0)).shiftLeft(PTIDXBITS.getLowBits())).subtract(new Long(0x1, 0x0)));
-        var pte_addr = ptbr.add(idx.multiply(new Long(0x8, 0x0)));
+    for (var i = 0; i < LEVELS; ptshift = ptshift - PTIDXBITS) {
+        var idx = (vaddr.shiftRightUnsigned((PGSHIFT + ptshift))).and(new Long(0x3FF, 0x0));
+        var pte_addr = ptbr.add(idx.shiftLeft(3));
         var pt_data = RISCV.load_double_from_mem(pte_addr, false);
         if ((pt_data.and(PTE_V)).equals(new Long(0x0, 0x0))) {
             // INVALID MAPPING
             break;
         } else if ((pt_data.and(PTE_T)).notEquals(new Long(0x0, 0x0))) {
             // Next level of page table
-            ptbr = (pt_data.shiftRightUnsigned(PGSHIFT.getLowBits())).shiftLeft(PGSHIFT.getLowBits());
+            ptbr = (pt_data.shiftRightUnsigned(PGSHIFT)).shiftLeft(PGSHIFT);
         } else {
             // The actual pte
-            var vpn = vaddr.shiftRightUnsigned(PGSHIFT.getLowBits());
-            pt_data = pt_data.or((vpn.and(((new Long(0x1, 0x0)).shiftLeft(ptshift.getLowBits())).subtract(new Long(0x1, 0x0)))).shiftLeft(PGSHIFT.getLowBits()));
+            var vpn = vaddr.shiftRightUnsigned(PGSHIFT);
+            pt_data = pt_data.or((vpn.and(((new Long(0x1, 0x0)).shiftLeft(ptshift)).subtract(new Long(0x1, 0x0)))).shiftLeft(PGSHIFT));
 
             //supposed to be a mem bounds fault check here but ignore for now:
             pte = pt_data;
