@@ -62,12 +62,8 @@ function CPU(memamt) {
     // init status register
     this.priv_reg[PCR["CSR_STATUS"]["num"]] = status_reg_init();
 
-    // initialize stack pointer to highest mem addr
-    // needs to be modified if > 4GiB mem
-//    this.gen_reg[reg_maps.indexOf("sp")] = new Long(memamt, 0x0);
-
     // endianness: "big" and "little" allowed
-    this.endianness = "big";
+    this.endianness = "little";
 
     // record cpu boot time (in ms since jan 1, 1970) for rdtime instruction
     // for better measurement, this should be reset right before first instruction
@@ -101,29 +97,15 @@ function CPU(memamt) {
 
         var lowbits = val.getLowBits()|0;
         var highbits = val.getHighBits()|0;
-        if (this.endianness === "big") {
-            this.memory[addr] = (highbits >>> 24) & 0xFF;
-            this.memory[addr+1] = (highbits >>> 16) & 0xFF;
-            this.memory[addr+2] = (highbits >>> 8) & 0xFF;
-            this.memory[addr+3] = (highbits) & 0xFF;
+        this.memory[addr] = (lowbits) & 0xFF;
+        this.memory[addr+1] = (lowbits >>> 8) & 0xFF;
+        this.memory[addr+2] = (lowbits >>> 16) & 0xFF;
+        this.memory[addr+3] = (lowbits >>> 24) & 0xFF;
 
-            this.memory[addr+4] = (lowbits >>> 24) & 0xFF;
-            this.memory[addr+5] = (lowbits >>> 16) & 0xFF;
-            this.memory[addr+6] = (lowbits >>> 8) & 0xFF;
-            this.memory[addr+7] = (lowbits) & 0xFF;
-        } else if (this.endianness === "little") {
-            this.memory[addr] = (lowbits) & 0xFF;
-            this.memory[addr+1] = (lowbits >>> 8) & 0xFF;
-            this.memory[addr+2] = (lowbits >>> 16) & 0xFF;
-            this.memory[addr+3] = (lowbits >>> 24) & 0xFF;
-
-            this.memory[addr+4] = (highbits) & 0xFF;
-            this.memory[addr+5] = (highbits >>> 8) & 0xFF;
-            this.memory[addr+6] = (highbits >>> 16) & 0xFF;
-            this.memory[addr+7] = (highbits >>> 24) & 0xFF;
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        this.memory[addr+4] = (highbits) & 0xFF;
+        this.memory[addr+5] = (highbits >>> 8) & 0xFF;
+        this.memory[addr+6] = (highbits >>> 16) & 0xFF;
+        this.memory[addr+7] = (highbits >>> 24) & 0xFF;
     }
 
     function store_word_to_mem(addr, val, tr) {
@@ -139,19 +121,10 @@ function CPU(memamt) {
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
         }
-        if (this.endianness === "big") {
-            this.memory[addr] = (val >>> 24) & 0xFF;
-            this.memory[addr+1] = (val >>> 16) & 0xFF;
-            this.memory[addr+2] = (val >>> 8) & 0xFF;
-            this.memory[addr+3] = (val) & 0xFF;
-        } else if (this.endianness === "little") {
-            this.memory[addr] = (val) & 0xFF;
-            this.memory[addr+1] = (val >>> 8) & 0xFF;
-            this.memory[addr+2] = (val >>> 16) & 0xFF;
-            this.memory[addr+3] = (val >>> 24) & 0xFF;
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        this.memory[addr] = (val) & 0xFF;
+        this.memory[addr+1] = (val >>> 8) & 0xFF;
+        this.memory[addr+2] = (val >>> 16) & 0xFF;
+        this.memory[addr+3] = (val >>> 24) & 0xFF;
     }
 
     function store_half_to_mem(addr, val, tr) {
@@ -167,15 +140,8 @@ function CPU(memamt) {
         if ((addr % 2) != 0) {
             throw new RISCVTrap("Store Address Misaligned", addr);
         }
-        if (this.endianness === "big") {
-            this.memory[addr] = (val >>> 8) & 0xFF;
-            this.memory[addr+1] = val & 0xFF;
-        } else if (this.endianness === "little") {
-            this.memory[addr] = val & 0xFF;
-            this.memory[addr+1] = (val >>> 8) & 0xFF;
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        this.memory[addr] = val & 0xFF;
+        this.memory[addr+1] = (val >>> 8) & 0xFF;
     }
 
     function store_byte_to_mem(addr, val, tr) {
@@ -186,8 +152,6 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-
-
         this.memory[addr] = val & 0xFF;
     }
 
@@ -206,29 +170,15 @@ function CPU(memamt) {
         }
         var retvalhigh = 0;
         var retvallow = 0;
-        if (this.endianness === "big") {
-            retvalhigh = retvalhigh | this.memory[addr] << 24;
-            retvalhigh = retvalhigh | this.memory[addr+1] << 16;
-            retvalhigh = retvalhigh | this.memory[addr+2] << 8;
-            retvalhigh = retvalhigh | this.memory[addr+3];
-            retvallow = retvallow | this.memory[addr+4] << 24;
-            retvallow = retvallow | this.memory[addr+5] << 16;
-            retvallow = retvallow | this.memory[addr+6] << 8;
-            retvallow = retvallow | this.memory[addr+7];
-            return new Long(retvallow, retvalhigh);
-        } else if (this.endianness === "little") {
-            retvallow = retvallow | this.memory[addr+3] << 24;
-            retvallow = retvallow | this.memory[addr+2] << 16;
-            retvallow = retvallow | this.memory[addr+1] << 8;
-            retvallow = retvallow | this.memory[addr];
-            retvalhigh = retvalhigh | this.memory[addr+7] << 24;
-            retvalhigh = retvalhigh | this.memory[addr+6] << 16;
-            retvalhigh = retvalhigh | this.memory[addr+5] << 8;
-            retvalhigh = retvalhigh | this.memory[addr+4];
-            return new Long(retvallow, retvalhigh);
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        retvallow = retvallow | this.memory[addr+3] << 24;
+        retvallow = retvallow | this.memory[addr+2] << 16;
+        retvallow = retvallow | this.memory[addr+1] << 8;
+        retvallow = retvallow | this.memory[addr];
+        retvalhigh = retvalhigh | this.memory[addr+7] << 24;
+        retvalhigh = retvalhigh | this.memory[addr+6] << 16;
+        retvalhigh = retvalhigh | this.memory[addr+5] << 8;
+        retvalhigh = retvalhigh | this.memory[addr+4];
+        return new Long(retvallow, retvalhigh);
     }
 
     function load_word_from_mem(addr, tr) {
@@ -245,19 +195,10 @@ function CPU(memamt) {
             throw new RISCVTrap("Load Address Misaligned", addr);
         }
         var retval = 0;
-        if (this.endianness === "big") {
-            retval = retval | this.memory[addr] << 24;
-            retval = retval | this.memory[addr+1] << 16;
-            retval = retval | this.memory[addr+2] << 8;
-            retval = retval | this.memory[addr+3];
-        } else if (this.endianness === "little") {
-            retval = retval | this.memory[addr+3] << 24;
-            retval = retval | this.memory[addr+2] << 16;
-            retval = retval | this.memory[addr+1] << 8;
-            retval = retval | this.memory[addr];
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        retval = retval | this.memory[addr+3] << 24;
+        retval = retval | this.memory[addr+2] << 16;
+        retval = retval | this.memory[addr+1] << 8;
+        retval = retval | this.memory[addr];
         return retval;
     }
 
@@ -275,15 +216,8 @@ function CPU(memamt) {
             throw new RISCVTrap("Load Address Misaligned", addr);
         }
         var retval = 0;
-        if (this.endianness === "big") {
-            retval = retval | this.memory[addr] << 8;
-            retval = retval | this.memory[addr+1];
-        } else if (this.endianness === "little") {
-            retval = retval | this.memory[addr+1] << 8;
-            retval = retval | this.memory[addr];
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        retval = retval | this.memory[addr+1] << 8;
+        retval = retval | this.memory[addr];
         return retval;
     }
 
@@ -295,8 +229,6 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-
-
         var retval = 0;
         retval = retval | this.memory[addr];
         return retval;
@@ -343,25 +275,14 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-
-
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Instruction Address Misaligned", addr);
         }
         var retval = 0;
-        if (this.endianness === "big") {
-            retval = retval | this.memory[addr] << 24;
-            retval = retval | this.memory[addr+1] << 16;
-            retval = retval | this.memory[addr+2] << 8;
-            retval = retval | this.memory[addr+3];
-        } else if (this.endianness === "little") {
-            retval = retval | this.memory[addr+3] << 24;
-            retval = retval | this.memory[addr+2] << 16;
-            retval = retval | this.memory[addr+1] << 8;
-            retval = retval | this.memory[addr];
-        } else {
-            throw new RISCVError("Invalid Endianness");
-        }
+        retval = retval | this.memory[addr+3] << 24;
+        retval = retval | this.memory[addr+2] << 16;
+        retval = retval | this.memory[addr+1] << 8;
+        retval = retval | this.memory[addr];
         return retval;
     }
 

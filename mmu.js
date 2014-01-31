@@ -55,9 +55,7 @@ function translate(addr, access_type) {
             throw new RISCVTrap("Store Access Fault", addr);
         } else if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
             throw new RISCVTrap("Instruction Access Fault", addr);
-        } else {
-            // do nothing 
-        }
+        } 
     } else { 
         // we are in user mode
         if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
@@ -66,9 +64,7 @@ function translate(addr, access_type) {
             throw new RISCVTrap("Store Access Fault", addr);
         } else if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
             throw new RISCVTrap("Instruction Access Fault", addr);
-        } else {
-            // do nothing 
-        }
+        } 
     }
 
     return paddr;    

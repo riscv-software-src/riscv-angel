@@ -32,13 +32,16 @@ Long = goog.math.Long;
 
 <!-- bootstrap -->
 <link href="style/css/bootstrap.min.css" rel="stylesheet">
+<link href="style/css/bootstrap-responsive.min.css" rel="stylesheet">
 <link href="style/css/bootstrap-switch.css" rel="stylesheet">
 <link href="style/css/jasny-bootstrap.min.css" rel="stylesheet">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="style/jquery/jquery.min.js"></script>
 <script src="style/js/bootstrap.min.js"></script>
-<script src="style/js/jasny-bootstrap.min.js"></script>
-<script src="style/js/bootstrap-switch.min.js"></script>
+<!--<script src="style/js/jasny-bootstrap.min.js"></script>
+<script src="style/js/bootstrap-switch.min.js"></script>-->
 
 
 <style type="text/css">
@@ -116,7 +119,7 @@ function runWorker() {
 
 <body>
 
-<div class="container-narrow">
+<div class="container">
     <div class="masthead" align="center">
         <h3><a href="#" data-toggle="tooltip" data-placement="bottom" title="ANGEL is Naturally Good at Executing Linux">ANGEL</a> - Browser-based RISC-V ISA simulator</h3>
     </div>
@@ -143,7 +146,7 @@ function runWorker() {
                         <br><br>
                     </div>
 
-            <div id="consoleBox" tabindex="1" class="consBoxNoGlow" style="padding:5px; height:500px; background-color:black; overflow: auto; color:white; font-size:80%; font-family: Monaco, Consolas, Lucida Console, monospace;">
+            <div id="consoleBox" tabindex="1" class="consBoxNoGlow" style="padding:5px; height:700px; background-color:black; overflow: auto; color:white; font-size:110%; font-family: Monaco, Consolas, Lucida Console, monospace;">
 
             <div id="console"></div>
 

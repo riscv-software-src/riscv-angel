@@ -7,13 +7,7 @@ tryCount = 0;
 function elfRunNextInst() {
     var instVal;
 
- //   console.log(stringIntHex(RISCV.pc));
-    if (RISCV.oldpc == RISCV.pc) {
-        //document.getElementById("console").innerHTML += "<br>User program finished. Execution terminated.";
-        pauseExec = true;
-        throw new RISCVError("Execution completed");
-    }
-
+    // handle special cases @ cpu_idle
     if (signed_to_unsigned(RISCV.pc) == 0x801539fc && readTest.length != 0) {
         RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
@@ -21,33 +15,20 @@ function elfRunNextInst() {
         handle_trap(InterruptException);
     } else if (signed_to_unsigned(RISCV.pc) == 0x801539fc) {
         // wait for user input
-        //return false;
-        //return false;
         tryCount += 1;
     }
     if (tryCount > 1000) {
         tryCount = 0;
-        //throw Error();
         return false;
     }
-/*    if (signed_to_unsigned(RISCV.pc) == 0x802740dc) {
-        console.log("HTIF_INPUT_ISR WAS CALLED!!!!");
-        logPC = true;
-    }*/
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
     
     try {
-        //var t = num_to_hexstr(RISCV.pc);
-        //console.log(": core   0: 0xffffffff8" + t.slice(1, t.length));
         instVal = RISCV.load_inst_from_mem(signExtLT32_64(RISCV.pc, 31));
         var inst = new instruction(instVal);
         runInstruction(inst, RISCV);
-
-        // HERE, ALSO CHECK FOR INTERRUPT BITS
-        // can we just generate a fake trap and call handle trap? check kernel
-
     } catch(e) {
         // trap handling
         if (e.e_type === "RISCVTrap") {
@@ -104,8 +85,6 @@ function elfRunNextInst() {
                 var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
                 var what = payload.getLowBits() & 0xFF;
 
-
-
                 if (what == 0xFF) {
                     var toWrite = "syscall_proxy";
                 }
@@ -116,39 +95,20 @@ function elfRunNextInst() {
                     RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
                 }
                 RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
-
-
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
             }
         } else if (device == 0x1) {
             // terminal, but ignore the enumeration
             if (cmd == 0x0) {
-               // this is read
-               //console.log("read happened");
-               //RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
-//        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
-//                var InterruptException = new RISCVTrap("Host interrupt");
-//                handle_trap(InterruptException);
-
+                // this is read
+                // we don't actually handle them here
             } else if (cmd == 0x1) {
-               // this is a write
-               //write_to_term(payload.getLowBits() & 0xFF);
+                // this is a write
                postMessage({"type": "t", "d": payload.getLowBits() & 0xFF});
             } else if (cmd == 0xFF) {
                // write "bcd" (block character device) to pbuf here
-/*                console.log("device " + stringIntHex(device));
-                console.log("cmd " + stringIntHex(cmd));
-                console.log("payload " + stringIntHex(payload));
-                console.log("current PC " + stringIntHex(RISCV.pc));
-                console.log("last PC " + stringIntHex(RISCV.oldpc));
-*/
-
-
-
                 var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
                 var what = payload.getLowBits() & 0xFF;
-
-
 
                 if (what == 0xFF) {
                     var toWrite = "bcd";
@@ -165,12 +125,7 @@ function elfRunNextInst() {
                 }
                 RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
 
-
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
-
-
-                //throw new RISCVError("request for terminal device");
-               
             } else {
                throw new RISCVError("Other term features not yet implemented " + stringIntHex(cmd)); 
             } 
@@ -206,9 +161,4 @@ function elfRunNextInst() {
     } 
     return true;
    
-    /*if (document.getElementById("debugcheckbox").checked && document.getElementById("regtablecheckbox").checked) {
-        update_debug_table([stringIntHex(RISCV.oldpc), stringIntHex(instVal), stringIntHex(RISCV.pc)], debugtab);
-        update_html_regtable(RISCV, tab);
-    }*/
-
 }
