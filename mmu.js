@@ -6,6 +6,7 @@ var LEVELS = 3;
 var PTIDXBITS = new Long(0xA, 0x0);
 var PGSHIFT = new Long(0xD, 0x0);
 var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT.getLowBits());
+var OFFBITS = (new Long(0x1FFF, 0x0));
 var VPN_BITS = new Long(30, 0x0);
 var PPN_BITS = new Long(51, 0x0);
 var VA_BITS = new Long(43, 0x0);
@@ -37,9 +38,9 @@ function translate(addr, access_type) {
         var paddr = TLB[origaddr][1];
     } else {
         var pte = walk(addr);
-        var pgoff = addr.and(PGSIZE.subtract(new Long(0x1, 0x0)));
-        var pgbase = (pte.shiftRightUnsigned(PGSHIFT.getLowBits())).shiftLeft(PGSHIFT.getLowBits());
-        var paddr = pgbase.add(pgoff).getLowBits();
+        var pgoff = origaddr & 0x1FFF; //.and(OFFBITS);
+        var pgbase = pte.getLowBitsUnsigned() & 0xFFFFE000;
+        var paddr = pgbase | pgoff;
         pte = pte.getLowBits();
         TLB[origaddr] = [pte, paddr];
     }
