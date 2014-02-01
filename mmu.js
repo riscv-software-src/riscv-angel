@@ -17,15 +17,22 @@ var PTE_SX = 0x100;
 var TLB = [];
 //var TLBON = true;
 
+var TLBcount = 0;
+var NONcount = 0;
+var Totcount = 0;
+
 // performs address translation
 // addr MUST BE A LONG
 function translate(addr, access_type) {
+    Totcount += 1;
     var origaddr = addr.getLowBitsUnsigned();
     if (TLB[origaddr] != undefined) {
         // return value from TLB
+        TLBcount += 1;
         var pte = TLB[origaddr][0];
         var paddr = TLB[origaddr][1];
     } else {
+        NONcount += 1;
         var pte = walk(addr);
         var pgoff = origaddr & 0x1FFF;
         var pgbase = pte.getLowBitsUnsigned() & 0xFFFFE000;
@@ -39,22 +46,29 @@ function translate(addr, access_type) {
     // permissions check
     if (mode & SR["SR_S"] != 0) {
         // we are in supervisor mode
-        if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
+        if (access_type == CONSTS.EXEC && (pte & PTE_SX)) {
+            // "short" the fastest path (valid instruction)
+            return paddr;
+        }
+        if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
+            throw new RISCVTrap("Instruction Access Fault", addr);
+        } else if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
             throw new RISCVTrap("Load Access Fault", addr);
         } else if (access_type == CONSTS.WRITE && !(pte & PTE_SW)) {
             throw new RISCVTrap("Store Access Fault", addr);
-        } else if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
-            throw new RISCVTrap("Instruction Access Fault", addr);
         } 
     } else { 
-        // we are in user mode
-        if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
+        if (access_type == CONSTS.EXEC && (pte & PTE_UX)) {
+            // "short" the fastest path (valid instruction)
+            return paddr;
+        }
+        if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
+            throw new RISCVTrap("Instruction Access Fault", addr);
+        } else if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
             throw new RISCVTrap("Load Access Fault", addr);
         } else if (access_type == CONSTS.WRITE && !(pte & PTE_UW)) {
             throw new RISCVTrap("Store Access Fault", addr);
-        } else if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
-            throw new RISCVTrap("Instruction Access Fault", addr);
-        } 
+        }
     }
 
     return paddr;    
