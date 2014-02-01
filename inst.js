@@ -101,7 +101,7 @@ function signExtLT32_64(quantity, bit) {
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(inst, RISCV) {
     // force x0 (zero) to zero
-    RISCV.gen_reg[0] = new Long(0x0, 0x0);
+    RISCV.gen_reg[0] = Long.ZERO;
     var op = inst.get_opcode();
 
     switch(op) {
@@ -126,9 +126,9 @@ function runInstruction(inst, RISCV) {
                 // SLTI 
                 case 0x2:
                     if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_I_imm(), 31))) {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ONE;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
                     }
                     RISCV.pc += 4;
                     break;
@@ -136,9 +136,9 @@ function runInstruction(inst, RISCV) {
                 // SLTIU, need to check signExt here
                 case 0x3:
                     if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], signExtLT32_64(inst.get_I_imm(), 31))) {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ONE;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
                     }
                     RISCV.pc += 4;
                     break;
@@ -208,9 +208,9 @@ function runInstruction(inst, RISCV) {
                 // SLT
                 case 0x2:
                     if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])) {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ONE;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
                     }
                     RISCV.pc += 4;
                     break;
@@ -218,9 +218,9 @@ function runInstruction(inst, RISCV) {
                 // SLTU
                 case 0x3:
                     if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])) {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x1, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ONE;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
                     }
                     RISCV.pc += 4;
                     break;
@@ -358,7 +358,7 @@ function runInstruction(inst, RISCV) {
 
                 // DIV 
                 case 0xC:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
+                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
                         // divide by zero, result is all ones
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
                     } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))) {
@@ -376,7 +376,7 @@ function runInstruction(inst, RISCV) {
                 case 0xD:
                     var l1 = RISCV.gen_reg[inst.get_rs1()];
                     var l2 = RISCV.gen_reg[inst.get_rs2()];
-                    if (l2.equals(new Long(0x0, 0x0))) {
+                    if (l2.isZero()) {
                         //div by zero
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
                         RISCV.pc += 4;
@@ -418,13 +418,13 @@ function runInstruction(inst, RISCV) {
 
                 // REM
                 case 0xE:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
+                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
                         // rem (divide) by zero, result is dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else if (RISCV.gen_reg[inst.get_rs1()].equals(new Long(0x0, 0x80000000)) && RISCV.gen_reg[inst.get_rs1()].equals(new Long(0xFFFFFFFF, 0xFFFFFFFF))) {
                         // rem (divide) most negative num by -1 -> signed overflow
                         // set result to dividend
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
                     } else {
                         // actual rem
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].modulo(RISCV.gen_reg[inst.get_rs2()]);
@@ -436,7 +436,7 @@ function runInstruction(inst, RISCV) {
                 case 0xF:
                     var l1 = RISCV.gen_reg[inst.get_rs1()];
                     var l2 = RISCV.gen_reg[inst.get_rs2()];
-                    if (l2.equals(new Long(0x0, 0x0))) {
+                    if (l2.isZero()) {
                         //div by zero
                         RISCV.gen_reg[inst.get_rd()] = l1;
                         RISCV.pc += 4;
@@ -1025,7 +1025,7 @@ function runInstruction(inst, RISCV) {
 
                 // DIVW
                 case 0xC:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
+                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
                         //div by zero, set result to all ones
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
                     } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000) {
@@ -1039,7 +1039,7 @@ function runInstruction(inst, RISCV) {
 
                 // DIVUW
                 case 0xD:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
+                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
                         //div by zero, set result to all ones
                         RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
                     } else {
@@ -1050,12 +1050,12 @@ function runInstruction(inst, RISCV) {
 
                 // REMW
                 case 0xE:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
+                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
                         // rem (div) by zero, set result to dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000) {
                         // rem (div) most negative 32 bit num by -1: result = 0
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0);
+                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
                     } else {
                         RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0)%(RISCV.gen_reg[inst.get_rs2()].getLowBits()|0))|0, 31);
                     }
@@ -1064,7 +1064,7 @@ function runInstruction(inst, RISCV) {
 
                 // REMUW
                 case 0xF:
-                    if (RISCV.gen_reg[inst.get_rs2()].equals(new Long(0x0, 0x0))) {
+                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
                         // rem (div) by zero, set result to dividend
                         RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
                     } else {
@@ -1304,7 +1304,7 @@ function runInstruction(inst, RISCV) {
                     // this acts just like a sd in this implementation, but it will
                     // always set the check register to 0 (indicating load success)
                     RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()].getLowBits());
-                    RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0); // indicate success
+                    RISCV.gen_reg[inst.get_rd()] = Long.ZERO; // indicate success
                     RISCV.pc += 4;
                     break;
 
@@ -1313,7 +1313,7 @@ function runInstruction(inst, RISCV) {
                     // this acts just like a sd in this implementation, but it will
                     // always set the check register to 0 (indicating load success)
                     RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()]);
-                    RISCV.gen_reg[inst.get_rd()] = new Long(0x0, 0x0); // indicate success
+                    RISCV.gen_reg[inst.get_rd()] = Long.ZERO; // indicate success
                     RISCV.pc += 4;
                     break;
 
@@ -1682,12 +1682,12 @@ function runInstruction(inst, RISCV) {
 
 
     // force x0 (zero) to zero
-    RISCV.gen_reg[0] = new Long(0x0, 0x0);
+    RISCV.gen_reg[0] = Long.ZERO;
 
 
 
     // finally, increment cycle counter, instret counter, count register:
-    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(new Long(0x1, 0x0));
-    RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(new Long(0x1, 0x0));
-    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(0x1, 0x0));
+    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(Long.ONE);
+    RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(Long.ONE);
+    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(Long.ONE);
 }

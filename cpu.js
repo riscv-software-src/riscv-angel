@@ -252,7 +252,7 @@ function CPU(memamt) {
 
             // need to fill in all cases here (i.e. when implementing interrupts)
             case PCR["CSR_TOHOST"]["num"]:
-                if (this.priv_reg[num].equals(new Long(0x0, 0x0))) {
+                if (this.priv_reg[num].isZero()) {
                     this.priv_reg[num] = val;
                 }
                 break;

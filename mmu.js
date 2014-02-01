@@ -2,17 +2,8 @@
 // needs to intercept all memory loading calls
 
 // CONSTANTS HERE
-var LEVELS = 3;
-var PTIDXBITS = 0xA;
-var PGSHIFT = 0xD;
-var PGSIZE = (new Long(0x1, 0x0)).shiftLeft(PGSHIFT);
-var OFFBITS = (new Long(0x1FFF, 0x0));
-var VPN_BITS = new Long(30, 0x0);
-var PPN_BITS = new Long(51, 0x0);
-var VA_BITS = new Long(43, 0x0);
-
-var PTE_V = new Long(0x1, 0x0);
-var PTE_T = new Long(0x2, 0x0);
+var PTE_V = 0x1;
+var PTE_T = 0x2;
 var PTE_G = new Long(0x4, 0x0);
 var PTE_UR = 0x8;
 var PTE_UW = 0x10;
@@ -24,21 +15,19 @@ var PTE_SX = 0x100;
 // [todo] - simple TLB (try just a dictionary)
 
 var TLB = {};
-var TLBON = true;
+//var TLBON = true;
 
 // performs address translation
 // addr MUST BE A LONG
 function translate(addr, access_type) {
-    
     var origaddr = addr.getLowBitsUnsigned();
-
-    if (TLBON && TLB.hasOwnProperty(origaddr)) {
+    if (TLB.hasOwnProperty(origaddr)) {
         // return value from TLB
         var pte = TLB[origaddr][0];
         var paddr = TLB[origaddr][1];
     } else {
         var pte = walk(addr);
-        var pgoff = origaddr & 0x1FFF; //.and(OFFBITS);
+        var pgoff = origaddr & 0x1FFF;
         var pgbase = pte.getLowBitsUnsigned() & 0xFFFFE000;
         var paddr = pgbase | pgoff;
         pte = pte.getLowBits();
@@ -71,38 +60,66 @@ function translate(addr, access_type) {
     return paddr;    
 }
 
-
+var LONG3FF = new Long(0x3FF, 0x0);
 // does the page table walk only - no permission checks here
 // vaddr is Long
 function walk(vaddr) {
     // [todo] - add additional checking from the top of mmu.cc's walk here later
 
-    var pte = new Long(0x0, 0x0);
-
+//    var pte = new Long(0x0, 0x0);
     var ptbr = RISCV.priv_reg[PCR["CSR_PTBR"]["num"]]; // this is a Long
-    var ptshift = 20;
 
     // main walk for loop
-    for (var i = 0; i < LEVELS; ptshift = ptshift - PTIDXBITS) {
-        var idx = (vaddr.shiftRightUnsigned((PGSHIFT + ptshift))).and(new Long(0x3FF, 0x0));
-        var pte_addr = ptbr.add(idx.shiftLeft(3));
-        var pt_data = RISCV.load_double_from_mem(pte_addr, false);
-        if ((pt_data.and(PTE_V)).equals(new Long(0x0, 0x0))) {
-            // INVALID MAPPING
-            break;
-        } else if ((pt_data.and(PTE_T)).notEquals(new Long(0x0, 0x0))) {
-            // Next level of page table
-            ptbr = (pt_data.shiftRightUnsigned(PGSHIFT)).shiftLeft(PGSHIFT);
-        } else {
-            // The actual pte
-            var vpn = vaddr.shiftRightUnsigned(PGSHIFT);
-            pt_data = pt_data.or((vpn.and(((new Long(0x1, 0x0)).shiftLeft(ptshift)).subtract(new Long(0x1, 0x0)))).shiftLeft(PGSHIFT));
+    var idx = (vaddr.shiftRightUnsigned((33))).and(LONG3FF);
+    var pte_addr = ptbr.add(idx.shiftLeft(3));
+    var pt_data = RISCV.load_double_from_mem(pte_addr, false);
+    var pt_data_low = pt_data.getLowBitsUnsigned();
+    if (pt_data_low & PTE_V == 0) {
+        // INVALID MAPPING
+        return Long.ZERO;
+    } else if ((pt_data_low & PTE_T) != 0) {
+        // Next level of page table
+        ptbr = (pt_data.shiftRightUnsigned(0xD)).shiftLeft(0xD);
+    } else {
+        // The actual pte
+        var vpn = vaddr.shiftRightUnsigned(0xD);
+        pt_data = pt_data.or((vpn.and(((Long.ONE).shiftLeft(20)).subtract(Long.ONE))).shiftLeft(0xD));
 
-            //supposed to be a mem bounds fault check here but ignore for now:
-            pte = pt_data;
-            break;
-        }
-        i += 1;
+        //supposed to be a mem bounds fault check here but ignore for now:
+        return pt_data;
     }
-    return pte;
+    var idx = (vaddr.shiftRightUnsigned((23))).and(LONG3FF);
+    var pte_addr = ptbr.add(idx.shiftLeft(3));
+    var pt_data = RISCV.load_double_from_mem(pte_addr, false);
+    var pt_data_low = pt_data.getLowBitsUnsigned();
+    if (pt_data_low & PTE_V == 0) {
+        // INVALID MAPPING
+        return Long.ZERO;
+    } else if ((pt_data_low & PTE_T) != 0) {
+        // Next level of page table
+        ptbr = (pt_data.shiftRightUnsigned(0xD)).shiftLeft(0xD);
+    } else {
+        // The actual pte
+        var vpn = vaddr.shiftRightUnsigned(0xD);
+        pt_data = pt_data.or((vpn.and(((Long.ONE).shiftLeft(10)).subtract(Long.ONE))).shiftLeft(0xD));
+
+        //supposed to be a mem bounds fault check here but ignore for now:
+        return pt_data;
+    }
+    var idx = (vaddr.shiftRightUnsigned(13)).and(LONG3FF);
+    var pte_addr = ptbr.add(idx.shiftLeft(3));
+    var pt_data = RISCV.load_double_from_mem(pte_addr, false);
+    var pt_data_low = pt_data.getLowBitsUnsigned();
+    if (pt_data_low & PTE_V == 0) {
+        // INVALID MAPPING
+        return Long.ZERO;
+    } else if ((pt_data_low & PTE_T) != 0) {
+        // Next level of page table
+        ptbr = (pt_data.shiftRightUnsigned(0xD)).shiftLeft(0xD);
+        console.log("BAD BAD BAD WAT");
+    } else {
+        // The actual pte
+        //supposed to be a mem bounds fault check here but ignore for now:
+        return pt_data;
+    }
 }

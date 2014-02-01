@@ -66,7 +66,7 @@ function elfRunNextInst() {
 
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
-    if (toHostVal.notEquals(new Long(0x0, 0x0))){
+    if (!toHostVal.isZero()){
         //console.log("Output on toHost:");
         //console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
 
@@ -95,7 +95,7 @@ function elfRunNextInst() {
                     RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
                 }
                 RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
-                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
             }
         } else if (device == 0x1) {
             // terminal, but ignore the enumeration
@@ -125,7 +125,7 @@ function elfRunNextInst() {
                 }
                 RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
 
-                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
             } else {
                throw new RISCVError("Other term features not yet implemented " + stringIntHex(cmd)); 
             } 
@@ -145,7 +145,7 @@ function elfRunNextInst() {
                 }
                 RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
 
-                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x1, 0x0);
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
 
         } else {
             // unknown device, crash
@@ -157,7 +157,7 @@ function elfRunNextInst() {
             throw new RISCVError("unknown device/command combo");
         }
 
-        RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = new Long(0x0, 0x0);
+        RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = Long.ZERO;
     } 
     return true;
    
