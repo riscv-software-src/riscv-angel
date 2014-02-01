@@ -17,28 +17,29 @@ var PTE_SX = 0x100;
 var TLB = [];
 //var TLBON = true;
 
-var TLBcount = 0;
-var NONcount = 0;
-var Totcount = 0;
+//var TLBcount = 0;
+//var NONcount = 0;
+//var Totcount = 0;
 
 // performs address translation
 // addr MUST BE A LONG
 function translate(addr, access_type) {
-    Totcount += 1;
+    //Totcount += 1;
     var origaddr = addr.getLowBitsUnsigned();
-    if (TLB[origaddr] != undefined) {
+    var origaddrVPN = origaddr >>> 13;
+    if (TLB[origaddrVPN] != undefined) {
         // return value from TLB
-        TLBcount += 1;
-        var pte = TLB[origaddr][0];
-        var paddr = TLB[origaddr][1];
+        //TLBcount += 1;
+        var pte = TLB[origaddrVPN][0];
+        var paddr = TLB[origaddrVPN][1] | (origaddr & 0x1FFF);
     } else {
-        NONcount += 1;
+        //NONcount += 1;
         var pte = walk(addr);
         var pgoff = origaddr & 0x1FFF;
         var pgbase = pte.getLowBitsUnsigned() & 0xFFFFE000;
         var paddr = pgbase | pgoff;
         pte = pte.getLowBits();
-        TLB[origaddr] = [pte, paddr];
+        TLB[origaddrVPN] = [pte, pgbase];
     }
 
     var mode = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]];
