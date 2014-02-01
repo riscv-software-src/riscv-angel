@@ -14,14 +14,14 @@ var PTE_SX = 0x100;
 
 // [todo] - simple TLB (try just a dictionary)
 
-var TLB = {};
+var TLB = [];
 //var TLBON = true;
 
 // performs address translation
 // addr MUST BE A LONG
 function translate(addr, access_type) {
     var origaddr = addr.getLowBitsUnsigned();
-    if (TLB.hasOwnProperty(origaddr)) {
+    if (TLB[origaddr] != undefined) {
         // return value from TLB
         var pte = TLB[origaddr][0];
         var paddr = TLB[origaddr][1];

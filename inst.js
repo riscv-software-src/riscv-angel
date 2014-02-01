@@ -823,7 +823,7 @@ function runInstruction(inst, RISCV) {
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             if (inst.get_CSR_imm() == PCR["CSR_FATC"]["num"]) {
-                                TLB = {};
+                                TLB = [];
  //                               console.log("flushing TLB from CSRRW");
  //                               console.log("Current ASID is " + stringIntHex(RISCV.priv_reg[PCR["CSR_ASID"]["num"]]));
                             }
@@ -879,7 +879,7 @@ function runInstruction(inst, RISCV) {
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             if (inst.get_CSR_imm() == PCR["CSR_FATC"]["num"]) {
-                                TLB = {};
+                                TLB = [];
 //                                console.log("flushing TLB from CSRRWI");
 //                                console.log("Current ASID is " + stringIntHex(RISCV.priv_reg[PCR["CSR_ASID"]["num"]]));
 //                                console.log("Value written to FATC is " + stringIntHex(tempbak));
