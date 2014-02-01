@@ -16,6 +16,9 @@ goog.require("goog.math.Long");
 Long = goog.math.Long;
 </script>
 
+<script src="lib/screenfull/screenfull.js"></script>
+
+
 <!-- load angel -->
 <script src="devices/character.js"></script>
 <script src="lib/binfile/binfile.js"></script>
@@ -63,6 +66,8 @@ Long = goog.math.Long;
 
 <!-- angel functions -->
 <script>
+
+   
 function runCodeC(userIn) {
     //compilestat = document.getElementById("compilestatus");
     //compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
@@ -134,10 +139,12 @@ function runWorker() {
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
-                        <div id="buttonbox" class="span12"><div class="span2">
-                                <a class="btn btn-medium btn-success" onclick="runWorker(); $('#consoleBox').focus();">Boot Linux</a> </div>
+                        <div id="buttonbox" class="span12"><div class="span4">
+                                <a id="bootButton" class="btn btn-medium btn-success" onclick="runWorker(); $('#consoleBox').focus();">Boot Linux</a> <input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal   </div>
+
+
                             <div class="span3" align="right">Kernel download progress: </div>
-                            <div id="progbar" class="progress progress-success span7" >
+                            <div id="progbar" class="progress progress-success span5" >
                                 <div id="bar" class="bar" style="width: 0%;"></div>
                             </div>
 
@@ -483,6 +490,21 @@ myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
 $(function() {
    $('#consoleBox').focus();
 });
+
+
+    var elem = document.getElementById('consoleBox');
+    document.getElementById('bootButton').addEventListener('click', function () {
+        console.log("GOT HERE");
+    if (screenfull.enabled && document.getElementById('fullscreenOnRun').checked) {
+        screenfull.request(elem);
+    }
+    });
+ 
+
+
+
+
+
 </script>
 
 </html>
