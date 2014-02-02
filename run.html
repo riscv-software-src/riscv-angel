@@ -3,6 +3,10 @@
 
 <title>ANGEL - RISCV JS ISA Simulator</title>
 
+<link rel="stylesheet" href="lib/shepherd-0.4.2/shepherd-theme-arrows.css" />
+<script src="lib/shepherd-0.4.2/shepherd.min.js"></script>
+
+
 <!-- load js libraries required for angel core ops -->
 <script src="lib/closure-compiled/long.js"></script>
 <script>
@@ -126,7 +130,7 @@ function runWorker() {
 
 <div class="container">
     <div class="masthead" align="center">
-        <h3><a href="#" data-toggle="tooltip" data-placement="bottom" title="ANGEL is Naturally Good at Executing Linux">ANGEL</a> - Browser-based RISC-V ISA simulator</h3>
+        <h3><a href="#" id="ANGELtitle" data-toggle="tooltip" data-placement="bottom" title="ANGEL is Naturally Good at Executing Linux">ANGEL</a> - Browser-based RISC-V ISA simulator</h3>
     </div>
 
     <div class="row-fluid marketing">
@@ -143,7 +147,7 @@ function runWorker() {
                                 <a id="bootButton" class="btn btn-medium btn-success" onclick="runWorker(); $('#consoleBox').focus();">Boot Linux</a> <input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal   </div>
 
 
-                            <div class="span3" align="right">Kernel download progress: </div>
+                            <div class="span3" id="kernelDown" align="right">Kernel download progress: </div>
                             <div id="progbar" class="progress progress-success span5" >
                                 <div id="bar" class="bar" style="width: 0%;"></div>
                             </div>
@@ -499,12 +503,8 @@ $(function() {
         screenfull.request(elem);
     }
     });
- 
-
-
-
-
-
 </script>
+<!-- set up shepherd helper for the user-->
+<script src="ui/shepherdconfig.js"></script>
 
 </html>
