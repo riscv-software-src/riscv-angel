@@ -2,10 +2,17 @@
 
 readTest = [];
 tryCount = 0;
+lastTimeSlot = (new Date()).getTime()/1000;
 
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
+
+    if (!(RISCV.instcount & 0xFFFFF)) {
+        var ctime = (new Date()).getTime()/1000;
+        postMessage({"type": "m", "d": 1.048576 / (ctime - lastTimeSlot)});
+        lastTimeSlot = ctime;
+    }
 
     // handle special cases @ cpu_idle
     if (signed_to_unsigned(RISCV.pc) == 0x801539fc && readTest.length != 0) {

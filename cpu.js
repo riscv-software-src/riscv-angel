@@ -62,6 +62,9 @@ function CPU(memamt) {
     // init status register
     this.priv_reg[PCR["CSR_STATUS"]["num"]] = status_reg_init();
 
+    this.instcount = 0x1; // special counter for MIPS measurement, start at one
+                          // to avoid incorrect first result
+
     // endianness: "big" and "little" allowed
     this.endianness = "little";
 

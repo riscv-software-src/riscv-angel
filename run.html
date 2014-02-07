@@ -5,7 +5,8 @@
 
 <link rel="stylesheet" href="lib/shepherd-0.4.2/shepherd-theme-arrows.css" />
 <script src="lib/shepherd-0.4.2/shepherd.min.js"></script>
-
+<link rel="stylesheet" href="lib/odometer/odometer-theme-default.css" />
+<script src="lib/odometer/odometer.min.js"></script>
 
 <!-- load js libraries required for angel core ops -->
 <script src="lib/closure-compiled/long.js"></script>
@@ -70,8 +71,6 @@ Long = goog.math.Long;
 
 <!-- angel functions -->
 <script>
-
-   
 function runCodeC(userIn) {
     //compilestat = document.getElementById("compilestatus");
     //compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
@@ -117,6 +116,14 @@ function runWorker() {
         } else if (oEvent.data.type == "tr") {
             // handle terminal read
             alert("READ HAPPENED");
+        } else if (oEvent.data.type == "m") {
+            // update MIPS counter
+            document.getElementById('kernelDown').innerHTML = "Millions of Instructions Per Second";
+            $("#kernelDown").hide();
+            $("#progbar").hide();
+            $('#mipsLabel').show();
+            $("#mipsCount").show();
+            document.getElementById("mipsCount").innerHTML = oEvent.data.d;
         }
     };
 //    myWorker.postMessage({"type": "t", "d": "asdf"});
@@ -143,7 +150,7 @@ function runWorker() {
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
-                        <div id="buttonbox" class="span12"><div class="span4">
+                        <div id="buttonbox" class="span12" style="height: 50px;"><div class="span4">
                                 <a id="bootButton" class="btn btn-medium btn-success" onclick="runWorker(); $('#consoleBox').focus();">Boot Linux</a> <input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal   </div>
 
 
@@ -151,7 +158,8 @@ function runWorker() {
                             <div id="progbar" class="progress progress-success span5" >
                                 <div id="bar" class="bar" style="width: 0%;"></div>
                             </div>
-
+                            <div class="span7" id="mipsLabel" align="right" style="vertical-align: middle; display:none; font-size: 20px;"> Millions of Instructions Per Second</div>
+                            <div id="mipsCount" class="odometer span1" style="display:none; font-size: 30px;">0</div>
 
                         <!--<a class="btn btn-medium btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion(); $('#buttonbox').fadeOut();" disabled='disabled'>Boot Linux</a>-->
                         <br><br>
@@ -498,11 +506,12 @@ $(function() {
 
     var elem = document.getElementById('consoleBox');
     document.getElementById('bootButton').addEventListener('click', function () {
-        console.log("GOT HERE");
     if (screenfull.enabled && document.getElementById('fullscreenOnRun').checked) {
         screenfull.request(elem);
     }
-    });
+});
+
+
 </script>
 <!-- set up shepherd helper for the user-->
 <script src="ui/shepherdconfig.js"></script>
