@@ -7,7 +7,7 @@
 // CPU class. Contains regfile, memory, and special registers
 // memamt is memory size in Mebibytes, default to 32
 function CPU(memamt) {
-    memamt = typeof memamt !== 'undefined' ? memamt : 10;
+    memamt = typeof memamt !== 'undefined' ? memamt : 32;
 
     this.memamount = memamt; // for use by the kernel
     

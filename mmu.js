@@ -25,6 +25,10 @@ var TLB = [];
 // addr MUST BE A LONG
 function translate(addr, access_type) {
     //Totcount += 1;
+    if ((addr.getLowBitsUnsigned() & 0xFF000000) == 0x55000000) {
+        addr = new Long(addr.getLowBitsUnsigned(), 0x155);
+    }
+
     var origaddr = addr.getLowBitsUnsigned();
     var origaddrVPN = origaddr >>> 13;
     if (TLB[origaddrVPN] != undefined) {

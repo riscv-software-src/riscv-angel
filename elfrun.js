@@ -8,6 +8,8 @@ lastTimeSlot = (new Date()).getTime()/1000;
 function elfRunNextInst() {
     var instVal;
 
+//    console.log(stringIntHex(RISCV.pc));
+
     if (!(RISCV.instcount & 0xFFFFF)) {
         var ctime = (new Date()).getTime()/1000;
         postMessage({"type": "m", "d": 1.048576 / (ctime - lastTimeSlot)});
@@ -15,12 +17,12 @@ function elfRunNextInst() {
     }
 
     // handle special cases @ cpu_idle
-    if (signed_to_unsigned(RISCV.pc) == 0x801539fc && readTest.length != 0) {
+    if (signed_to_unsigned(RISCV.pc) == 0x80d8a028 && readTest.length != 0) {
         RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
         var InterruptException = new RISCVTrap("Host interrupt");
         handle_trap(InterruptException);
-    } else if (signed_to_unsigned(RISCV.pc) == 0x801539fc) {
+    } else if (signed_to_unsigned(RISCV.pc) == 0x80d8a028) {
         // wait for user input
         tryCount += 1;
     }

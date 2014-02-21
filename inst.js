@@ -493,6 +493,9 @@ function runInstruction(inst, RISCV) {
         // L-TYPE (AUIPC) - opcode: 0b0010111
         case 0x17:
             RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(inst.get_U_imm() + (RISCV.pc & 0xFFFFF000), 31);
+            if ((RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned() & 0xFF000000) == 0x55000000) {
+                RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned(), 0x155);
+            }
             RISCV.pc += 4;
             break;
 

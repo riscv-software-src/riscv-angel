@@ -42,11 +42,23 @@ function handle_trap(trap){
     // if trap is load/store misaligned address or access fault, 
     // set badvaddr to faulting address
     if (trapec == 0x8 || trapec == 0x9 || trapec == 0xA || trapec == 0xB) {
-        RISCV.priv_reg[PCR["CSR_BADVADDR"]["num"]] = trap.memaddr;
+
+        if ((trap.memaddr.getLowBitsUnsigned() & 0xFF000000) == 0x55000000) {
+            RISCV.priv_reg[PCR["CSR_BADVADDR"]["num"]] = new Long(trap.memaddr.getLowBitsUnsigned(), 0x155);
+        } else {
+            RISCV.priv_reg[PCR["CSR_BADVADDR"]["num"]] = trap.memaddr;
+        }
     }
 
     // store original PC (addr of inst causing exception) to epc reg
-    RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = signExtLT32_64(RISCV.pc, 31);
+    if ((RISCV.pc & 0xFF000000) == 0x55000000) {
+        RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = new Long(RISCV.pc, 0x155);
+    } else {
+        RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = signExtLT32_64(RISCV.pc, 31);
+    }
+
+
+
 
     // set PC = to value in evec register
     RISCV.pc = RISCV.priv_reg[PCR["CSR_EVEC"]["num"]].getLowBits();
