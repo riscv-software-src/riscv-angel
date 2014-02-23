@@ -8,35 +8,12 @@
 <link rel="stylesheet" href="lib/odometer/odometer-theme-default.css" />
 <script src="lib/odometer/odometer.min.js"></script>
 
-<!-- load js libraries required for angel core ops -->
-<script src="lib/closure-compiled/long.js"></script>
-<script>
-goog.require("goog.math.Long");
-</script>
-<script src="lib/javascript-biginteger/biginteger.js"></script>
-<script src="lib/timeoutfix/timeoutfix.js"></script>
-
-<!-- map to Long for convenience -->
-<script>
-Long = goog.math.Long;
-</script>
-
 <script src="lib/screenfull/screenfull.js"></script>
 
 
-<!-- load angel -->
+<!-- load angel interface components -->
 <script src="devices/character.js"></script>
-<script src="lib/binfile/binfile.js"></script>
-<script src="syscall.js"></script>
-<script src="mappings.js"></script>
 <script src="utils.js"></script>
-<script src="mmu.js"></script>
-<script src="trap.js"></script>
-<script src="elfload.js"></script>
-<script src="inst.js"></script>
-<script src="cpu.js"></script>
-<script src="elfrun.js"></script>
-
 
 <!-- bootstrap -->
 <link href="style/css/bootstrap.min.css" rel="stylesheet">
@@ -48,9 +25,6 @@ Long = goog.math.Long;
 
 <script src="style/jquery/jquery.min.js"></script>
 <script src="style/js/bootstrap.min.js"></script>
-<!--<script src="style/js/jasny-bootstrap.min.js"></script>
-<script src="style/js/bootstrap-switch.min.js"></script>-->
-
 
 <style type="text/css">
     body { 
@@ -67,43 +41,14 @@ Long = goog.math.Long;
         outline: none;
         border: none;
     }
+
+    .tooltip-inner {
+        max-width: 500px;
+    }
 </style>
 
 <!-- angel functions -->
 <script>
-function runCodeC(userIn) {
-    //compilestat = document.getElementById("compilestatus");
-    //compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
-    filesList = ["lib/riscv_compiled/vmlinux" ];
-
-    handle_file_continue(filesList);
-
-    RISCV = new CPU();
-}
-
-function handle_file_continue(filesList) {
-    document.getElementById("testresult").innerHTML = "ELF not loaded";
-    tab = document.getElementById("regtable");
-    elfproptab = document.getElementById("elfprops");
-    debugtab = document.getElementById("debugprops");
-
-    // execution pause
-    pauseExec = false;
-
-    GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
-}
-
-function elfRunCompletion() {
-    // elf run to completion
-    elfRunNextInst();
-
-    if (!pauseExec && breaks[signed_to_unsigned(RISCV.pc)] != 0x1) {
-        setZeroTimeout(elfRunCompletion);
-    }
-}
-
-
-
 function runWorker() {
     myWorker = new Worker("webworker.js");
     myWorker.onmessage = function(oEvent) {
@@ -126,10 +71,7 @@ function runWorker() {
             document.getElementById("mipsCount").innerHTML = oEvent.data.d;
         }
     };
-//    myWorker.postMessage({"type": "t", "d": "asdf"});
 }
-
-
 </script>
 </head>
 
@@ -161,7 +103,6 @@ function runWorker() {
                             <div class="span7" id="mipsLabel" align="right" style="vertical-align: middle; display:none; font-size: 20px;"> Millions of Instructions Per Second</div>
                             <div id="mipsCount" class="odometer span1" style="display:none; font-size: 30px;">0</div>
 
-                        <!--<a class="btn btn-medium btn-success" id="WriteCRun"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion(); $('#buttonbox').fadeOut();" disabled='disabled'>Boot Linux</a>-->
                         <br><br>
                     </div>
                     <br>
@@ -169,7 +110,6 @@ function runWorker() {
 
             <div id="console"></div>
 
-            <!--<div id="consoleCursor">$ <span id="enteredContents"></span><span id="flashingBox"></span></div>-->
             </div>
                     </div>
 
@@ -200,9 +140,9 @@ function runWorker() {
 <br><br>
 <div id="debugbox" style="position:relative; width: 100%;">
 <div>
-<h5>Execution controls: </h5><a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute next instruction."   onclick="pauseExec = false; elfRunNextInst()">></a>
+<h5>Execution controls: </h5><a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute next instruction."   onclick="#">></a>
 
-<a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="pauseExec = false; elfRunCompletion()" >>></a>
+<a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="Execute to completion." onclick="" >>></a>
 
 <a class="btn btn-medium btn-primary"  data-toggle="tooltip" data-container="body" data-placement="bottom" title="After pausing, step through execution one instruction at a time with &gt; or resume execution with &gt;&gt; " onclick="pauseExec = true;" >Pause Execution</a>
 
@@ -432,7 +372,31 @@ function runWorker() {
     <br><br>
     <div class="footer" style="text-align: center;">
         Based on <a href="http://riscv.org">The RISC-V Instruction Set Manual</a> <br>
-        Source on <a href="https://github.com/ucb-bar/riscv-angel">Github</a>
+        Source on <a href="https://github.com/ucb-bar/riscv-angel">Github</a> | Built by <a href="http://sagark.org">sagark</a> | <a href="LICENSE" id="lic" data-toggle="tooltip" data-placement="top" title="
+Copyright (c) 2013-2014, The Regents of the University of California (Regents).
+All Rights Reserved. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the Regents nor the
+   names of its contributors may be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+IN NO EVENT SHALL REGENTS BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF REGENTS HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+REGENTS SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE. THE SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+HEREUNDER IS PROVIDED &quot;AS IS&quot;. REGENTS HAS NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+            ">License</a>
     </div>
 
 </div>
@@ -457,11 +421,7 @@ function runWorker() {
         $('#regLabelAlt').toggle();
     });
 
-    fileNamePairs = new Array(); // global filename, filecontents pairs
-
     flashConsoleCursor(); // start flashing console
-
-    entered = document.getElementById("enteredContents");
 
     insertsSinceEnter = 0;
     $("#consoleBox").bind('keypress', function(event) {

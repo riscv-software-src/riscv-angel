@@ -135,7 +135,6 @@ function walk(vaddr) {
     } else if ((pt_data_low & PTE_T) != 0) {
         // Next level of page table
         ptbr = (pt_data.shiftRightUnsigned(0xD)).shiftLeft(0xD);
-        console.log("BAD BAD BAD WAT");
     } else {
         // The actual pte
         //supposed to be a mem bounds fault check here but ignore for now:
