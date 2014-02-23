@@ -1,15 +1,9 @@
 TODO before release:
 ================
 
-0) Implement Traps / supervisor / syscall / htif
-
-1) Implement VM/MMU
-
-2) Boot Linux
-
 3) Cross-browser testing / note for users
 
-4) Performance Testing / Optimization (minify everything? - https://github.com/mishoo/UglifyJS)
+4) Performance Testing / Optimization 
 
 Chrome profiler: https://developers.google.com/chrome-developer-tools/docs/commandline-api?hl=fr-FR#profilename
 
@@ -18,11 +12,6 @@ Chrome profiler: https://developers.google.com/chrome-developer-tools/docs/comma
     - Support hex immediates
     - Clean out empty lines instead of crashing
     - Support .data directives for users to load data to me
-
-6) UI improvements
-    - More data to user about ELF file
-
-7) Eventually make ANGEL like a web-based MARS for RISCV?
 
 Not being implemented:
 ================
@@ -37,5 +26,10 @@ of closure-library
 
 Milestones / Done:
 ==================
+0) Implement Traps / supervisor / syscall / htif
+
+1) Implement VM/MMU
+
+2) Boot Linux
 
 1) RV64ui-p All Tests Pass

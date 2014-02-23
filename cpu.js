@@ -270,10 +270,9 @@ function CPU(memamt) {
     /* wrapper for instruction fetch, converts Load Addr Misaligned to Instruction
      * Address Misaligned  
      */
-    function load_inst_from_mem(addr, tr) {
+    function load_inst_from_mem(addr) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 2);
         } else {
             addr = addr.getLowBitsUnsigned();
@@ -281,13 +280,9 @@ function CPU(memamt) {
         if ((addr % 4) != 0) {
             throw new RISCVTrap("Instruction Address Misaligned", addr);
         }
-        var retval = 0;
-        retval = retval | this.memory[addr+3] << 24;
-        retval = retval | this.memory[addr+2] << 16;
-        retval = retval | this.memory[addr+1] << 8;
-        retval = retval | this.memory[addr];
-        return retval;
+        return this.memory[addr+3] << 24 | this.memory[addr+2] << 16 | this.memory[addr+1] << 8 | this.memory[addr];
     }
+
 
     this.reset_wall_clock = reset_wall_clock;
     this.store_double_to_mem = store_double_to_mem;

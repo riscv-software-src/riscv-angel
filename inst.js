@@ -99,7 +99,7 @@ function signExtLT32_64(quantity, bit) {
 }
 
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
-function runInstruction(inst, RISCV) {
+function runInstruction(inst) { //, RISCV) {
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = Long.ZERO;
     var op = inst.get_opcode();
