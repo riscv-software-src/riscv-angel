@@ -4,6 +4,10 @@ readTest = [];
 tryCount = 0;
 lastTimeSlot = (new Date()).getTime()/1000;
 
+stopCount = 10000;
+
+lastCharWritten = 0;
+
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
@@ -17,18 +21,34 @@ function elfRunNextInst() {
     }
 
     // handle special cases @ cpu_idle
-    if (signed_to_unsigned(RISCV.pc) == 0x801539fc && readTest.length != 0) {
+    if (signed_to_unsigned(RISCV.pc) == 0x80153e28 && readTest.length != 0) {
+        if (readTest[0]  == 'THIS_IS_ESC') {
+            readTest[0] = String.fromCharCode(0x1b);
+            lastCharWritten = 1;
+        }
+        console.log("consuming: " + readTest[0].charCodeAt(0))
         RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
         var InterruptException = new RISCVTrap("Host interrupt");
         handle_trap(InterruptException);
-    } else if (signed_to_unsigned(RISCV.pc) == 0x801539fc) {
+    } else if (signed_to_unsigned(RISCV.pc) == 0x80153e28) {
         // wait for user input
         tryCount += 1;
     }
-    if (tryCount > 1000) {
+
+
+    if (tryCount == stopCount) {
+        console.log("WAT THIS");
         tryCount = 0;
-        return false;
+        if (lastCharWritten == 0x1) {
+            lastCharWritten = 0x0;
+            console.log("got here for special prep");
+            RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
+            stopCount = 200000;
+        } else {
+            stopCount = 10000;
+            return false;
+        }
     }
 
     // set last PC value for comparison
@@ -62,7 +82,7 @@ function elfRunNextInst() {
             // timer interrupt is enabled
             if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].equals(RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]])) {
                 // set IP bit for timer interrupt
-                //console.log("Handling timer interrupt");
+                console.log("Handling timer interrupt");
                 RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x80000000;
                 var InterruptException = new RISCVTrap("Timer interrupt");
                 handle_trap(InterruptException);
@@ -112,6 +132,8 @@ function elfRunNextInst() {
             if (cmd == 0x0) {
                 // this is read
                 // we don't actually handle them here
+                console.log("read was called");
+                console.log(stringIntHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]))
             } else if (cmd == 0x1) {
                 // this is a write
                postMessage({"type": "t", "d": payload.getLowBits() & 0xFF});

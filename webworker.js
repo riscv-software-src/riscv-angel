@@ -23,7 +23,14 @@ self.addEventListener("message", function (oEvent) {
         runLoop();
     } else if (oEvent.data.type == "u") {
         // copy user input
-        readTest.push(oEvent.data.inp);
+        DAT = oEvent.data.inp;
+        if (DAT == 'THIS_IS_ESC') {
+            readTest.push(DAT);
+        } else {
+            for (var x = 0; x < DAT.length; x++) {
+                readTest.push(DAT.charAt(x));
+            }
+        }
         runLoop();
     }
 }, false);
