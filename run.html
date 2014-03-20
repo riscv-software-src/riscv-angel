@@ -61,7 +61,6 @@ function runWorker() {
             document.getElementById("bar").style.width = (oEvent.data.d*100).toString() + "%";
         } else if (oEvent.data.type == "tr") {
             // handle terminal read
-            alert("READ HAPPENED");
         } else if (oEvent.data.type == "m") {
             // update MIPS counter
             document.getElementById('kernelDown').innerHTML = "Millions of Instructions Per Second";
@@ -85,6 +84,7 @@ function runWorker() {
 
     <div class="row-fluid marketing">
         <div class="span12">
+                        <div id="isNotChromeBox" class="span12"></div>
 
             <div class="tabbable">
                 <ul class="nav nav-tabs">
@@ -499,6 +499,19 @@ term.handler = (function a (indata2) {
 
 });
 
+isChrome = function() { 
+  return /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+}
+
+function destroyChromeBox() {
+    $( "#isNotChromeBox" ).remove()
+}
+
+if (!isChrome()) {
+    document.getElementById("isNotChromeBox").innerHTML += "<div class='alert alert-error'>  <button type='button' class='close' data-dismiss='alert' onclick='destroyChromeBox()'>&times;</button>ANGEL performs optimally on Google Chrome. Users of other browsers may observe severely decreased performance.</div>";
+} else {
+    $( "#isNotChromeBox" ).remove()
+}
 
 // google analytics for riscv.org
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

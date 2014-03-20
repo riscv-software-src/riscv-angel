@@ -12,8 +12,6 @@ lastCharWritten = 0;
 function elfRunNextInst() {
     var instVal;
 
-//    console.log(stringIntHex(RISCV.pc));
-
     if (!(RISCV.instcount & 0xFFFFF)) {
         var ctime = (new Date()).getTime()/1000;
         postMessage({"type": "m", "d": 1.048576 / (ctime - lastTimeSlot)});
@@ -26,7 +24,6 @@ function elfRunNextInst() {
             readTest[0] = String.fromCharCode(0x1b);
             lastCharWritten = 1;
         }
-        console.log("consuming: " + readTest[0].charCodeAt(0))
         RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
         var InterruptException = new RISCVTrap("Host interrupt");
@@ -38,11 +35,9 @@ function elfRunNextInst() {
 
 
     if (tryCount == stopCount) {
-        console.log("WAT THIS");
         tryCount = 0;
         if (lastCharWritten == 0x1) {
             lastCharWritten = 0x0;
-            console.log("got here for special prep");
             RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
             stopCount = 200000;
         } else {
@@ -82,7 +77,6 @@ function elfRunNextInst() {
             // timer interrupt is enabled
             if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].equals(RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]])) {
                 // set IP bit for timer interrupt
-                console.log("Handling timer interrupt");
                 RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x80000000;
                 var InterruptException = new RISCVTrap("Timer interrupt");
                 handle_trap(InterruptException);
@@ -132,8 +126,6 @@ function elfRunNextInst() {
             if (cmd == 0x0) {
                 // this is read
                 // we don't actually handle them here
-                console.log("read was called");
-                console.log(stringIntHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]))
             } else if (cmd == 0x1) {
                 // this is a write
                postMessage({"type": "t", "d": payload.getLowBits() & 0xFF});
