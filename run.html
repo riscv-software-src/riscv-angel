@@ -93,7 +93,7 @@ function runWorker() {
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
                         <div id="buttonbox" class="span12" style="height: 50px;"><div class="span4">
-                                <a id="bootButton" class="btn btn-medium btn-success" onclick="runWorker(); $('#consoleBox').focus();">Boot Linux</a> <input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal   </div>
+                                <a id="bootButton" class="btn btn-medium btn-success" onclick="runWorker(); $('.terminal').focus();">Boot Linux</a> <input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal   </div>
 
 
                             <div class="span3" id="kernelDown" align="right">Kernel download progress: </div>
@@ -109,13 +109,6 @@ function runWorker() {
         
         
                     <div id="consoleBox" tabindex="1" class="consBoxNoGlow"   style="padding:5px; height:700px; background-color:black; overflow: auto; color:white; font-size:110%; font-family: Monaco, Consolas, Lucida Console, monospace;"    >
-
-        <div id="newTermDiv"></div> 
-
-        
-
-            <div id="console"></div>
-
 
 
             </div>
