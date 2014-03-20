@@ -19,7 +19,7 @@ function elfRunNextInst() {
     }
 
     // handle special cases @ cpu_idle
-    if (signed_to_unsigned(RISCV.pc) == 0x80153e28 && readTest.length != 0) {
+    if (signed_to_unsigned(RISCV.pc) == 0x80152b58 && readTest.length != 0) {
         if (readTest[0]  == 'THIS_IS_ESC') {
             readTest[0] = String.fromCharCode(0x1b);
             lastCharWritten = 1;
@@ -28,7 +28,7 @@ function elfRunNextInst() {
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
         var InterruptException = new RISCVTrap("Host interrupt");
         handle_trap(InterruptException);
-    } else if (signed_to_unsigned(RISCV.pc) == 0x80153e28) {
+    } else if (signed_to_unsigned(RISCV.pc) == 0x80152b58) {
         // wait for user input
         tryCount += 1;
     }

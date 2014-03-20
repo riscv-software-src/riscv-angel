@@ -108,7 +108,7 @@ function runWorker() {
                     <br>
         
         
-                    <div id="consoleBox" tabindex="1" class="consBoxNoGlow" style="padding:5px; height:700px; background-color:black; overflow: auto; color:white; font-size:110%; font-family: Monaco, Consolas, Lucida Console, monospace;">
+                    <div id="consoleBox" tabindex="1" class="consBoxNoGlow"   style="padding:5px; height:700px; background-color:black; overflow: auto; color:white; font-size:110%; font-family: Monaco, Consolas, Lucida Console, monospace;"    >
 
         <div id="newTermDiv"></div> 
 
@@ -428,46 +428,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
         $('#regLabel').toggle();
         $('#regLabelAlt').toggle();
     });
-/*
-    flashConsoleCursor(); // start flashing console
 
-    insertsSinceEnter = 0;
-    $("#consoleBox").bind('keypress', function(event) {
-        if (event.keyCode == 13) {
-            //user hit enter
-            forceConsoleDivDown();
-            myWorker.postMessage({"type": "r"});
-        } else if (event.keyCode == 32) {
-            //user hit space
-            myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
-        } else {
-            myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
-        }
-        //console.log(event.keyCode);
-        event.preventDefault();
-    });
-*/
-    /*
-// special backspace handling
-$(document).unbind('keydown').bind('keydown', function (event) {
-    var doPrevent = false;
-    if (event.keyCode === 8) {
-        var d = event.srcElement || event.target;
-        if ((d.tagName.toUpperCase() === 'INPUT' && (d.type.toUpperCase() === 'TEXT' || d.type.toUpperCase() === 'PASSWORD' || d.type.toUpperCase() === 'FILE')) 
-             || d.tagName.toUpperCase() === 'TEXTAREA') {
-            doPrevent = d.readOnly || d.disabled;
-        }
-        else {
-            doPrevent = true;
-        }
-    }
-
-    if (doPrevent) {
-        event.preventDefault();
-myWorker.postMessage({"type": "u", "inp": String.fromCharCode(event.keyCode)});
-    }
-});
-*/
 $(function() {
    $('#consoleBox').focus();
 });
@@ -483,6 +444,8 @@ $(function() {
 term = new Terminal({
                     cols: 129,
                     rows: 35,
+                    cursorBlink: true,
+                    useStyle: true,
                      } );
 
 //term.parent = "consoleBox";
@@ -490,13 +453,7 @@ term.open(document.getElementById("consoleBox"));
 
 
 term.handler = (function a (indata2) {
-    console.log(indata2.length)
-//    for (var x = 0; x < indata2.length; x++) {
-        console.log(indata2);
-        myWorker.postMessage({"type": "u", "inp": indata2});
-//    }
-//    myWorker.postMessage({"type": "u", "inp": indata2});
-
+    myWorker.postMessage({"type": "u", "inp": indata2});
 });
 
 isChrome = function() { 
