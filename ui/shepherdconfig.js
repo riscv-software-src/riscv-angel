@@ -14,15 +14,22 @@
     });
     shepherd.addStep('welcome', {
       title: '<strong>Welcome to ANGEL!</strong>',
-      text: ['ANGEL is a JavaScript simulator for the <a href="http://riscv.org">RISC-V architecture</a> <br>that boots <a href="http://github.com/ucb-bar/riscv-linux">Linux</a> inside your browser.', 'Click Next for a tour or hit Exit to use ANGEL immediately'],
+      text: ['ANGEL is a JavaScript simulator for the <a href="http://riscv.org">RISC-V architecture</a> <br>that boots <a href="http://github.com/ucb-bar/riscv-linux">Linux</a> inside your browser.', 'Click Next for a tour or hit Close to use ANGEL immediately'],
       attachTo: '#ANGELtitle bottom',
       classes: 'shepherd shepherd-open shepherd-theme-arrows shepherd-transparent-text',
       buttons: [
         {
-          text: 'Exit',
+          text: 'Close',
           classes: 'shepherd-button-secondary',
           action: function() {
             completeShepherd();
+
+            term.open(document.getElementById("consoleBox"));
+            term.handler = (function a (indata2) {
+                myWorker.postMessage({"type": "u", "inp": indata2});
+            });
+
+
             return shepherd.hide();
           }
         }, {
@@ -60,6 +67,15 @@
           text: 'Close',
           action: function() {
             completeShepherd();
+
+            term.open(document.getElementById("consoleBox"));
+            term.handler = (function a (indata2) {
+                myWorker.postMessage({"type": "u", "inp": indata2});
+            });
+
+
+
+
             return shepherd.next();
           }
 

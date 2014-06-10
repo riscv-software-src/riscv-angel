@@ -108,7 +108,7 @@ function runWorker() {
                     <br>
         
         
-                    <div id="consoleBox" tabindex="1" class="consBoxNoGlow"   style="padding:5px; height:700px; background-color:black; overflow: auto; color:white; font-size:110%; font-family: Monaco, Consolas, Lucida Console, monospace;"    >
+                    <div id="consoleBox" tabindex="1" class="consBoxNoGlow"   style="padding:5px; height:700px; background-color:black; overflow: hidden; color:white; font-size:110%; font-family: Monaco, Consolas, Lucida Console, monospace;"    >
 
 
             </div>
@@ -442,12 +442,12 @@ term = new Terminal({
                      } );
 
 //term.parent = "consoleBox";
-term.open(document.getElementById("consoleBox"));
+//term.open(document.getElementById("consoleBox"));
 
 
-term.handler = (function a (indata2) {
-    myWorker.postMessage({"type": "u", "inp": indata2});
-});
+//term.handler = (function a (indata2) {
+//    myWorker.postMessage({"type": "u", "inp": indata2});
+//});
 
 isChrome = function() { 
   return /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
