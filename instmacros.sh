@@ -10,3 +10,14 @@ sed 's/inst.get_S_imm()/(((raw >> 20) \& 0xFFFFFFE0) | ((raw >>> 7) \& 0x0000001
 sed 's/inst.get_B_imm()/(((((raw >> 20) \& 0xFFFFFFE0) | ((raw >>> 7) \& 0x0000001F)) \& 0xFFFFF7FE) | ((   (((raw >> 20) \& 0xFFFFFFE0) | ((raw >>> 7) \& 0x0000001F))           \& 0x00000001) << 11))/g' -i inst.js
 sed 's/inst.get_U_imm()/((raw \& 0xFFFFF000))/g' -i inst.js
 sed 's/inst.get_J_imm()/(((raw >> 20) \& 0xFFF007FE) | ((raw >>> 9) \& 0x00000800) | (raw \& 0x000FF000))/g' -i inst.js
+
+
+echo '0a
+//################################################################################
+//# DO NOT MODIFY THIS FILE, CHANGES WILL BE OVERWRITTEN                         #
+//# DO NOT MODIFY THIS FILE, CHANGES WILL BE OVERWRITTEN                         #
+//# DO NOT MODIFY THIS FILE, CHANGES WILL BE OVERWRITTEN                         #
+//# DO NOT MODIFY THIS FILE, CHANGES WILL BE OVERWRITTEN                         #
+//################################################################################
+.
+w' | ed inst.js
