@@ -85,43 +85,17 @@ function elfRunNextInst() {
 
     }
 
-
-    // [todo] - register syscall handler
-
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
     if (!toHostVal.isZero()){
         //console.log("Output on toHost:");
         //console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
 
-        // now on every run, we need to check to see if a syscall is happening
         // check device / cmd
         var device = (toHostVal.getHighBits() >> 24) & 0xFF;
         var cmd = (toHostVal.getHighBits() >> 16) & 0xFF;
         var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
-        if (device == 0x0) {
-            // this is a syscall
-            // this is for normal syscalls (not testing)
-            if (cmd == 0x0) {
-                handle_syscall(payload);
-            } else if (cmd == 0xFF) {
-
-                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
-                var what = payload.getLowBits() & 0xFF;
-
-                if (what == 0xFF) {
-                    var toWrite = "syscall_proxy";
-                }
-                if (what == 0x0) {
-                    var toWrite = "syscall";
-                } 
-                for (var i = 0; i < toWrite.length; i++) {
-                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
-                }
-                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
-                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
-            }
-        } else if (device == 0x1) {
+        if (device == 0x1) {
             // terminal, but ignore the enumeration
             if (cmd == 0x0) {
                 // this is read
