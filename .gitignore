@@ -2,3 +2,4 @@
 compileserver/binaries/*
 compileserver/gccresults/*
 compileserver/objdumpresults/*
+inst.js
