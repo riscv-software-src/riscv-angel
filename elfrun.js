@@ -12,9 +12,9 @@ lastCharWritten = 0;
 function elfRunNextInst() {
     var instVal;
 
-    if (!(RISCV.instcount & 0xFFFFF)) {
+    if (!(RISCV.instcount & 0x1FFFFF)) {
         var ctime = (new Date()).getTime()/1000;
-        postMessage({"type": "m", "d": 1.048576 / (ctime - lastTimeSlot)});
+        postMessage({"type": "m", "d": 2.097151 / (ctime - lastTimeSlot)});
         lastTimeSlot = ctime;
     }
 
@@ -49,26 +49,27 @@ function elfRunNextInst() {
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
     
-    try {
-        //instVal = RISCV.load_inst_from_mem(signExtLT32_64(RISCV.pc, 31));
-        instVal = RISCV.load_inst_from_mem(new Long(RISCV.pc, RISCV.pc >> 31));//            signExtLT32_64(RISCV.pc, 31));
-        //var inst = new instruction(instVal);
+    instVal = RISCV.load_inst_from_mem(new Long(RISCV.pc, RISCV.pc >> 31));//            signExtLT32_64(RISCV.pc, 31));
+    if (RISCV.excpTrigg) {
+        // do nothing
+    } else {
         runInstruction(instVal); // , RISCV);
-    } catch(e) {
-        // trap handling
-        if (e.e_type === "RISCVTrap") {
-            if (e.message === "Floating-Point Disabled") {
-                // do nothing
-                //console.log("ignoring FP instruction at: " + stringIntHex(RISCV.pc));
-                RISCV.pc += 4;
-            } else {
-                //console.log("HANDLING TRAP: " + e.message);
-                handle_trap(e);
-            }
-        } else {
-            throw e;
-        }
     }
+    // trap handling
+    if (RISCV.excpTrigg) {
+        if (RISCV.excpTrigg.message === "Floating-Point Disabled") {
+            // do nothing
+            //console.log("ignoring FP instruction at: " + stringIntHex(RISCV.pc));
+            RISCV.pc += 4;
+            RISCV.excpTrigg = undefined;
+        } else {
+            //console.log("HANDLING TRAP: " + e.message);
+            var e = RISCV.excpTrigg;
+            RISCV.excpTrigg = undefined;
+            handle_trap(e);
+        }
+    } 
+
 
     // handle interrupts here. DO NOT put this in inst.js (exceptions will break interrupts)
     if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {

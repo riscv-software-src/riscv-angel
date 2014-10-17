@@ -92,12 +92,16 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
 
         if ((addr % 8) != 0) {
-            throw new RISCVTrap("Store Address Misaligned", addr);
+            RISCV.excpTrigg = new RISCVTrap("Store Address Misaligned", addr);
+            return;
         }
 
         var lowbits = val.getLowBits()|0;
@@ -118,13 +122,17 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
 
 
         if ((addr % 4) != 0) {
-            throw new RISCVTrap("Store Address Misaligned", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
+            return;
         }
         this.memory[addr] = (val) & 0xFF;
         this.memory[addr+1] = (val >>> 8) & 0xFF;
@@ -137,13 +145,17 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
 
 
         if ((addr % 2) != 0) {
-            throw new RISCVTrap("Store Address Misaligned", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
+            return;
         }
         this.memory[addr] = val & 0xFF;
         this.memory[addr+1] = (val >>> 8) & 0xFF;
@@ -154,6 +166,9 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 1);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
@@ -165,13 +180,17 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+            if (RISCV.excpTrigg){
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
 
 
         if ((addr % 8) != 0) {
-            throw new RISCVTrap("Load Address Misaligned", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
+            return;
         }
         var retvalhigh = 0;
         var retvallow = 0;
@@ -191,13 +210,17 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
 
 
         if ((addr % 4) != 0) {
-            throw new RISCVTrap("Load Address Misaligned", addr);
+            RISCV.excpTrigg = new RISCVTrap("Load Address Misaligned", addr);
+            return;
         }
         var retval = 0;
         retval = retval | this.memory[addr+3] << 24;
@@ -212,13 +235,16 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
 
 
         if ((addr % 2) != 0) {
-            throw new RISCVTrap("Load Address Misaligned", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
         }
         var retval = 0;
         retval = retval | this.memory[addr+1] << 8;
@@ -231,6 +257,9 @@ function CPU(memamt) {
         tr = typeof tr !== 'undefined' ? tr : vmOn; 
         if (tr) { 
             addr = translate(addr, 0);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
@@ -276,11 +305,15 @@ function CPU(memamt) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         if (vmOn) { 
             addr = translate(addr, 2);
+            if (RISCV.excpTrigg) {
+                return;
+            }
         } else {
             addr = addr.getLowBitsUnsigned();
         }
         if ((addr % 4) != 0) {
-            throw new RISCVTrap("Instruction Address Misaligned", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Instruction Address Misaligned", addr);
+            return;
         }
         return this.memory[addr+3] << 24 | this.memory[addr+2] << 16 | this.memory[addr+1] << 8 | this.memory[addr];
     }

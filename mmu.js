@@ -56,11 +56,11 @@ function translate(addr, access_type) {
             return paddr;
         }
         if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
-            throw new RISCVTrap("Instruction Access Fault", addr);
+            RISCV.excpTrigg = new RISCVTrap("Instruction Access Fault", addr);
         } else if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
-            throw new RISCVTrap("Load Access Fault", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
         } else if (access_type == CONSTS.WRITE && !(pte & PTE_SW)) {
-            throw new RISCVTrap("Store Access Fault", addr);
+            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
         } 
     } else { 
         if (access_type == CONSTS.EXEC && (pte & PTE_UX)) {
@@ -68,11 +68,11 @@ function translate(addr, access_type) {
             return paddr;
         }
         if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
-            throw new RISCVTrap("Instruction Access Fault", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Instruction Access Fault", addr);
         } else if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
-            throw new RISCVTrap("Load Access Fault", addr);
+            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
         } else if (access_type == CONSTS.WRITE && !(pte & PTE_UW)) {
-            throw new RISCVTrap("Store Access Fault", addr);
+            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
         }
     }
 
