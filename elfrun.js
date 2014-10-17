@@ -52,8 +52,8 @@ function elfRunNextInst() {
     try {
         //instVal = RISCV.load_inst_from_mem(signExtLT32_64(RISCV.pc, 31));
         instVal = RISCV.load_inst_from_mem(new Long(RISCV.pc, RISCV.pc >> 31));//            signExtLT32_64(RISCV.pc, 31));
-        var inst = new instruction(instVal);
-        runInstruction(inst); // , RISCV);
+        //var inst = new instruction(instVal);
+        runInstruction(instVal); // , RISCV);
     } catch(e) {
         // trap handling
         if (e.e_type === "RISCVTrap") {
