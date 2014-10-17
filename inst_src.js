@@ -526,65 +526,89 @@ function runInstruction(raw) { //, RISCV) {
                 // LB
                 case 0x0:
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_byte_from_mem(addr), 7);
+                    var fetch = RISCV.load_byte_from_mem(addr);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(fetch, 7);
                     RISCV.pc += 4;
                     break;
 
                 // LH
                 case 0x1:
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_half_from_mem(addr), 15);
+                    var fetch = RISCV.load_half_from_mem(addr);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
+
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(fetch, 15);
                     RISCV.pc += 4;
                     break;
 
                 // LW
                 case 0x2:
-
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var fetch = RISCV.load_word_from_mem(addr);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
 
 
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.load_word_from_mem(addr), 31);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(fetch, 31);
                     RISCV.pc += 4;
                     break;
 
                 // LD 
                 case 0x3:
-
-
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var fetch = RISCV.load_double_from_mem(addr)
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
 
 
                     // unlike load_half/byte/word_from_mem, double returns Long
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.load_double_from_mem(addr);
+                    RISCV.gen_reg[inst.get_rd()] = fetch;
                     RISCV.pc += 4;
                     break;
 
                 // LBU
                 case 0x4:
-
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var fetch = RISCV.load_byte_from_mem(addr);
 
-                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.load_byte_from_mem(addr) & 0x000000FF, 0x0);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
+
+                    RISCV.gen_reg[inst.get_rd()] = new Long(fetch & 0x000000FF, 0x0);
                     RISCV.pc += 4;
                     break;
 
                 // LHU
                 case 0x5:
-
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var fetch = RISCV.load_half_from_mem(addr);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
 
 
-                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.load_half_from_mem(addr) & 0x0000FFFF, 0x0);
+                    RISCV.gen_reg[inst.get_rd()] = new Long(fetch & 0x0000FFFF, 0x0);
                     RISCV.pc += 4;
                     break;
 
                 // LWU
                 case 0x6:
-
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var fetch = RISCV.load_word_from_mem(addr);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
 
 
-                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.load_word_from_mem(addr), 0x0);
+                    RISCV.gen_reg[inst.get_rd()] = new Long(fetch, 0x0);
                     RISCV.pc += 4;
                     break;
 

@@ -14,6 +14,8 @@ function CPU(memamt) {
     memamt *= 1048576 // convert to Bytes
     this.memory = new Uint8Array(memamt);
 
+    this.excpTrigg = undefined
+
     // PC, defaults to 0x2000 according to the ISA, documented in 
     // processor.cc
     // Even in RV64, this must remain as a Number (not a Long) because
