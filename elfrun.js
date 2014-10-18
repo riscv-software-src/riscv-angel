@@ -19,7 +19,7 @@ function elfRunNextInst() {
     }
 
     // handle special cases @ cpu_idle
-    if (signed_to_unsigned(RISCV.pc) == 0x80152b58 && readTest.length != 0) {
+    if (RISCV.pc == (0x80152b58|0) && readTest.length != 0) {
         if (readTest[0]  == 'THIS_IS_ESC') {
             readTest[0] = String.fromCharCode(0x1b);
             lastCharWritten = 1;
@@ -28,7 +28,7 @@ function elfRunNextInst() {
         RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
         var InterruptException = new RISCVTrap("Host interrupt");
         handle_trap(InterruptException);
-    } else if (signed_to_unsigned(RISCV.pc) == 0x80152b58) {
+    } else if (RISCV.pc == (0x80152b58|0)) {
         // wait for user input
         tryCount += 1;
         if (tryCount == stopCount) {
@@ -85,78 +85,6 @@ function elfRunNextInst() {
 
     }
 
-    var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
-    // check toHost, output to JS console, clear it
-    if (toHostVal.high_ != 0 || toHostVal.low_ != 0){
-        //console.log("Output on toHost:");
-        //console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
-
-        // check device / cmd
-        var device = (toHostVal.getHighBits() >> 24) & 0xFF;
-        var cmd = (toHostVal.getHighBits() >> 16) & 0xFF;
-        var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
-        if (device == 0x1) {
-            // terminal, but ignore the enumeration
-            if (cmd == 0x0) {
-                // this is read
-                // we don't actually handle them here
-            } else if (cmd == 0x1) {
-                // this is a write
-               postMessage({"type": "t", "d": payload.getLowBits() & 0xFF});
-            } else if (cmd == 0xFF) {
-               // write "bcd" (block character device) to pbuf here
-                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
-                var what = payload.getLowBits() & 0xFF;
-
-                if (what == 0xFF) {
-                    var toWrite = "bcd";
-                }
-                if (what == 0x0) {
-                    var toWrite = "read";
-                } 
-                if (what == 0x1) {
-                    var toWrite = "write";
-                }
-
-                for (var i = 0; i < toWrite.length; i++) {
-                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
-                }
-                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
-
-                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
-            } else {
-               throw new RISCVError("Other term features not yet implemented " + stringIntHex(cmd)); 
-            } 
-        } else if (cmd == 0xFF) {
-            // try to override enumeration
-            //if (device == 0x0) {
-            //    // need to write "bcd" to pbuf here
-
-                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
-                var what = payload.getLowBits() & 0xFF;
-
-                if (what == 0xFF) {
-                    var toWrite = "";
-                }
-                for (var i = 0; i < toWrite.length; i++) {
-                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
-                }
-                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
-
-                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
-
-        } else {
-            // unknown device, crash
-            console.log("device " + stringIntHex(device));
-            console.log("cmd " + stringIntHex(cmd));
-            console.log("payload " + stringIntHex(payload));
-            console.log("current PC " + stringIntHex(RISCV.pc));
-            console.log("last PC " + stringIntHex(RISCV.oldpc));
-            throw new RISCVError("unknown device/command combo");
-        }
-
-        RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = Long.ZERO;
-    } 
     return true;
    
 }

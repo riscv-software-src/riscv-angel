@@ -46,8 +46,8 @@ function translate(addr, access_type) {
         TLB[origaddrVPN] = pte;
     }
 
-   paddr = (pte & 0xFFFFE000) | (origaddr & 0x1FFF);
-   var mode = RISCV.priv_reg[0x50A];
+    paddr = (pte & 0xFFFFE000) | (origaddr & 0x1FFF);
+    var mode = RISCV.priv_reg[0x50A];
 
     // permissions check
     if (mode & 0x1) {

@@ -1,3 +1,81 @@
+function check_HTIF() {
+    var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
+    // check toHost, output to JS console, clear it
+    if (toHostVal.high_ != 0 || toHostVal.low_ != 0){
+        //console.log("Output on toHost:");
+        //console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
+
+        // check device / cmd
+        var device = (toHostVal.getHighBits() >> 24) & 0xFF;
+        var cmd = (toHostVal.getHighBits() >> 16) & 0xFF;
+        var payload = new Long(toHostVal.getLowBits(), toHostVal.getHighBits() & 0xFFFF);
+        if (device == 0x1) {
+            // terminal, but ignore the enumeration
+            if (cmd == 0x0) {
+                // this is read
+                // we don't actually handle them here
+            } else if (cmd == 0x1) {
+                // this is a write
+               postMessage({"type": "t", "d": payload.getLowBits() & 0xFF});
+            } else if (cmd == 0xFF) {
+               // write "bcd" (block character device) to pbuf here
+                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
+                var what = payload.getLowBits() & 0xFF;
+
+                if (what == 0xFF) {
+                    var toWrite = "bcd";
+                }
+                if (what == 0x0) {
+                    var toWrite = "read";
+                } 
+                if (what == 0x1) {
+                    var toWrite = "write";
+                }
+
+                for (var i = 0; i < toWrite.length; i++) {
+                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
+                }
+                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
+
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
+            } else {
+               throw new RISCVError("Other term features not yet implemented " + stringIntHex(cmd)); 
+            } 
+        } else if (cmd == 0xFF) {
+            // try to override enumeration
+            //if (device == 0x0) {
+            //    // need to write "bcd" to pbuf here
+
+                var addr = payload.shiftRightUnsigned(8); // hardcoded from log2(MAX_COMMANDS [256])
+                var what = payload.getLowBits() & 0xFF;
+
+                if (what == 0xFF) {
+                    var toWrite = "";
+                }
+                for (var i = 0; i < toWrite.length; i++) {
+                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
+                }
+                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
+
+                RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
+
+        } else {
+            // unknown device, crash
+            console.log("device " + stringIntHex(device));
+            console.log("cmd " + stringIntHex(cmd));
+            console.log("payload " + stringIntHex(payload));
+            console.log("current PC " + stringIntHex(RISCV.pc));
+            console.log("last PC " + stringIntHex(RISCV.oldpc));
+            throw new RISCVError("unknown device/command combo");
+        }
+
+        RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]] = Long.ZERO;
+    }
+}
+
+
+
+
 // "sign extend" the quantity based on bit
 // quantity will be a 32 bit quantity that was zero extended by default 
 function signExt(quantity, bit) {
@@ -810,6 +888,8 @@ function runInstruction(raw) { //, RISCV) {
  //                               console.log("Current ASID is " + stringIntHex(RISCV.priv_reg[PCR["CSR_ASID"]["num"]]));
                             }
                             RISCV.pc += 4;
+                            // if toHost is written, do stuff:
+                            check_HTIF();
                             break;
 
                         // CSRRS
@@ -831,6 +911,9 @@ function runInstruction(raw) { //, RISCV) {
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;
+                            // if toHost is written, do stuff:
+                            check_HTIF();
+
                             break;
 
                         // CSRRC
@@ -846,6 +929,9 @@ function runInstruction(raw) { //, RISCV) {
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;
+                            // if toHost is written, do stuff:
+                            check_HTIF();
+
                             break;
 
                         // CSRRWI
@@ -868,6 +954,9 @@ function runInstruction(raw) { //, RISCV) {
 //                                console.log("Value written to FATC is " + stringIntHex(tempbak));
                             }
                             RISCV.pc += 4;
+                            // if toHost is written, do stuff:
+                            check_HTIF();
+
                             break;
 
                         // CSRRSI
@@ -883,6 +972,9 @@ function runInstruction(raw) { //, RISCV) {
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;
+                            // if toHost is written, do stuff:
+                            check_HTIF();
+
                             break;
 
                         // CSRRCI
@@ -898,6 +990,9 @@ function runInstruction(raw) { //, RISCV) {
                             }
                             RISCV.set_pcr(inst.get_CSR_imm(), temp);
                             RISCV.pc += 4;
+                            // if toHost is written, do stuff:
+                            check_HTIF();
+
                             break;
 
 
