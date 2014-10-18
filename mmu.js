@@ -13,8 +13,8 @@ var PTE_SW = 0x80;
 var PTE_SX = 0x100;
 
 // [todo] - simple TLB (try just a dictionary)
-
-var TLB = [];
+var TLBSIZE = 524288;
+var TLB = new Uint32Array(TLBSIZE);
 //var TLBON = true;
 
 //var TLBcount = 0;
@@ -25,13 +25,12 @@ var TLB = [];
 // addr MUST BE A LONG
 function translate(addr, access_type) {
     //Totcount += 1;
-    if ((addr.getLowBitsUnsigned() & 0xFF000000) == 0x55000000) {
-        addr = new Long(addr.getLowBitsUnsigned(), 0x155);
+    var origaddr = addr.getLowBitsUnsigned();
+    if ((origaddr & 0xFF000000) == 0x55000000) {
+        addr = new Long(origaddr, 0x155);
     }
 
-    var origaddr = addr.getLowBitsUnsigned();
     var origaddrVPN = origaddr >>> 13;
-
     var pte;
     var paddr;
     var pgoff;
