@@ -19,34 +19,36 @@ function elfRunNextInst() {
     }
 
     // handle special cases @ cpu_idle
-    if (RISCV.pc == (0x80152b58|0) && readTest.length != 0) {
-        if (readTest[0]  == 'THIS_IS_ESC') {
-            readTest[0] = String.fromCharCode(0x1b);
-            lastCharWritten = 1;
-        }
-        RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
-        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
-        var InterruptException = new RISCVTrap("Host interrupt");
-        handle_trap(InterruptException);
-    } else if (RISCV.pc == (0x80152b58|0)) {
-        // wait for user input
-        tryCount += 1;
-        if (tryCount == stopCount) {
-            tryCount = 0;
-            if (lastCharWritten == 0x1) {
-                lastCharWritten = 0x0;
-                RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
-                stopCount = 200000;
-            } else {
-                stopCount = 10000;
-                return false;
+    if (RISCV.pc == (0x80152b58|0)) {
+        if (readTest.length != 0) {
+            if (readTest[0]  == 'THIS_IS_ESC') {
+                readTest[0] = String.fromCharCode(0x1b);
+                lastCharWritten = 1;
+            }
+            RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = new Long(0x100 | (readTest.shift().charCodeAt(0) & 0xFF), 0x01000000);
+            RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x40000000;
+            var InterruptException = new RISCVTrap("Host interrupt");
+            handle_trap(InterruptException);
+        } else {
+            // wait for user input
+            tryCount += 1;
+            if (tryCount == stopCount) {
+                tryCount = 0;
+                if (lastCharWritten == 0x1) {
+                    lastCharWritten = 0x0;
+                    RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
+                    stopCount = 200000;
+                } else {
+                    stopCount = 10000;
+                    return false;
+                }
             }
         }
     }
 
 
     // set last PC value for comparison
-    RISCV.oldpc = RISCV.pc;
+    //RISCV.oldpc = RISCV.pc;
     
     instVal = RISCV.load_inst_from_mem(new Long(RISCV.pc, RISCV.pc >> 31));//            signExtLT32_64(RISCV.pc, 31));
     if (RISCV.excpTrigg) {
