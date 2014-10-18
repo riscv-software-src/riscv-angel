@@ -302,7 +302,7 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
+        var vmOn = ((this.priv_reg[0x50A] & 0x80));
         if (vmOn) { 
             addr = translate(addr, 2);
             if (RISCV.excpTrigg) {

@@ -31,20 +31,19 @@ function elfRunNextInst() {
     } else if (signed_to_unsigned(RISCV.pc) == 0x80152b58) {
         // wait for user input
         tryCount += 1;
-    }
-
-
-    if (tryCount == stopCount) {
-        tryCount = 0;
-        if (lastCharWritten == 0x1) {
-            lastCharWritten = 0x0;
-            RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
-            stopCount = 200000;
-        } else {
-            stopCount = 10000;
-            return false;
+        if (tryCount == stopCount) {
+            tryCount = 0;
+            if (lastCharWritten == 0x1) {
+                lastCharWritten = 0x0;
+                RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
+                stopCount = 200000;
+            } else {
+                stopCount = 10000;
+                return false;
+            }
         }
     }
+
 
     // set last PC value for comparison
     RISCV.oldpc = RISCV.pc;
@@ -88,7 +87,7 @@ function elfRunNextInst() {
 
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
-    if (!toHostVal.isZero()){
+    if (toHostVal.high_ != 0 || toHostVal.low_ != 0){
         //console.log("Output on toHost:");
         //console.log(stringLongHex(RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]]));
 

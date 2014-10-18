@@ -31,25 +31,27 @@ function translate(addr, access_type) {
 
     var origaddr = addr.getLowBitsUnsigned();
     var origaddrVPN = origaddr >>> 13;
-    if (TLB[origaddrVPN] != undefined) {
+
+    var pte;
+    var paddr;
+    var pgoff;
+    var pgbase;
+
+    if (TLB[origaddrVPN]) {
         // return value from TLB
         //TLBcount += 1;
-        var pte = TLB[origaddrVPN][0];
-        var paddr = TLB[origaddrVPN][1] | (origaddr & 0x1FFF);
+        pte = TLB[origaddrVPN];
     } else {
         //NONcount += 1;
-        var pte = walk(addr);
-        var pgoff = origaddr & 0x1FFF;
-        var pgbase = pte.getLowBitsUnsigned() & 0xFFFFE000;
-        var paddr = pgbase | pgoff;
-        pte = pte.getLowBits();
-        TLB[origaddrVPN] = [pte, pgbase];
+        pte = walk(addr).getLowBitsUnsigned();
+        TLB[origaddrVPN] = pte;
     }
 
-    var mode = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]];
+   paddr = (pte & 0xFFFFE000) | (origaddr & 0x1FFF);
+   var mode = RISCV.priv_reg[0x50A];
 
     // permissions check
-    if (mode & SR["SR_S"] != 0) {
+    if (mode & 0x1) {
         // we are in supervisor mode
         if (access_type == CONSTS.EXEC && (pte & PTE_SX)) {
             // "short" the fastest path (valid instruction)

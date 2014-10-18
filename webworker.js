@@ -58,9 +58,7 @@ function handle_file_continue(filesList) {
 }
 
 function runLoop() {
-    cont = true;
-    while(cont){
-        cont = elfRunNextInst();
+    while(elfRunNextInst()){
     }
 }
 
