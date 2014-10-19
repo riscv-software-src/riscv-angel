@@ -96,10 +96,19 @@ function check_HTIF() {
     }
 }
 
-// "sign extend" the quantity based on bit
+// "sign extend" the quantity based on bit, this version ignores bit
 // input is a 32 bit quantity (as a standard javascript Number)
 // output is a 64 bit Long, correctly sign extended
 function signExtLT32_64(quantity, bit) {
+    // THIS IGNORES BIT
+    if (quantity & 0x80000000) {
+        return new Long(quantity|0, 0xFFFFFFFF);
+    } else {
+        return new Long(quantity|0, 0x0);
+    }
+}
+
+function signExtLT32_64_v(quantity, bit) {
     // bits numbered 31, 30, .... 2, 1, 0
     bitval = ((quantity|0) >> bit) & 0x00000001;
     if (bitval === 0) {
@@ -112,6 +121,7 @@ function signExtLT32_64(quantity, bit) {
         throw new RISCVError("ERR in signext");
     }
 }
+
 
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(raw) { //, RISCV) {
@@ -612,7 +622,7 @@ function runInstruction(raw) { //, RISCV) {
                     if (RISCV.excpTrigg) {
                         return;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(fetch, 7);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64_v(fetch, 7);
                     RISCV.pc += 4;
                     break;
 
@@ -624,7 +634,7 @@ function runInstruction(raw) { //, RISCV) {
                         return;
                     }
 
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(fetch, 15);
+                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64_v(fetch, 15);
                     RISCV.pc += 4;
                     break;
 
