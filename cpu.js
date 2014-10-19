@@ -99,7 +99,7 @@ function CPU(memamt) {
             addr = addr.getLowBitsUnsigned();
         }
 
-        if ((addr % 8) != 0) {
+        if (addr & 0x7) {
             RISCV.excpTrigg = new RISCVTrap("Store Address Misaligned", addr);
             return;
         }
@@ -130,7 +130,7 @@ function CPU(memamt) {
         }
 
 
-        if ((addr % 4) != 0) {
+        if (addr & 0x3) {
             RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
             return;
         }
@@ -153,7 +153,7 @@ function CPU(memamt) {
         }
 
 
-        if ((addr % 2) != 0) {
+        if (addr & 0x1) {
             RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
             return;
         }
@@ -188,7 +188,7 @@ function CPU(memamt) {
         }
 
 
-        if ((addr % 8) != 0) {
+        if (addr & 0x7) {
             RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
             return;
         }
@@ -218,7 +218,7 @@ function CPU(memamt) {
         }
 
 
-        if ((addr % 4) != 0) {
+        if (addr & 0x3) {
             RISCV.excpTrigg = new RISCVTrap("Load Address Misaligned", addr);
             return;
         }
@@ -243,7 +243,7 @@ function CPU(memamt) {
         }
 
 
-        if ((addr % 2) != 0) {
+        if (addr & 0x1) {
             RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
         }
         var retval = 0;
@@ -311,10 +311,12 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-        if ((addr % 4) != 0) {
+        /* UNSAFE when removed
+        if (addr & 0x3) {
             RISCV.excpTrigg =  new RISCVTrap("Instruction Address Misaligned", addr);
             return;
         }
+        */
         return this.memory[addr+3] << 24 | this.memory[addr+2] << 16 | this.memory[addr+1] << 8 | this.memory[addr];
     }
 

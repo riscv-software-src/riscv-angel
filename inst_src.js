@@ -73,25 +73,6 @@ function check_HTIF() {
     }
 }
 
-
-
-
-// "sign extend" the quantity based on bit
-// quantity will be a 32 bit quantity that was zero extended by default 
-function signExt(quantity, bit) {
-    // bits numbered 31, 30, .... 2, 1, 0
-    bitval = ((quantity|0) >> bit) & 0x00000001;
-    if (bitval === 0) {
-        return quantity;
-    } else if (bitval === 1) {
-        mask = 0x80000000;
-        mask = mask >> (31-bit) 
-        return (quantity | mask);
-    } else {
-        throw new RISCVError("ERR in signext");
-    }
-}
-
 // "sign extend" the quantity based on bit
 // input is a 32 bit quantity (as a standard javascript Number)
 // output is a 64 bit Long, correctly sign extended
@@ -1593,7 +1574,7 @@ function runInstruction(raw) { //, RISCV) {
 
 
     // finally, increment cycle counter, instret counter, count register:
-    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(Long.ONE);
+//    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(Long.ONE);
     RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(Long.ONE);
     RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(Long.ONE);
     RISCV.instcount += 1;

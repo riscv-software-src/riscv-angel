@@ -14,7 +14,7 @@ function elfRunNextInst() {
 
     if (!(RISCV.instcount & 0x1FFFFF)) {
         var ctime = (new Date()).getTime()/1000;
-        postMessage({"type": "m", "d": 2.097151 / (ctime - lastTimeSlot)});
+        postMessage({"type": "m", "d": 2.097152 / (ctime - lastTimeSlot)});
         lastTimeSlot = ctime;
     }
 
@@ -73,6 +73,7 @@ function elfRunNextInst() {
 
 
     // handle interrupts here. DO NOT put this in inst.js (exceptions will break interrupts)
+    // overhead not from this...
     if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {
         // interrupts are enabled
         if (((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] >>> 16) & 0x80) != 0x0) {
