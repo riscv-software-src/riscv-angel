@@ -33,9 +33,11 @@ function check_HTIF() {
                 }
 
                 for (var i = 0; i < toWrite.length; i++) {
-                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
+                    RISCV.memory[(addr.getLowBits() + i) >> 2] &= ~((0xFF) << ((i & 0x3) << 3));
+                    RISCV.memory[(addr.getLowBits() + i) >> 2] |= (toWrite.charCodeAt(i) & 0xFF) << ((i & 0x3) << 3);
                 }
-                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
+                // null term if null term would go in new word
+                RISCV.memory[(addr.getLowBits() + toWrite.length) >> 2] &= ~((0xFF) << (((addr.getLowBits() + toWrite.length) & 0x3) << 3));
 
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
             } else {
@@ -52,10 +54,31 @@ function check_HTIF() {
                 if (what == 0xFF) {
                     var toWrite = "";
                 }
+
+/*                for (var i = 0; i < toWrite.length; i++) {
+                    if (((addr.getLowBits() + i) & 0x3) == 0x0) {
+                        RISCV.memory[(addr.getLowBits() + i) >> 2] = 0x0;
+                    }
+                    RISCV.memory[(addr.getLowBits() + i) >> 2] |= (toWrite.charCodeAt(i) & 0xFF) << ((i & 0x3) << 3);
+                }
+                // null term if null term would go in new word
+                if (((addr.getLowBits() + toWrite.length) & 0x3) == 0x0) {
+                    RISCV.memory[(addr.getLowBits() + toWrite.length) >> 2] &= 0xFFFFFF00;
+                }
+*/
                 for (var i = 0; i < toWrite.length; i++) {
+                    RISCV.memory[(addr.getLowBits() + i) >> 2] &= ~((0xFF) << ((i & 0x3) << 3));
+                    RISCV.memory[(addr.getLowBits() + i) >> 2] |= (toWrite.charCodeAt(i) & 0xFF) << ((i & 0x3) << 3);
+                }
+                // null term if null term would go in new word
+                RISCV.memory[(addr.getLowBits() + toWrite.length) >> 2] &= ~((0xFF) << (((addr.getLowBits() + toWrite.length) & 0x3) << 3));
+
+
+
+/*                for (var i = 0; i < toWrite.length; i++) {
                     RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
                 }
-                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;
+                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;*/
 
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
 

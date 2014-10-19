@@ -84,12 +84,12 @@ function loadElf(binfile, filename, filesList) {
         // check for allocate flag (bit #1) and type != 8 (aka NOT NOBITS)
         if ((((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) && (section_headers[i]["type"] != 8)) {
             for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++) {
-                RISCV.memory[(section_headers[i]["addr"].getLowBits()&0x7FFFFFFF) + j] = binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF;
+                RISCV.memory[((section_headers[i]["addr"].getLowBits()&0x7FFFFFFF) + j) >> 2] |= (binfile.charCodeAt((section_headers[i]["offs"].getLowBits()|0)+j) & 0xFF) << ((j & 0x3) << 3);
             }
         } else if ((((section_headers[i]["flags"].getLowBits() >> 1) & 0x1) == 0x1) && (section_headers[i]["type"] == 8)) {
             // for .bss, load in zeroes, since it's not actually stored in the elf
             for (var j = 0; j < section_headers[i]["size"].getLowBits(); j++) {
-                RISCV.memory[(section_headers[i]["addr"].getLowBits()&0x7FFFFFFF) + j] = 0x0;
+                RISCV.memory[((section_headers[i]["addr"].getLowBits()&0x7FFFFFFF) + j) >> 2] = 0x0;
             }
         }
     }

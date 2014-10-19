@@ -12,7 +12,7 @@ function CPU(memamt) {
     this.memamount = memamt; // for use by the kernel
     
     memamt *= 1048576 // convert to Bytes
-    this.memory = new Uint8Array(memamt);
+    this.memory = new Uint32Array(memamt >> 2);
 
     this.excpTrigg = undefined
 
@@ -103,18 +103,11 @@ function CPU(memamt) {
             RISCV.excpTrigg = new RISCVTrap("Store Address Misaligned", addr);
             return;
         }
-
+        addr = addr >> 2;
         var lowbits = val.getLowBits()|0;
         var highbits = val.getHighBits()|0;
-        this.memory[addr] = (lowbits) & 0xFF;
-        this.memory[addr+1] = (lowbits >>> 8) & 0xFF;
-        this.memory[addr+2] = (lowbits >>> 16) & 0xFF;
-        this.memory[addr+3] = (lowbits >>> 24) & 0xFF;
-
-        this.memory[addr+4] = (highbits) & 0xFF;
-        this.memory[addr+5] = (highbits >>> 8) & 0xFF;
-        this.memory[addr+6] = (highbits >>> 16) & 0xFF;
-        this.memory[addr+7] = (highbits >>> 24) & 0xFF;
+        this.memory[addr] = lowbits;
+        this.memory[addr+1] = highbits;;
     }
 
     function store_word_to_mem(addr, val, tr) {
@@ -128,16 +121,11 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-
-
         if (addr & 0x3) {
             RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
             return;
         }
-        this.memory[addr] = (val) & 0xFF;
-        this.memory[addr+1] = (val >>> 8) & 0xFF;
-        this.memory[addr+2] = (val >>> 16) & 0xFF;
-        this.memory[addr+3] = (val >>> 24) & 0xFF;
+        this.memory[addr >> 2] = val;
     }
 
     function store_half_to_mem(addr, val, tr) {
@@ -157,8 +145,8 @@ function CPU(memamt) {
             RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
             return;
         }
-        this.memory[addr] = val & 0xFF;
-        this.memory[addr+1] = (val >>> 8) & 0xFF;
+        this.memory[(addr >> 2)] &= ~(0xFFFF << ((addr & 0x2) << 3));
+        this.memory[(addr >> 2)] |= (val & 0xFFFF) << ((addr & 0x2) << 3);
     }
 
     function store_byte_to_mem(addr, val, tr) {
@@ -172,7 +160,8 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-        this.memory[addr] = val & 0xFF;
+        this.memory[(addr >> 2)] &= ~(0xFF << ((addr & 0x3) << 3));
+        this.memory[(addr >> 2)] |= ((val & 0xFF) << ((addr & 0x3) << 3));
     }
 
     function load_double_from_mem(addr, tr) {
@@ -186,23 +175,12 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-
-
         if (addr & 0x7) {
             RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
             return;
         }
-        var retvalhigh = 0;
-        var retvallow = 0;
-        retvallow = retvallow | this.memory[addr+3] << 24;
-        retvallow = retvallow | this.memory[addr+2] << 16;
-        retvallow = retvallow | this.memory[addr+1] << 8;
-        retvallow = retvallow | this.memory[addr];
-        retvalhigh = retvalhigh | this.memory[addr+7] << 24;
-        retvalhigh = retvalhigh | this.memory[addr+6] << 16;
-        retvalhigh = retvalhigh | this.memory[addr+5] << 8;
-        retvalhigh = retvalhigh | this.memory[addr+4];
-        return new Long(retvallow, retvalhigh);
+        addr = addr >> 2;
+        return new Long(this.memory[addr], this.memory[addr+1]);
     }
 
     function load_word_from_mem(addr, tr) {
@@ -222,12 +200,7 @@ function CPU(memamt) {
             RISCV.excpTrigg = new RISCVTrap("Load Address Misaligned", addr);
             return;
         }
-        var retval = 0;
-        retval = retval | this.memory[addr+3] << 24;
-        retval = retval | this.memory[addr+2] << 16;
-        retval = retval | this.memory[addr+1] << 8;
-        retval = retval | this.memory[addr];
-        return retval;
+        return this.memory[addr >> 2];
     }
 
     function load_half_from_mem(addr, tr) {
@@ -241,15 +214,10 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-
-
         if (addr & 0x1) {
             RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
         }
-        var retval = 0;
-        retval = retval | this.memory[addr+1] << 8;
-        retval = retval | this.memory[addr];
-        return retval;
+        return (this.memory[addr >> 2] >> ((addr & 0x2) << 3)) & 0xFFFF;
     }
 
     function load_byte_from_mem(addr, tr) {
@@ -263,9 +231,7 @@ function CPU(memamt) {
         } else {
             addr = addr.getLowBitsUnsigned();
         }
-        var retval = 0;
-        retval = retval | this.memory[addr];
-        return retval;
+        return (this.memory[addr >> 2] >> ((addr & 0x3) << 3)) & 0xFF;
     }
 
     // vals[0] is loaded into 0x0000, vals[1] is program, loaded into 0x2000
@@ -302,6 +268,7 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr) {
+//        console.log("happened");
         var vmOn = ((this.priv_reg[0x50A] & 0x80));
         if (vmOn) { 
             addr = translate(addr, 2);
@@ -317,7 +284,8 @@ function CPU(memamt) {
             return;
         }
         */
-        return this.memory[addr+3] << 24 | this.memory[addr+2] << 16 | this.memory[addr+1] << 8 | this.memory[addr];
+//        console.log(this.memory[addr >> 2]);
+        return this.memory[addr >> 2];
     }
 
 
