@@ -92,7 +92,7 @@ function walk(vaddr) {
     // main walk for loop
     var idx = (vaddr.shiftRightUnsigned((33))).and(LONG3FF);
     var pte_addr = ptbr.add(idx.shiftLeft(3));
-    var pt_data = RISCV.load_double_from_mem(pte_addr, false);
+    var pt_data = RISCV.load_double_from_mem_raw(pte_addr);
     var pt_data_low = pt_data.getLowBitsUnsigned();
     if (pt_data_low & PTE_V == 0) {
         // INVALID MAPPING
@@ -110,7 +110,7 @@ function walk(vaddr) {
     }
     var idx = (vaddr.shiftRightUnsigned((23))).and(LONG3FF);
     var pte_addr = ptbr.add(idx.shiftLeft(3));
-    var pt_data = RISCV.load_double_from_mem(pte_addr, false);
+    var pt_data = RISCV.load_double_from_mem_raw(pte_addr);
     var pt_data_low = pt_data.getLowBitsUnsigned();
     if (pt_data_low & PTE_V == 0) {
         // INVALID MAPPING
@@ -128,7 +128,7 @@ function walk(vaddr) {
     }
     var idx = (vaddr.shiftRightUnsigned(13)).and(LONG3FF);
     var pte_addr = ptbr.add(idx.shiftLeft(3));
-    var pt_data = RISCV.load_double_from_mem(pte_addr, false);
+    var pt_data = RISCV.load_double_from_mem_raw(pte_addr);
     var pt_data_low = pt_data.getLowBitsUnsigned();
     if (pt_data_low & PTE_V == 0) {
         // INVALID MAPPING

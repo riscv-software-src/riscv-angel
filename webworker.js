@@ -7,7 +7,7 @@ goog.require("goog.math.Long");
 importScripts("lib/javascript-biginteger/biginteger.js");
 Long = goog.math.Long;
 
-importScripts("devices/character.js", "lib/binfile/binfile.js", "syscall.js", 
+importScripts("devices/character.js", "lib/binfile/binfile.js",
         "mappings.js", "utils.js", "mmu.js", "trap.js", "elfload.js", "inst.js",
         "cpu.js", "elfrun.js");
 
@@ -20,7 +20,7 @@ self.addEventListener("message", function (oEvent) {
     if (oEvent.data.type == "r") {
         //continue running
         readTest.push("\n");
-        runLoop();
+        elfRunNextInst();
     } else if (oEvent.data.type == "u") {
         // copy user input
         DAT = oEvent.data.inp;
@@ -31,7 +31,7 @@ self.addEventListener("message", function (oEvent) {
                 readTest.push(DAT.charAt(x));
             }
         }
-        runLoop();
+        elfRunNextInst();
     }
 }, false);
 
@@ -55,11 +55,6 @@ function handle_file_continue(filesList) {
     pauseExec = false;
 
     GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
-}
-
-function runLoop() {
-    while(elfRunNextInst()){
-    }
 }
 
 runCodeC();

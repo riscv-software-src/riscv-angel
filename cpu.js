@@ -87,10 +87,9 @@ function CPU(memamt) {
     // off, so can be passed in as an arg
 
     // unlike word, half, byte, the val arg here is a Long
-    function store_double_to_mem(addr, val, tr) {
+    function store_double_to_mem(addr, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 1);
             if (RISCV.excpTrigg) {
                 return;
@@ -110,10 +109,9 @@ function CPU(memamt) {
         this.memory[addr+1] = highbits;;
     }
 
-    function store_word_to_mem(addr, val, tr) {
+    function store_word_to_mem(addr, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 1);
             if (RISCV.excpTrigg) {
                 return;
@@ -128,10 +126,9 @@ function CPU(memamt) {
         this.memory[addr >> 2] = val;
     }
 
-    function store_half_to_mem(addr, val, tr) {
+    function store_half_to_mem(addr, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 1);
             if (RISCV.excpTrigg) {
                 return;
@@ -149,10 +146,9 @@ function CPU(memamt) {
         this.memory[(addr >> 2)] |= (val & 0xFFFF) << ((addr & 0x2) << 3);
     }
 
-    function store_byte_to_mem(addr, val, tr) {
+    function store_byte_to_mem(addr, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 1);
             if (RISCV.excpTrigg) {
                 return;
@@ -164,10 +160,9 @@ function CPU(memamt) {
         this.memory[(addr >> 2)] |= ((val & 0xFF) << ((addr & 0x3) << 3));
     }
 
-    function load_double_from_mem(addr, tr) {
+    function load_double_from_mem(addr) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 0);
             if (RISCV.excpTrigg){
                 return;
@@ -183,10 +178,19 @@ function CPU(memamt) {
         return new Long(this.memory[addr], this.memory[addr+1]);
     }
 
-    function load_word_from_mem(addr, tr) {
+    function load_double_from_mem_raw(addr) {
+        addr = addr.getLowBitsUnsigned();
+        if (addr & 0x7) {
+            RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
+            return;
+        }
+        addr = addr >> 2;
+        return new Long(this.memory[addr], this.memory[addr+1]);
+    }
+
+    function load_word_from_mem(addr) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 0);
             if (RISCV.excpTrigg) {
                 return;
@@ -203,10 +207,9 @@ function CPU(memamt) {
         return this.memory[addr >> 2];
     }
 
-    function load_half_from_mem(addr, tr) {
+    function load_half_from_mem(addr) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 0);
             if (RISCV.excpTrigg) {
                 return;
@@ -220,10 +223,9 @@ function CPU(memamt) {
         return (this.memory[addr >> 2] >> ((addr & 0x2) << 3)) & 0xFFFF;
     }
 
-    function load_byte_from_mem(addr, tr) {
+    function load_byte_from_mem(addr) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        tr = typeof tr !== 'undefined' ? tr : vmOn; 
-        if (tr) { 
+        if (vmOn) { 
             addr = translate(addr, 0);
             if (RISCV.excpTrigg) {
                 return;
@@ -295,6 +297,7 @@ function CPU(memamt) {
     this.store_half_to_mem = store_half_to_mem;
     this.store_byte_to_mem = store_byte_to_mem;
     this.load_double_from_mem = load_double_from_mem;
+    this.load_double_from_mem_raw = load_double_from_mem_raw;
     this.load_word_from_mem = load_word_from_mem;
     this.load_half_from_mem = load_half_from_mem;
     this.load_byte_from_mem = load_byte_from_mem;

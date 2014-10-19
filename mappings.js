@@ -85,6 +85,7 @@ var TRAPS = {
     "Host interrupt": [0x6, 0x1],
 };
 
+/*
 var SYSCALLS = {
     93: "sys_exit",
     63: "sys_read",
@@ -118,4 +119,4 @@ var SYSCALL_HANDLERS = {
     "sys_pwrite": sys_pwrite,
     "sys_getmainvars": sys_getmainvars,
 };
-
+*/
