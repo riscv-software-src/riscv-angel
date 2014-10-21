@@ -29,8 +29,8 @@ var PCR = {
     "CSR_BADVADDR":  {"num": 0x503, "width": 64,},
     "CSR_PTBR":      {"num": 0x504, "width": 64,},
     "CSR_ASID":      {"num": 0x505, "width": 64,}, // implementation defined
-    "CSR_COUNT":     {"num": 0x506, "width": 64,},
-    "CSR_COMPARE":   {"num": 0x507, "width": 64,},
+    "CSR_COUNT":     {"num": 0x506, "width": 32,},
+    "CSR_COMPARE":   {"num": 0x507, "width": 32,},
     "CSR_EVEC":      {"num": 0x508, "width": 64,},
     "CSR_CAUSE":     {"num": 0x509, "width": 64,},
     "CSR_STATUS":    {"num": 0x50A, "width": 32,},
@@ -46,7 +46,7 @@ var PCR = {
     "CSR_TOHOST":    {"num": 0x51E, "width": 64,},
     "CSR_FROMHOST":  {"num": 0x51F, "width": 64,},
 
-    "CSR_CYCLE":     {"num": 0xC00, "width": 64,}, // width not confirmed
+    "CSR_CYCLE":     {"num": 0xC00, "width": 32,}, // width not confirmed
     "CSR_TIME":      {"num": 0xC01, "width": 64,}, // width not confirmed
     "CSR_INSTRET":   {"num": 0xC02, "width": 64,}, // width not confirmed
 };

@@ -52,7 +52,7 @@ function CPU(memamt) {
     
     for (var key in PCR) {
         if (PCR.hasOwnProperty(key)) {
-            if (key["width"] == 32) {
+            if (PCR[key]["width"] == 32) {
                 this.priv_reg[PCR[key]["num"]] = 0x0;
             } else {
                 // 64 bit
@@ -270,7 +270,6 @@ function CPU(memamt) {
      * Address Misaligned  
      */
     function load_inst_from_mem(addr) {
-//        console.log("happened");
         var vmOn = ((this.priv_reg[0x50A] & 0x80));
         if (vmOn) { 
             addr = translate(addr, 2);
@@ -286,7 +285,6 @@ function CPU(memamt) {
             return;
         }
         */
-//        console.log(this.memory[addr >> 2]);
         return this.memory[addr >> 2];
     }
 

@@ -126,6 +126,7 @@ function signExtLT32_64_v(quantity, bit) {
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(raw) { //, RISCV) {
     // force x0 (zero) to zero
+
     RISCV.gen_reg[0] = Long.ZERO;
     var op = inst.get_opcode();
 
@@ -845,7 +846,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // RDCYCLE
                 case 0x6002:
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]];
+                    RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]], 0x0);
                     RISCV.pc += 4;
                     break;
 
@@ -1604,11 +1605,9 @@ function runInstruction(raw) { //, RISCV) {
     // force x0 (zero) to zero
     RISCV.gen_reg[0] = Long.ZERO;
 
-
-
     // finally, increment cycle counter, instret counter, count register:
 //    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(Long.ONE);
-    RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] = RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]].add(Long.ONE);
-    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(Long.ONE);
+    RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] += 1;
+    RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] += 1;
     RISCV.instcount += 1;
 }

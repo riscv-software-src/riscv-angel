@@ -36,7 +36,7 @@ function elfRunNextInst() {
                     tryCount = 0;
                     if (lastCharWritten == 0x1) {
                         lastCharWritten = 0x0;
-                        RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].add(new Long(100000, 0x0));
+                        RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]] = RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] + 100000;
                         stopCount = 200000;
                     } else {
                         stopCount = 10000;
@@ -73,19 +73,17 @@ function elfRunNextInst() {
 
 
         // handle interrupts here. DO NOT put this in inst.js (exceptions will break interrupts)
-        // overhead not from this...
-        if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {
-            // interrupts are enabled
-            if (((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] >>> 16) & 0x80) != 0x0) {
-                // timer interrupt is enabled
-                if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]].equals(RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]])) {
-                    // set IP bit for timer interrupt
-                    RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x80000000;
-                    var InterruptException = new RISCVTrap("Timer interrupt");
-                    handle_trap(InterruptException);
+        if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] == RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]]) {
+            if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {
+                // interrupts are enabled
+                if (((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] >>> 16) & 0x80) != 0x0) {
+                    // timer interrupt is enabled
+                        // set IP bit for timer interrupt
+                        RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] = RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] | 0x80000000;
+                        var InterruptException = new RISCVTrap("Timer interrupt");
+                        handle_trap(InterruptException);
                 }
             }
-
         }
     }
 }
