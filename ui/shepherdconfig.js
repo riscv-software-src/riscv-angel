@@ -41,7 +41,7 @@
     });
     shepherd.addStep('including', {
       title: '<strong>The Boot Process</strong>',
-      text: ['Once you hit "Boot Linux" to the left, ANGEL will download <br> a 3MB linux kernel for the system to boot. This image <br> is then loaded into the memory of our simulated RISC-V processor.', 'Processor Specs:', '<ul><li>Implements RV64IMA - A 64 bit RISC-V processor <br> with the base integer ISA (I), the Multiplication and <br> Division Extension (M), and the standard Atomic Extension (A)</li><li>Runs ~1.5 Million Instructions Per Second <br>(Benchmarked in Chrome)</li><li>10 MiB Memory</li></ul>'],
+      text: ['Once you hit "Boot Linux" to the left, ANGEL will download <br> a 3MB linux kernel for the system to boot. This image <br> is then loaded into the memory of our simulated RISC-V processor.', 'Processor Specs:', '<ul><li>Implements RV64IMA - A 64 bit RISC-V processor <br> with the base integer ISA (I), the Multiplication and <br> Division Extension (M), and the standard Atomic Extension (A)</li><li>Runs ~6 Million Instructions Per Second <br>(Benchmarked in Chrome)</li><li>10 MiB Memory</li></ul>'],
       attachTo: '#kernelDown bottom',
       buttons: [
         {
@@ -56,7 +56,7 @@
     });
     shepherd.addStep('example', {
       title: '<strong>What\'re you waiting for?</strong>',
-      text: ['Hit the "Boot Linux" button to the left to get started!', 'The boot process should take about 10 seconds on <br> a modern system once the kernel image download finishes.', 'You\'ll know that boot is complete when you see a <br> <code>/ #_ </code> &nbsp; prompt preceeding the flashing cursor.', 'This is an <a href="http://en.wikipedia.org/wiki/Almquist_shell">ash-shell</a> prompt where you can type in most<br> standard linux commands included with <a href="http://www.busybox.net">BusyBox</a>.'],
+      text: ['Hit the "Boot Linux" button to the left to get started!', 'The boot process should take about 5 seconds on <br> a modern system once the kernel image download finishes.', 'You\'ll know that boot is complete when you see a <br> <code>/ #_ </code> &nbsp; prompt preceeding the flashing cursor.', 'This is an <a href="http://en.wikipedia.org/wiki/Almquist_shell">ash-shell</a> prompt where you can type in most<br> standard linux commands included with <a href="http://www.busybox.net">BusyBox</a>.'],
       attachTo: '#bootButton right',
       buttons: [
         {
