@@ -127,7 +127,7 @@ function signExtLT32_64_v(quantity, bit) {
 function runInstruction(raw) { //, RISCV) {
     // force x0 (zero) to zero
 
-    RISCV.gen_reg[0] = Long.ZERO;
+//    RISCV.gen_reg[0] = Long.ZERO;
     var op = inst.get_opcode();
 
     switch(op) {
@@ -1609,5 +1609,4 @@ function runInstruction(raw) { //, RISCV) {
 //    RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]] = RISCV.priv_reg[PCR["CSR_INSTRET"]["num"]].add(Long.ONE);
     RISCV.priv_reg[PCR["CSR_CYCLE"]["num"]] += 1;
     RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] += 1;
-    RISCV.instcount += 1;
 }

@@ -48,7 +48,7 @@ function CPU(memamt) {
     }
 
     // privileged control registers
-    this.priv_reg = new Array(4096);
+    this.priv_reg = new Array(3075);
     
     for (var key in PCR) {
         if (PCR.hasOwnProperty(key)) {

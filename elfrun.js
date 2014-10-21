@@ -1,7 +1,6 @@
 // run one instruction at a time, isolate from elfload
 
 var readTest = [];
-var lastTimeSlot = (new Date()).getTime();
 
 var lastCharWritten = 0;
 
@@ -11,8 +10,11 @@ function elfRunNextInst() {
     var stopCount = 10000;
     var tryCount = 0;
 
-    while (true) {
-        if (!(RISCV.instcount & 0x1FFFFF)) {
+    // fix MIPS count at boot and return from idle
+    var lastTimeSlot = (new Date()).getTime();
+
+    for (var i = 1; ; i++)  {
+        if (!(i & 0x1FFFFF)) {
             var ctime = (new Date()).getTime();
             postMessage({"type": "m", "d": 2097.152 / (ctime - lastTimeSlot)});
             lastTimeSlot = ctime;
@@ -73,7 +75,7 @@ function elfRunNextInst() {
 
 
         // handle interrupts here. DO NOT put this in inst.js (exceptions will break interrupts)
-        if (RISCV.priv_reg[PCR["CSR_COUNT"]["num"]] == RISCV.priv_reg[PCR["CSR_COMPARE"]["num"]]) {
+        if (RISCV.priv_reg[0x506] == RISCV.priv_reg[0x507]) {
             if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {
                 // interrupts are enabled
                 if (((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] >>> 16) & 0x80) != 0x0) {
