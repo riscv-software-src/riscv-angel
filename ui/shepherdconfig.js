@@ -41,7 +41,7 @@
     });
     shepherd.addStep('including', {
       title: '<strong>The Boot Process</strong>',
-      text: ['Once you hit "Boot Linux" to the left, ANGEL will download <br> a 3MB linux kernel for the system to boot. This image <br> is then loaded into the memory of our simulated RISC-V processor.', 'Processor Specs:', '<ul><li>Implements RV64IMA - A 64 bit RISC-V processor <br> with the base integer ISA (I), the Multiplication and <br> Division Extension (M), and the standard Atomic Extension (A)</li><li>Runs ~6 Million Instructions Per Second <br>(Benchmarked in Chrome)</li><li>10 MiB Memory</li></ul>'],
+      text: ['Once you hit "Boot Linux" to the left, ANGEL will download <br> a 3MB linux kernel for the system to boot. This image <br> is then loaded into the memory of our simulated RISC-V processor.', 'Processor Specs:', '<ul><li>Implements RV64IMA - A 64 bit RISC-V processor <br> with the base integer ISA (I), the Multiplication and <br> Division Extension (M), and the standard Atomic Extension (A)</li><li>Runs ~9 Million Instructions Per Second <br>(Benchmarked in Chrome)</li><li>10 MiB Memory</li></ul>'],
       attachTo: '#kernelDown bottom',
       buttons: [
         {
