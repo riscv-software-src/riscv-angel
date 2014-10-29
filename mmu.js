@@ -36,11 +36,8 @@ function translate(addr, access_type) {
     var pgoff;
     var pgbase;
 
-    if (TLB[origaddrVPN]) {
-        // return value from TLB
-        //TLBcount += 1;
-        pte = TLB[origaddrVPN];
-    } else {
+    pte = TLB[origaddrVPN];
+    if (!pte) {
         //NONcount += 1;
         pte = walk(addr).getLowBitsUnsigned();
         TLB[origaddrVPN] = pte;

@@ -53,9 +53,7 @@ function elfRunNextInst() {
         //RISCV.oldpc = RISCV.pc;
         
         instVal = RISCV.load_inst_from_mem(new Long(RISCV.pc, RISCV.pc >> 31));//            signExtLT32_64(RISCV.pc, 31));
-        if (RISCV.excpTrigg) {
-            // do nothing
-        } else {
+        if (!RISCV.excpTrigg) {
             runInstruction(instVal); // , RISCV);
         }
         // trap handling
