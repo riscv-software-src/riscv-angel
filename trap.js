@@ -54,7 +54,7 @@ function handle_trap(trap){
     if ((RISCV.pc & 0xFF000000) == 0x55000000) {
         RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = new Long(RISCV.pc, 0x155);
     } else {
-        RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = signExtLT32_64(RISCV.pc, 31);
+        RISCV.priv_reg[PCR["CSR_EPC"]["num"]] = signExtLT32_64(RISCV.pc);
     }
 
 
