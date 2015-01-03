@@ -618,7 +618,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LB
                 case 0x0:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_byte_from_mem(addr);
                     if (RISCV.excpTrigg) {
                         return;
@@ -629,7 +629,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LH
                 case 0x1:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_half_from_mem(addr);
                     if (RISCV.excpTrigg) {
                         return;
@@ -641,7 +641,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LW
                 case 0x2:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_word_from_mem(addr);
                     if (RISCV.excpTrigg) {
                         return;
@@ -654,7 +654,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LD 
                 case 0x3:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_double_from_mem(addr)
                     if (RISCV.excpTrigg) {
                         return;
@@ -668,7 +668,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LBU
                 case 0x4:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_byte_from_mem(addr);
 
                     if (RISCV.excpTrigg) {
@@ -681,7 +681,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LHU
                 case 0x5:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_half_from_mem(addr);
                     if (RISCV.excpTrigg) {
                         return;
@@ -694,7 +694,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LWU
                 case 0x6:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_I_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
                     var fetch = RISCV.load_word_from_mem(addr);
                     if (RISCV.excpTrigg) {
                         return;
@@ -720,7 +720,7 @@ function runInstruction(raw) { //, RISCV) {
                 
                 // SB
                 case 0x0:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_S_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
                     RISCV.store_byte_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     if (RISCV.excpTrigg) {
                         return;
@@ -732,7 +732,7 @@ function runInstruction(raw) { //, RISCV) {
                 // SH
                 case 0x1:
 
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_S_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
                     RISCV.store_half_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     if (RISCV.excpTrigg) {
                         return;
@@ -746,7 +746,7 @@ function runInstruction(raw) { //, RISCV) {
                 // SW
                 case 0x2:
 
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_S_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
 
                     RISCV.store_word_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
                     if (RISCV.excpTrigg) {
@@ -760,7 +760,7 @@ function runInstruction(raw) { //, RISCV) {
                 // SD
                 case 0x3:
 
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber(inst.get_S_imm()|0));
+                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
 
 
                     RISCV.store_double_to_mem(addr, RISCV.gen_reg[inst.get_rs2()]);
