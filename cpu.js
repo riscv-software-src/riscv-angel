@@ -272,12 +272,10 @@ function CPU(memamt) {
     function load_inst_from_mem(addr) {
         var vmOn = ((this.priv_reg[0x50A] & 0x80));
         if (vmOn) { 
-            addr = translate(addr, 2);
+            addr = insttranslate(addr, 2);
             if (RISCV.excpTrigg) {
                 return;
             }
-        } else {
-            addr = addr.getLowBitsUnsigned();
         }
         /* UNSAFE when removed
         if (addr & 0x3) {

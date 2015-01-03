@@ -21,14 +21,70 @@ var TLB = new Uint32Array(TLBSIZE);
 //var NONcount = 0;
 //var Totcount = 0;
 
+function insttranslate(addrlo, access_type) {
+    var origaddrVPN = addrlo >>> 13;
+    var pte;
+    var paddr;
+    var pgoff;
+    var pgbase;
+    var addr;
+
+    pte = TLB[origaddrVPN];
+    if (!pte) {
+        //NONcount += 1;
+        //
+        //
+        addr = new Long(addrlo, addrlo >> 31)
+        pte = walk(addr).getLowBitsUnsigned();
+        TLB[origaddrVPN] = pte;
+    }
+
+    paddr = (pte & 0xFFFFE000) | (addrlo & 0x1FFF);
+    var mode = RISCV.priv_reg[0x50A];
+
+    // permissions check
+    if (mode & 0x1) {
+        // we are in supervisor mode
+        if (access_type == CONSTS.EXEC && (pte & PTE_SX)) {
+            // "short" the fastest path (valid instruction)
+            return paddr;
+        } else {
+            addr = new Long(addrlo, addrlo >> 31);
+        }
+        if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
+            RISCV.excpTrigg = new RISCVTrap("Instruction Access Fault", addr);
+        } else if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
+            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
+        } else if (access_type == CONSTS.WRITE && !(pte & PTE_SW)) {
+            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+        } 
+    } else { 
+        if (access_type == CONSTS.EXEC && (pte & PTE_UX)) {
+            // "short" the fastest path (valid instruction)
+            return paddr;
+        } else {
+            addr = new Long(addrlo, addrlo >> 31);
+        }
+        if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
+            RISCV.excpTrigg =  new RISCVTrap("Instruction Access Fault", addr);
+        } else if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
+            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
+        } else if (access_type == CONSTS.WRITE && !(pte & PTE_UW)) {
+            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+        }
+    }
+
+    return paddr;    
+}
+
 // performs address translation
 // addr MUST BE A LONG
 function translate(addr, access_type) {
     //Totcount += 1;
     var origaddr = addr.getLowBitsUnsigned();
-    if ((origaddr & 0xFF000000) == 0x55000000) {
-        addr = new Long(origaddr, 0x155);
-    }
+//    if ((origaddr & 0xFF000000) == 0x55000000) {
+//        addr = new Long(origaddr, 0x155);
+//    }
 
     var origaddrVPN = origaddr >>> 13;
     var pte;
