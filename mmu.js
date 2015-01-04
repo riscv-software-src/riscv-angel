@@ -15,6 +15,10 @@ var PTE_SX = 0x100;
 // [todo] - simple TLB (try just a dictionary)
 var TLBSIZE = 524288;
 var TLB = new Uint32Array(TLBSIZE);
+
+var ITLBSIZE = 4;
+var ITLB = new Uint32Array(ITLBSIZE);
+var ITLBstuff = new Uint32Array(ITLBSIZE)
 //var TLBON = true;
 
 //var TLBcount = 0;
@@ -29,14 +33,14 @@ function insttranslate(addrlo, access_type) {
     var pgbase;
     var addr;
 
-    pte = TLB[origaddrVPN];
-    if (!pte) {
-        //NONcount += 1;
-        //
-        //
+    if (ITLBstuff[origaddrVPN & 0x3] == origaddrVPN) {
+        // UNSAFE - although TLB contains only valid translations, not checking S bit
+        return (ITLB[origaddrVPN & 0x3] & 0xFFFFE000) | (addrlo & 0x1FFF);
+    } else {
         addr = new Long(addrlo, addrlo >> 31)
         pte = walk(addr).getLowBitsUnsigned();
-        TLB[origaddrVPN] = pte;
+        ITLB[origaddrVPN & 0x3] = pte;
+        ITLBstuff[origaddrVPN & 0x3] = origaddrVPN;
     }
 
     paddr = (pte & 0xFFFFE000) | (addrlo & 0x1FFF);
@@ -50,30 +54,29 @@ function insttranslate(addrlo, access_type) {
             return paddr;
         } else {
             addr = new Long(addrlo, addrlo >> 31);
+            if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
+                RISCV.excpTrigg = new RISCVTrap("Instruction Access Fault", addr);
+            } else if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
+                RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
+            } else if (access_type == CONSTS.WRITE && !(pte & PTE_SW)) {
+                RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+            } 
         }
-        if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
-            RISCV.excpTrigg = new RISCVTrap("Instruction Access Fault", addr);
-        } else if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
-            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
-        } else if (access_type == CONSTS.WRITE && !(pte & PTE_SW)) {
-            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
-        } 
-    } else { 
+    } else {
         if (access_type == CONSTS.EXEC && (pte & PTE_UX)) {
             // "short" the fastest path (valid instruction)
             return paddr;
         } else {
             addr = new Long(addrlo, addrlo >> 31);
-        }
-        if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
-            RISCV.excpTrigg =  new RISCVTrap("Instruction Access Fault", addr);
-        } else if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
-            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
-        } else if (access_type == CONSTS.WRITE && !(pte & PTE_UW)) {
-            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+            if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
+                RISCV.excpTrigg =  new RISCVTrap("Instruction Access Fault", addr);
+            } else if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
+                RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
+            } else if (access_type == CONSTS.WRITE && !(pte & PTE_UW)) {
+                RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+            }
         }
     }
-
     return paddr;    
 }
 
