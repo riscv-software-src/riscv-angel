@@ -18,7 +18,7 @@ var TLB = new Uint32Array(TLBSIZE);
 
 var ITLBSIZE = 4;
 var ITLB = new Uint32Array(ITLBSIZE);
-var ITLBstuff = new Uint32Array(ITLBSIZE)
+var ITLBstuff = new Uint32Array(ITLBSIZE);
 //var TLBON = true;
 
 //var TLBcount = 0;
@@ -39,8 +39,6 @@ function insttranslate(addrlo, access_type) {
     } else {
         addr = new Long(addrlo, addrlo >> 31)
         pte = walk(addr).getLowBitsUnsigned();
-        ITLB[origaddrVPN & 0x3] = pte;
-        ITLBstuff[origaddrVPN & 0x3] = origaddrVPN;
     }
 
     paddr = (pte & 0xFFFFE000) | (addrlo & 0x1FFF);
@@ -51,6 +49,9 @@ function insttranslate(addrlo, access_type) {
         // we are in supervisor mode
         if (access_type == CONSTS.EXEC && (pte & PTE_SX)) {
             // "short" the fastest path (valid instruction)
+            // only valid translations in the TLB
+            ITLB[origaddrVPN & 0x3] = pte;
+            ITLBstuff[origaddrVPN & 0x3] = origaddrVPN;
             return paddr;
         } else {
             addr = new Long(addrlo, addrlo >> 31);
@@ -65,6 +66,9 @@ function insttranslate(addrlo, access_type) {
     } else {
         if (access_type == CONSTS.EXEC && (pte & PTE_UX)) {
             // "short" the fastest path (valid instruction)
+            // only valid translations in the TLB
+            ITLB[origaddrVPN & 0x3] = pte;
+            ITLBstuff[origaddrVPN & 0x3] = origaddrVPN;
             return paddr;
         } else {
             addr = new Long(addrlo, addrlo >> 31);
