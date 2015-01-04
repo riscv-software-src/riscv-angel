@@ -50,6 +50,9 @@
 <!-- angel functions -->
 <script>
 function runWorker() {
+    $('#bootButton').attr('disabled', true);
+    $('#bootButton').html("Running...");
+    $('#bootButton').prop("onclick", null);
     myWorker = new Worker("webworker.js");
     myWorker.onmessage = function(oEvent) {
         if (oEvent.data.type == "t") {
@@ -93,7 +96,7 @@ function runWorker() {
                 <div class="tab-content">
                     <div class="tab-pane active" id="tab1"> 
                         <div id="buttonbox" class="span12" style="height: 50px;"><div class="span4">
-                                <a id="bootButton" class="btn btn-medium btn-success" onclick="runWorker(); $('.terminal').focus();">Boot Linux</a> <!--<input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal</input>-->   </div>
+                                <a id="bootButton" class="btn btn-medium btn-success" onclick="prepTerm(); runWorker(); $('.terminal').focus();">Boot Linux</a> <!--<input type="checkbox" label="Fullscreen Terminal" id="fullscreenOnRun"> Fullscreen Terminal</input>-->   </div>
 
 
                             <div class="span3" id="kernelDown" align="right">Kernel download progress: </div>
@@ -456,6 +459,15 @@ isChrome = function() {
 function destroyChromeBox() {
     $( "#isNotChromeBox" ).remove()
 }
+
+function prepTerm() {
+            term.open(document.getElementById("consoleBox"));
+            term.handler = (function a (indata2) {
+                myWorker.postMessage({"type": "u", "inp": indata2});
+            });
+
+}
+
 
 if (!isChrome()) {
     document.getElementById("isNotChromeBox").innerHTML += "<div class='alert alert-error'>  <button type='button' class='close' data-dismiss='alert' onclick='destroyChromeBox()'>&times;</button>ANGEL performs optimally on Google Chrome. Users of other browsers may observe severely decreased performance.</div>";

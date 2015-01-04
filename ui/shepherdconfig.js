@@ -14,28 +14,28 @@
     });
     shepherd.addStep('welcome', {
       title: '<strong>Welcome to ANGEL!</strong>',
-      text: ['ANGEL is a JavaScript simulator for the <a href="http://riscv.org">RISC-V architecture</a> <br>that boots <a href="http://github.com/ucb-bar/riscv-linux">Linux</a> inside your browser.', 'Click Next for a tour or hit Close to use ANGEL immediately'],
+      text: ['ANGEL is a JavaScript simulator for the <a href="http://riscv.org">RISC-V architecture</a> <br>that boots <a href="http://github.com/ucb-bar/riscv-linux">Linux</a> inside your browser.', 'Click "Learn More" for a tour or hit "Close & Boot Linux" to <br> use ANGEL immediately'],
       attachTo: '#ANGELtitle bottom',
       classes: 'shepherd shepherd-open shepherd-theme-arrows shepherd-transparent-text',
       buttons: [
         {
-          text: 'Close',
-          classes: 'shepherd-button-secondary',
+          text: 'Close & Boot Linux',
+          classes: 'shepherd-button-example-primary',
           action: function() {
             completeShepherd();
 
-            term.open(document.getElementById("consoleBox"));
+           term.open(document.getElementById("consoleBox"));
             term.handler = (function a (indata2) {
                 myWorker.postMessage({"type": "u", "inp": indata2});
             });
-
-
+            runWorker(); 
+            $('.terminal').focus();
             return shepherd.hide();
           }
         }, {
-          text: 'Next',
+          text: 'Learn More',
           action: shepherd.next,
-          classes: 'shepherd-button-example-primary'
+          classes: 'shepherd-button-secondary'
         }
       ]
     });
@@ -68,13 +68,13 @@
           action: function() {
             completeShepherd();
 
-            term.open(document.getElementById("consoleBox"));
+/*            term.open(document.getElementById("consoleBox"));
             term.handler = (function a (indata2) {
                 myWorker.postMessage({"type": "u", "inp": indata2});
-            });
+            });*/
 
-
-
+//            runWorker(); 
+            $('.terminal').focus();
 
             return shepherd.next();
           }
