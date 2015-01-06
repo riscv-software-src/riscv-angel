@@ -117,6 +117,16 @@ function signExtLT32_64_v(quantity, bit) {
 }
 
 
+function copy_new_to_old(regno) {
+    RISCV.gen_reg[regno] = new Long(RISCV.gen_reg_lo[regno], RISCV.gen_reg_hi[regno]);
+}
+
+function copy_old_to_new(regno) {
+    RISCV.gen_reg_hi[regno] = RISCV.gen_reg[regno].getHighBits();
+    RISCV.gen_reg_lo[regno] = RISCV.gen_reg[regno].getLowBitsUnsigned();
+}
+
+
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(raw) { //, RISCV) {
     // force x0 (zero) to zero
@@ -133,13 +143,46 @@ function runInstruction(raw) { //, RISCV) {
                 
                 // ADDI
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()].add(signExtLT32_64(inst.get_I_imm()));
+                    copy_old_to_new(inst.get_rs1());
+                    // body
+                    var a_low = inst.get_I_imm();
+                    var a_high = a_low >> 31;
+                    var b = RISCV.gen_reg_hi[inst.get_rs1()] >>> 16,
+                        c = RISCV.gen_reg_hi[inst.get_rs1()] & 65535,
+                        d = RISCV.gen_reg_lo[inst.get_rs1()] >>> 16,
+                        e = a_high >>> 16,
+                        f = a_high & 65535,
+                        g = a_low >>> 16,
+                        k;
+                    k = 0 + (( RISCV.gen_reg_lo[inst.get_rs1()]   & 65535) + (a_low & 65535));
+                    a = 0 + (k >>> 16);
+                    a += d + g;
+                    d = 0 + (a >>> 16);
+                    d += c + f;
+                    c = 0 + (d >>> 16);
+                    c = c + (b + e) & 65535;
+                    RISCV.gen_reg_lo[inst.get_rd()] = (a & 65535) << 16 | k & 65535;
+                    RISCV.gen_reg_hi[inst.get_rd()] = c << 16 | d & 65535;
+                    // end body
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // SLLI                   
                 case 0x1:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft(inst.get_I_imm() & 0x003F);
+
+//                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).shiftLeft(inst.get_I_imm() & 0x003F);
+
+                    copy_old_to_new(inst.get_rs1());
+
+                    if ((inst.get_I_imm() & 0x3F) < 32) {
+                        RISCV.gen_reg_hi[inst.get_rd()] = (RISCV.gen_reg_hi[inst.get_rs1()] << (inst.get_I_imm() & 0x3F)) | (RISCV.gen_reg_lo[inst.get_rs1()] >>> (32 - (inst.get_I_imm() & 0x3F)));
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] << (inst.get_I_imm() & 0x3F);
+                    } else {
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] << ((inst.get_I_imm() & 0x3F)-32);
+                        RISCV.gen_reg_lo[inst.get_rd()] = 0;
+                    }
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 

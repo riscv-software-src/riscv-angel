@@ -47,6 +47,11 @@ function CPU(memamt) {
         this.gen_reg[i] = new Long(0x0, 0x0);
     }
 
+
+    this.gen_reg_lo = new Uint32Array(32); // new regfile lo bits
+    this.gen_reg_hi = new Uint32Array(32); // new regfile hi bits
+
+
     // privileged control registers
     this.priv_reg = new Array(3075);
     
