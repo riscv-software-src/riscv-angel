@@ -229,7 +229,21 @@ function CPU(memamt) {
         return (this.memory[addr >> 2] >> ((addr & 0x2) << 3)) & 0xFFFF;
     }
 
-    function load_byte_from_mem(addr) {
+    function load_byte_from_mem(addr_reg) {
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
+        var addr = new Long(RISCV.gen_reg_lo[addr_reg], RISCV.gen_reg_hi[addr_reg]);
+        if (vmOn) { 
+            addr = translate(addr, 0);
+            if (RISCV.excpTrigg) {
+                return;
+            }
+        } else {
+            addr = addr.getLowBitsUnsigned();
+        }
+        return (this.memory[addr >> 2] >> ((addr & 0x3) << 3)) & 0xFF;
+    }
+
+    function load_byte_from_mem2(addr) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         if (vmOn) { 
             addr = translate(addr, 0);
@@ -241,6 +255,7 @@ function CPU(memamt) {
         }
         return (this.memory[addr >> 2] >> ((addr & 0x3) << 3)) & 0xFF;
     }
+
 
     // vals[0] is loaded into 0x0000, vals[1] is program, loaded into 0x2000
     function load_to_mem(vals) {
@@ -303,6 +318,7 @@ function CPU(memamt) {
     this.load_word_from_mem = load_word_from_mem;
     this.load_half_from_mem = load_half_from_mem;
     this.load_byte_from_mem = load_byte_from_mem;
+    this.load_byte_from_mem2 = load_byte_from_mem2;
     this.load_to_mem = load_to_mem;
     this.set_pcr = set_pcr;
     this.load_inst_from_mem = load_inst_from_mem;
