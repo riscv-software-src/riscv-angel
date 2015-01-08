@@ -126,6 +126,34 @@ function copy_old_to_new(regno) {
     RISCV.gen_reg_lo[regno] = RISCV.gen_reg[regno].getLowBitsUnsigned();
 }
 
+//inreg and outreg could be temps
+//does not return anything
+function do_sixty_four_add(inreg1, inreg2, outreg) {
+    var a_low = RISCV.gen_reg_lo[inreg2];
+    var a_high = RISCV.gen_reg_hi[inreg2];
+    var b = RISCV.gen_reg_hi[inreg1] >>> 16,
+        c = RISCV.gen_reg_hi[inreg1] & 65535,
+        d = RISCV.gen_reg_lo[inreg1] >>> 16,
+        e = a_high >>> 16,
+        f = a_high & 65535,
+        g = a_low >>> 16,
+        k;
+    k = 0 + (( RISCV.gen_reg_lo[inreg1]   & 65535) + (a_low & 65535));
+    a = 0 + (k >>> 16);
+    a += d + g;
+    d = 0 + (a >>> 16);
+    d += c + f;
+    c = 0 + (d >>> 16);
+    c = c + (b + e) & 65535;
+    RISCV.gen_reg_lo[outreg] = (a & 65535) << 16 | k & 65535;
+    RISCV.gen_reg_hi[outreg] = c << 16 | d & 65535;
+}
+
+function imm_to_temp(val32, scratchno) {
+    RISCV.gen_reg_lo[scratchno] = val32;
+    RISCV.gen_reg_hi[scratchno] = val32 >> 31;
+}
+
 
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(raw) { //, RISCV) {
@@ -145,24 +173,8 @@ function runInstruction(raw) { //, RISCV) {
                 case 0x0:
                     copy_old_to_new(inst.get_rs1());
                     // body
-                    var a_low = inst.get_I_imm();
-                    var a_high = a_low >> 31;
-                    var b = RISCV.gen_reg_hi[inst.get_rs1()] >>> 16,
-                        c = RISCV.gen_reg_hi[inst.get_rs1()] & 65535,
-                        d = RISCV.gen_reg_lo[inst.get_rs1()] >>> 16,
-                        e = a_high >>> 16,
-                        f = a_high & 65535,
-                        g = a_low >>> 16,
-                        k;
-                    k = 0 + (( RISCV.gen_reg_lo[inst.get_rs1()]   & 65535) + (a_low & 65535));
-                    a = 0 + (k >>> 16);
-                    a += d + g;
-                    d = 0 + (a >>> 16);
-                    d += c + f;
-                    c = 0 + (d >>> 16);
-                    c = c + (b + e) & 65535;
-                    RISCV.gen_reg_lo[inst.get_rd()] = (a & 65535) << 16 | k & 65535;
-                    RISCV.gen_reg_hi[inst.get_rd()] = c << 16 | d & 65535;
+                    imm_to_temp(inst.get_I_imm(), 32);
+                    do_sixty_four_add(inst.get_rs1(), 32, inst.get_rd());
                     // end body
                     copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
@@ -208,7 +220,10 @@ function runInstruction(raw) { //, RISCV) {
                 
                 // XORI
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).xor(signExtLT32_64(inst.get_I_imm()));
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] ^ inst.get_I_imm();
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()] ^ (inst.get_I_imm() >> 31);
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -227,13 +242,19 @@ function runInstruction(raw) { //, RISCV) {
 
                 // ORI 
                 case 0x6:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).or(signExtLT32_64(inst.get_I_imm()));
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] | inst.get_I_imm();
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()] | (inst.get_I_imm() >> 31);
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // ANDI
                 case 0x7:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).and(signExtLT32_64(inst.get_I_imm()));
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] & inst.get_I_imm();
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()] & (inst.get_I_imm() >> 31);
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -252,7 +273,12 @@ function runInstruction(raw) { //, RISCV) {
 
                 // ADD
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).add(RISCV.gen_reg[inst.get_rs2()]);
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    // body
+                    do_sixty_four_add(inst.get_rs1(), inst.get_rs2(), inst.get_rd());
+                    // end body
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -290,7 +316,11 @@ function runInstruction(raw) { //, RISCV) {
 
                 // XOR
                 case 0x4:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).xor(RISCV.gen_reg[inst.get_rs2()]);
+                    copy_old_to_new(inst.get_rs2());
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] ^ RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()] ^ RISCV.gen_reg_hi[inst.get_rs2()];
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -308,13 +338,21 @@ function runInstruction(raw) { //, RISCV) {
 
                 // OR
                 case 0x6:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).or(RISCV.gen_reg[inst.get_rs2()]);
+                    copy_old_to_new(inst.get_rs2());
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] | RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()] | RISCV.gen_reg_hi[inst.get_rs2()];
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // AND
                 case 0x7:
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).and(RISCV.gen_reg[inst.get_rs2()]);
+                    copy_old_to_new(inst.get_rs2());
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] & RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()] & RISCV.gen_reg_hi[inst.get_rs2()];
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
