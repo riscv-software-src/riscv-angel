@@ -1175,87 +1175,131 @@ function runInstruction(raw) { //, RISCV) {
 
                 // ADDW
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0));
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] + RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // SUBW
                 case 0x100:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) - (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0));
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] - RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // SLLW
                 case 0x1:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) << (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0));
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] << RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // SRLW
                 case 0x5:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) >>> (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0));
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] >>> RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // SRAW
                 case 0x105:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) >> (RISCV.gen_reg[inst.get_rs2()].getLowBits()|0));
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] >> RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // MULW
                 case 0x8:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits()*RISCV.gen_reg[inst.get_rs2()].getLowBits());
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] * RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // DIVW
                 case 0xC:
-                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    if (RISCV.gen_reg_lo[inst.get_rs2()] == 0) {
                         //div by zero, set result to all ones
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
-                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000) {
+                        RISCV.gen_reg_hi[inst.get_rd()] = 0xFFFFFFFF;
+                        RISCV.gen_reg_lo[inst.get_rd()] = 0xFFFFFFFF;
+                    } else if (RISCV.gen_reg_lo[inst.get_rs1()] == 0xFFFFFFFF && RISCV.gen_reg_lo[inst.get_rs2()] == 0x80000000) {
                         // div most negative 32 bit num by -1: result = dividend
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()];
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()];
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0)/(RISCV.gen_reg[inst.get_rs2()].getLowBits()|0))|0);
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] / RISCV.gen_reg_lo[inst.get_rs2()];
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
                     }
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // DIVUW
                 case 0xD:
-                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    if (RISCV.gen_reg_lo[inst.get_rs2()] == 0) {
                         //div by zero, set result to all ones
-                        RISCV.gen_reg[inst.get_rd()] = new Long(0xFFFFFFFF, 0xFFFFFFFF);
+                        RISCV.gen_reg_hi[inst.get_rd()] = 0xFFFFFFFF;
+                        RISCV.gen_reg_lo[inst.get_rd()] = 0xFFFFFFFF;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((signed_to_unsigned(RISCV.gen_reg[inst.get_rs1()].getLowBits())/signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBits()))|0);
+                        RISCV.gen_reg_lo[inst.get_rd()] = signed_to_unsigned(RISCV.gen_reg_lo[inst.get_rs1()]) / signed_to_unsigned(RISCV.gen_reg_lo[inst.get_rs2()]);
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
                     }
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // REMW
                 case 0xE:
-                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
+                    copy_old_to_new(inst.get_rs1());
+                    copy_old_to_new(inst.get_rs2());
+                    if (RISCV.gen_reg_lo[inst.get_rs2()] == 0) {
                         // rem (div) by zero, set result to dividend
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
-                    } else if (RISCV.gen_reg[inst.get_rs1()].getLowBits() == 0xFFFFFFFF && RISCV.gen_reg[inst.get_rs2()].getLowBits() == 0x80000000) {
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()];
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()];
+                    } else if (RISCV.gen_reg_lo[inst.get_rs1()] == 0xFFFFFFFF && RISCV.gen_reg_lo[inst.get_rs2()] == 0x80000000) {
                         // rem (div) most negative 32 bit num by -1: result = 0
-                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
+                        RISCV.gen_reg_lo[inst.get_rd()] = 0;
+                        RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0)%(RISCV.gen_reg[inst.get_rs2()].getLowBits()|0))|0);
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] % RISCV.gen_reg_lo[inst.get_rs2()];
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
                     }
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
                 // REMUW
                 case 0xF:
-                    if (RISCV.gen_reg[inst.get_rs2()].isZero()) {
+                    if (RISCV.gen_reg_lo[inst.get_rs2()] == 0) {
                         // rem (div) by zero, set result to dividend
-                        RISCV.gen_reg[inst.get_rd()] = RISCV.gen_reg[inst.get_rs1()];
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_hi[inst.get_rs1()];
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()];
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((signed_to_unsigned(RISCV.gen_reg[inst.get_rs1()].getLowBits())%signed_to_unsigned(RISCV.gen_reg[inst.get_rs2()].getLowBits()))|0);
+                        RISCV.gen_reg_lo[inst.get_rd()] = signed_to_unsigned(RISCV.gen_reg_lo[inst.get_rs1()]) % signed_to_unsigned(RISCV.gen_reg_lo[inst.get_rs2()]);
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
                     }
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
