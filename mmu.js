@@ -140,6 +140,67 @@ function translate(addr, access_type) {
     return paddr;    
 }
 
+function translate_new(addr_reg, access_type) {
+    //Totcount += 1;
+    var origaddr = RISCV.gen_reg_lo[addr_reg];
+//    if ((origaddr & 0xFF000000) == 0x55000000) {
+//        addr = new Long(origaddr, 0x155);
+//    }
+
+    var origaddrVPN = origaddr >>> 13;
+    var pte;
+    var paddr;
+    var pgoff;
+    var pgbase;
+
+    pte = TLB[origaddrVPN];
+    if (!pte) {
+        //NONcount += 1;
+        // TODO slow walk
+        pte = walk(new Long(RISCV.gen_reg_lo[addr_reg], RISCV.gen_reg_hi[addr_reg])).getLowBitsUnsigned();
+        TLB[origaddrVPN] = pte;
+    }
+
+    paddr = (pte & 0xFFFFE000) | (origaddr & 0x1FFF);
+    var mode = RISCV.priv_reg[0x50A];
+
+    // permissions check
+    if (mode & 0x1) {
+        // we are in supervisor mode
+        if (access_type == CONSTS.EXEC && (pte & PTE_SX)) {
+            // "short" the fastest path (valid instruction)
+            return paddr;
+        }
+        // TODO convert Trap generating fn to use regno
+        addr = new Long(RISCV.gen_reg_lo[addr_reg], RISCV.gen_reg_hi[addr_reg]);
+        if (access_type == CONSTS.EXEC && !(pte & PTE_SX)) {
+            RISCV.excpTrigg = new RISCVTrap("Instruction Access Fault", addr);
+        } else if (access_type == CONSTS.READ && !(pte & PTE_SR)) {
+            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
+        } else if (access_type == CONSTS.WRITE && !(pte & PTE_SW)) {
+            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+        } 
+    } else { 
+        if (access_type == CONSTS.EXEC && (pte & PTE_UX)) {
+            // "short" the fastest path (valid instruction)
+            return paddr;
+        }
+        addr = new Long(RISCV.gen_reg_lo[addr_reg], RISCV.gen_reg_hi[addr_reg]);
+        if (access_type == CONSTS.EXEC && !(pte & PTE_UX)) {
+            RISCV.excpTrigg =  new RISCVTrap("Instruction Access Fault", addr);
+        } else if (access_type == CONSTS.READ && !(pte & PTE_UR)) {
+            RISCV.excpTrigg =  new RISCVTrap("Load Access Fault", addr);
+        } else if (access_type == CONSTS.WRITE && !(pte & PTE_UW)) {
+            RISCV.excpTrigg = new RISCVTrap("Store Access Fault", addr);
+        }
+    }
+
+    return paddr;    
+}
+
+
+
+
 var LONG3FF = new Long(0x3FF, 0x0);
 // does the page table walk only - no permission checks here
 // vaddr is Long

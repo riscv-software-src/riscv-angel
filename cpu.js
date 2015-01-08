@@ -184,6 +184,25 @@ function CPU(memamt) {
         return new Long(this.memory[addr], this.memory[addr+1]);
     }
 
+    function load_double_from_mem_new(addr_reg, reg_dest) {
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
+        if (vmOn) { 
+            addr = translate_new(addr_reg, 0);
+            if (RISCV.excpTrigg) {
+                return;
+            }
+        } else {
+            addr = RISCV.gen_reg_lo[addr_reg];
+        }
+        if (addr & 0x7) {
+            RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
+            return;
+        }
+        addr = addr >> 2;
+        RISCV.gen_reg_lo[reg_dest] = this.memory[addr];
+        RISCV.gen_reg_hi[reg_dest] = this.memory[addr+1];
+    }
+
     function load_double_from_mem_raw(addr) {
         addr = addr.getLowBitsUnsigned();
         if (addr & 0x7) {
@@ -213,15 +232,33 @@ function CPU(memamt) {
         return this.memory[addr >> 2];
     }
 
-    function load_half_from_mem(addr) {
+    function load_word_from_mem_new(addr_reg) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         if (vmOn) { 
-            addr = translate(addr, 0);
+            addr = translate_new(addr_reg, 0);
             if (RISCV.excpTrigg) {
                 return;
             }
         } else {
-            addr = addr.getLowBitsUnsigned();
+            addr = RISCV.gen_reg_lo[addr_reg];
+        }
+        if (addr & 0x3) {
+            RISCV.excpTrigg = new RISCVTrap("Load Address Misaligned", addr);
+            return;
+        }
+        return this.memory[addr >> 2];
+    }
+
+
+    function load_half_from_mem(addr_reg) {
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
+        if (vmOn) { 
+            addr = translate_new(addr_reg, 0);
+            if (RISCV.excpTrigg) {
+                return;
+            }
+        } else {
+            addr = RISCV.gen_reg_lo[addr_reg];
         }
         if (addr & 0x1) {
             RISCV.excpTrigg =  new RISCVTrap("Load Address Misaligned", addr);
@@ -231,31 +268,16 @@ function CPU(memamt) {
 
     function load_byte_from_mem(addr_reg) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        var addr = new Long(RISCV.gen_reg_lo[addr_reg], RISCV.gen_reg_hi[addr_reg]);
         if (vmOn) { 
-            addr = translate(addr, 0);
+            addr = translate_new(addr_reg, 0);
             if (RISCV.excpTrigg) {
                 return;
             }
         } else {
-            addr = addr.getLowBitsUnsigned();
+            addr = RISCV.gen_reg_lo[addr_reg];
         }
         return (this.memory[addr >> 2] >> ((addr & 0x3) << 3)) & 0xFF;
     }
-
-    function load_byte_from_mem2(addr) {
-        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
-        if (vmOn) { 
-            addr = translate(addr, 0);
-            if (RISCV.excpTrigg) {
-                return;
-            }
-        } else {
-            addr = addr.getLowBitsUnsigned();
-        }
-        return (this.memory[addr >> 2] >> ((addr & 0x3) << 3)) & 0xFF;
-    }
-
 
     // vals[0] is loaded into 0x0000, vals[1] is program, loaded into 0x2000
     function load_to_mem(vals) {
@@ -314,11 +336,12 @@ function CPU(memamt) {
     this.store_half_to_mem = store_half_to_mem;
     this.store_byte_to_mem = store_byte_to_mem;
     this.load_double_from_mem = load_double_from_mem;
+    this.load_double_from_mem_new = load_double_from_mem_new;
     this.load_double_from_mem_raw = load_double_from_mem_raw;
     this.load_word_from_mem = load_word_from_mem;
+    this.load_word_from_mem_new = load_word_from_mem_new;
     this.load_half_from_mem = load_half_from_mem;
     this.load_byte_from_mem = load_byte_from_mem;
-    this.load_byte_from_mem2 = load_byte_from_mem2;
     this.load_to_mem = load_to_mem;
     this.set_pcr = set_pcr;
     this.load_inst_from_mem = load_inst_from_mem;

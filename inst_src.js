@@ -750,109 +750,91 @@ function runInstruction(raw) { //, RISCV) {
                     if (RISCV.excpTrigg) {
                         return;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64_v(fetch, 7);
+                    RISCV.gen_reg_lo[inst.get_rd()] = (fetch << 24) >> 24;
+                    RISCV.gen_reg_hi[inst.get_rd()] = (fetch << 24) >> 31;
                     RISCV.pc += 4;
                     break;
 
                 // LH
                 case 0x1:
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rd());
-
-
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
-                    var fetch = RISCV.load_half_from_mem(addr);
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    var fetch = RISCV.load_half_from_mem(32);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64_v(fetch, 15);
+                    RISCV.gen_reg_lo[inst.get_rd()] = (fetch << 16) >> 16;
+                    RISCV.gen_reg_hi[inst.get_rd()] = (fetch << 16) >> 31;
                     RISCV.pc += 4;
                     break;
 
                 // LW
                 case 0x2:
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rd());
-
-
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
-                    var fetch = RISCV.load_word_from_mem(addr);
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    var fetch = RISCV.load_word_from_mem_new(32);
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(fetch);
+                    RISCV.gen_reg_lo[inst.get_rd()] = fetch;
+                    RISCV.gen_reg_hi[inst.get_rd()] = fetch >> 31;
                     RISCV.pc += 4;
                     break;
 
                 // LD 
                 case 0x3:
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rd());
-
-
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
-                    var fetch = RISCV.load_double_from_mem(addr)
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    RISCV.load_double_from_mem_new(32, inst.get_rd()); // unlike the others, this fn sets the dest reg directly
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-
-                    // unlike load_half/byte/word_from_mem, double returns Long
-                    RISCV.gen_reg[inst.get_rd()] = fetch;
                     RISCV.pc += 4;
                     break;
 
                 // LBU
                 case 0x4:
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rd());
-
-
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
-                    var fetch = RISCV.load_byte_from_mem2(addr);
-
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    var fetch = RISCV.load_byte_from_mem(32);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-                    RISCV.gen_reg[inst.get_rd()] = new Long(fetch & 0x000000FF, 0x0);
+                    RISCV.gen_reg_lo[inst.get_rd()] = fetch & 0xFF;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
                 // LHU
                 case 0x5:
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rd());
-
-
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
-                    var fetch = RISCV.load_half_from_mem(addr);
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    var fetch = RISCV.load_half_from_mem(32);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-
-                    RISCV.gen_reg[inst.get_rd()] = new Long(fetch & 0x0000FFFF, 0x0);
+                    RISCV.gen_reg_lo[inst.get_rd()] = fetch & 0xFFFF;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
                 // LWU
                 case 0x6:
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rd());
-
-
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_I_imm()|0));
-                    var fetch = RISCV.load_word_from_mem(addr);
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    var fetch = RISCV.load_word_from_mem_new(32);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-
-                    RISCV.gen_reg[inst.get_rd()] = new Long(fetch, 0x0);
+                    RISCV.gen_reg_lo[inst.get_rd()] = fetch;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
@@ -862,7 +844,6 @@ function runInstruction(raw) { //, RISCV) {
 
 
             }
-            copy_old_to_new(inst.get_rd());
             break;
 
         // Stores
