@@ -1111,7 +1111,10 @@ function runInstruction(raw) { //, RISCV) {
 
                 // ADDIW
                 case 0x0:
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64((RISCV.gen_reg[inst.get_rs1()].getLowBits()|0) + (inst.get_I_imm()|0));
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] + inst.get_I_imm();
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -1127,7 +1130,10 @@ function runInstruction(raw) { //, RISCV) {
                         throw new RISCVTrap("Illegal Instruction");
                         break;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() << (inst.get_I_imm() & 0x003F));
+                    copy_old_to_new(inst.get_rs1());
+                    RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] << (inst.get_I_imm() & 0x3F);
+                    RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                    copy_new_to_old(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -1141,10 +1147,16 @@ function runInstruction(raw) { //, RISCV) {
                     var aldiff = (inst.get_I_imm() >>> 6);
                     if (aldiff === 0) {
                         // SRLIW
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >>> (inst.get_I_imm() & 0x003F));
+                        copy_old_to_new(inst.get_rs1());
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] >>> (inst.get_I_imm() & 0x3F);
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                        copy_new_to_old(inst.get_rd());
                     } else {
                         // SRAIW
-                        RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.gen_reg[inst.get_rs1()].getLowBits() >> (inst.get_I_imm() & 0x003F));
+                        copy_old_to_new(inst.get_rs1());
+                        RISCV.gen_reg_lo[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rs1()] >> (inst.get_I_imm() & 0x3F);
+                        RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                        copy_new_to_old(inst.get_rd());
                     } 
                     RISCV.pc += 4;
                     break;
