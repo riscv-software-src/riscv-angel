@@ -143,10 +143,6 @@ function translate(addr, access_type) {
 function translate_new(addr_reg, access_type) {
     //Totcount += 1;
     var origaddr = RISCV.gen_reg_lo[addr_reg];
-//    if ((origaddr & 0xFF000000) == 0x55000000) {
-//        addr = new Long(origaddr, 0x155);
-//    }
-
     var origaddrVPN = origaddr >>> 13;
     var pte;
     var paddr;
@@ -154,6 +150,9 @@ function translate_new(addr_reg, access_type) {
     var pgbase;
 
     pte = TLB[origaddrVPN];
+/*    if (pte) {
+        return (pte & 0xFFFFE000) | (origaddr & 0x1FFF);
+    }*/
     if (!pte) {
         //NONcount += 1;
         // TODO slow walk

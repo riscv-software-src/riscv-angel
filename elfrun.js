@@ -4,6 +4,29 @@ var readTest = [];
 
 var lastCharWritten = 0;
 
+
+function instRunner() {
+            instVal = RISCV.load_inst_from_mem(RISCV.pc);
+            if (!RISCV.excpTrigg) {
+                runInstruction(instVal|0); // , RISCV);
+            }
+            // trap handling
+            if (RISCV.excpTrigg) {
+                if (RISCV.excpTrigg.message === "Floating-Point Disabled") {
+                    // do nothing
+                    //console.log("ignoring FP instruction at: " + stringIntHex(RISCV.pc));
+                    RISCV.pc += 4;
+                    RISCV.excpTrigg = undefined;
+                } else {
+                    //console.log("HANDLING TRAP: " + e.message);
+                    var e = RISCV.excpTrigg;
+                    RISCV.excpTrigg = undefined;
+                    handle_trap(e);
+                }
+            } 
+}
+
+
 // ASSUME GLOBAL ACCESS TO RISCV
 function elfRunNextInst() {
     var instVal;
@@ -49,30 +72,11 @@ function elfRunNextInst() {
         }
 
 
-        // set last PC value for comparison
-        //RISCV.oldpc = RISCV.pc;
-        
-        instVal = RISCV.load_inst_from_mem(RISCV.pc);
-        if (!RISCV.excpTrigg) {
-            runInstruction(instVal); // , RISCV);
-        }
-        // trap handling
-        if (RISCV.excpTrigg) {
-            if (RISCV.excpTrigg.message === "Floating-Point Disabled") {
-                // do nothing
-                //console.log("ignoring FP instruction at: " + stringIntHex(RISCV.pc));
-                RISCV.pc += 4;
-                RISCV.excpTrigg = undefined;
-            } else {
-                //console.log("HANDLING TRAP: " + e.message);
-                var e = RISCV.excpTrigg;
-                RISCV.excpTrigg = undefined;
-                handle_trap(e);
-            }
-        } 
-
+        // TODO: potentially unroll
+        instRunner();
 
         // handle interrupts here. DO NOT put this in inst.js (exceptions will break interrupts)
+        // TODO: if unrolling, change to > 
         if (RISCV.priv_reg[0x506] == RISCV.priv_reg[0x507]) {
             if ((RISCV.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_EI"]) != 0x0) {
                 // interrupts are enabled
