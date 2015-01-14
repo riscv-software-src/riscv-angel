@@ -273,12 +273,12 @@ function runInstruction(raw) { //, RISCV) {
 
                 // SUB
                 case 0x100:
-                    RISCV.gen_reg_lo[inst.get_rd()] = ~RISCV.gen_reg_lo[inst.get_rs2()];
-                    RISCV.gen_reg_hi[inst.get_rd()] = ~RISCV.gen_reg_hi[inst.get_rs2()];
+                    RISCV.gen_reg_lo[33] = ~RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[33] = ~RISCV.gen_reg_hi[inst.get_rs2()];
                     RISCV.gen_reg_lo[32] = 1;
                     RISCV.gen_reg_hi[32] = 0;
-                    do_sixty_four_add(inst.get_rd(), 32, inst.get_rd());
-                    do_sixty_four_add(inst.get_rs1(), inst.get_rd(), inst.get_rd());
+                    do_sixty_four_add(33, 32, 32);
+                    do_sixty_four_add(inst.get_rs1(), 32, inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -849,26 +849,25 @@ function runInstruction(raw) { //, RISCV) {
 
         // Stores
         case 0x23:
-
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rs2());
-
             var funct3 = inst.get_funct3(); 
             switch(funct3) {
                 
                 // SB
                 case 0x0:
-                    var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
-                    RISCV.store_byte_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
+                    RISCV.gen_reg_lo[32] = inst.get_S_imm()|0;
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    do_sixty_four_add(inst.get_rs1(), 32, 32); // reg 32 contains addr
+                    RISCV.store_byte_to_mem(32, RISCV.gen_reg_lo[inst.get_rs2()]);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
                     RISCV.pc += 4;
                     break;
 
                 // SH
                 case 0x1:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
 
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
                     RISCV.store_half_to_mem(addr, RISCV.gen_reg[inst.get_rs2()].getLowBits());
@@ -883,6 +882,8 @@ function runInstruction(raw) { //, RISCV) {
 
                 // SW
                 case 0x2:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
 
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
 
@@ -897,6 +898,8 @@ function runInstruction(raw) { //, RISCV) {
 
                 // SD
                 case 0x3:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
 
                     var addr = (RISCV.gen_reg[inst.get_rs1()]).add(Long.fromNumber2(inst.get_S_imm()|0));
 

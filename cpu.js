@@ -152,15 +152,15 @@ function CPU(memamt) {
         this.memory[(addr >> 2)] |= (val & 0xFFFF) << ((addr & 0x2) << 3);
     }
 
-    function store_byte_to_mem(addr, val) {
+    function store_byte_to_mem(addr_reg, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         if (vmOn) { 
-            addr = translate(addr, 1);
+            addr = translate_new(addr_reg, 1);
             if (RISCV.excpTrigg) {
                 return;
             }
         } else {
-            addr = addr.getLowBitsUnsigned();
+            addr = RISCV.gen_reg_lo[addr_reg];
         }
         this.memory[(addr >> 2)] &= ~(0xFF << ((addr & 0x3) << 3));
         this.memory[(addr >> 2)] |= ((val & 0xFF) << ((addr & 0x3) << 3));
