@@ -273,10 +273,12 @@ function runInstruction(raw) { //, RISCV) {
 
                 // SUB
                 case 0x100:
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-                    RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).subtract(RISCV.gen_reg[inst.get_rs2()]);
-                    copy_old_to_new(inst.get_rd());
+                    RISCV.gen_reg_lo[inst.get_rd()] = ~RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.gen_reg_hi[inst.get_rd()] = ~RISCV.gen_reg_hi[inst.get_rs2()];
+                    RISCV.gen_reg_lo[32] = 1;
+                    RISCV.gen_reg_hi[32] = 0;
+                    do_sixty_four_add(inst.get_rd(), 32, inst.get_rd());
+                    do_sixty_four_add(inst.get_rs1(), inst.get_rd(), inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -725,10 +727,9 @@ function runInstruction(raw) { //, RISCV) {
         case 0x67:
             var funct3 = inst.get_funct3();
             if (funct3 == 0x0) {
-                copy_new_to_old(inst.get_rs1());
-                RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4);
-                RISCV.pc = inst.get_I_imm() + (RISCV.gen_reg[inst.get_rs1()].getLowBits()|0);
-                copy_old_to_new(inst.get_rd());
+                RISCV.gen_reg_lo[inst.get_rd()] = RISCV.pc + 4;
+                RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
+                RISCV.pc = inst.get_I_imm() + RISCV.gen_reg_lo[inst.get_rs1()];
             } else {
                 throw new RISCVTrap("Illegal Instruction");
             }
