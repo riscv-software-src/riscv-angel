@@ -1366,112 +1366,91 @@ function runInstruction(raw) { //, RISCV) {
 
                 // AMOADD.W
                 case 0x2:
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-                    var rd_temp = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]));
+                    var rd_t = RISCV.load_word_from_mem_new(inst.get_rs1());
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    var temp = rd_temp.add(RISCV.gen_reg[inst.get_rs2()]);
-                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], temp.getLowBitsUnsigned());
+                    var temp = rd_t + RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.store_word_to_mem_new(inst.get_rs1(), temp);
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    RISCV.gen_reg[inst.get_rd()] = rd_temp;
-                    copy_old_to_new(inst.get_rd());
-
+                    RISCV.gen_reg_lo[inst.get_rd()] = rd_t;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
                 // AMOSWAP.W
                 case 0xA:
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-
-                    var rd_temp = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]));
-                    if (RISCV.excpTrigg) {
-                        return;
-                    }
-                    var temp = RISCV.gen_reg[inst.get_rs2()];
-                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], temp.getLowBitsUnsigned());
+                    var rd_t = RISCV.load_word_from_mem_new(inst.get_rs1());
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    RISCV.gen_reg[inst.get_rd()] = rd_temp;
-                    copy_old_to_new(inst.get_rd());
+                    var temp = RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.store_word_to_mem_new(inst.get_rs1(), temp);
+                    if (RISCV.excpTrigg) {
+                        return;
+                    }
 
+                    RISCV.gen_reg_lo[inst.get_rd()] = rd_t;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
                 // AMOXOR.W
                 case 0x22:
-
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-
-                    var rd_temp = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]));
+                    var rd_t = RISCV.load_word_from_mem_new(inst.get_rs1());
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    var temp = rd_temp.xor(RISCV.gen_reg[inst.get_rs2()]);
-                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], temp.getLowBitsUnsigned());
+                    var temp = rd_t ^ RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.store_word_to_mem_new(inst.get_rs1(), temp);
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    RISCV.gen_reg[inst.get_rd()] = rd_temp;
-                    copy_old_to_new(inst.get_rd());
-
+                    RISCV.gen_reg_lo[inst.get_rd()] = rd_t;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
                 // AMOAND.W
                 case 0x62:
-
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-
-                    var rd_temp = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]));
+                    var rd_t = RISCV.load_word_from_mem_new(inst.get_rs1());
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    var temp = rd_temp.and(RISCV.gen_reg[inst.get_rs2()]);
-                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], temp.getLowBitsUnsigned());
+                    var temp = rd_t & RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.store_word_to_mem_new(inst.get_rs1(), temp);
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    RISCV.gen_reg[inst.get_rd()] = rd_temp;
-                    copy_old_to_new(inst.get_rd());
-
+                    RISCV.gen_reg_lo[inst.get_rd()] = rd_t;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
                 // AMOOR.W
                 case 0x42:
-
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-
-                    var rd_temp = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]));
+                    var rd_t = RISCV.load_word_from_mem_new(inst.get_rs1());
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    var temp = rd_temp.or(RISCV.gen_reg[inst.get_rs2()]);
-                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], temp.getLowBitsUnsigned());
+                    var temp = rd_t | RISCV.gen_reg_lo[inst.get_rs2()];
+                    RISCV.store_word_to_mem_new(inst.get_rs1(), temp);
                     if (RISCV.excpTrigg) {
                         return;
                     }
 
-                    RISCV.gen_reg[inst.get_rd()] = rd_temp;
-                    copy_old_to_new(inst.get_rd());
-
+                    RISCV.gen_reg_lo[inst.get_rd()] = rd_t;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
                     RISCV.pc += 4;
                     break;
 
