@@ -115,6 +115,46 @@ function CPU(memamt) {
         this.memory[addr+1] = highbits;;
     }
 
+
+    function store_double_to_mem_new(addr_reg, val_lo, val_hi) {
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
+        if (vmOn) { 
+            addr = translate_new(addr_reg, 1);
+            if (RISCV.excpTrigg) {
+                return;
+            }
+        } else {
+            addr = RISCV.gen_reg_lo[addr_reg];
+        }
+
+        if (addr & 0x7) {
+            RISCV.excpTrigg = new RISCVTrap("Store Address Misaligned", addr);
+            return;
+        }
+        addr = addr >> 2;
+        this.memory[addr] = val_lo;
+        this.memory[addr+1] = val_hi;
+    }
+
+
+    function store_word_to_mem_new(addr_reg, val) {
+        var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
+        if (vmOn) { 
+            addr = translate_new(addr_reg, 1);
+            if (RISCV.excpTrigg) {
+                return;
+            }
+        } else {
+            addr = RISCV.gen_reg_lo[addr_reg];
+        }
+        if (addr & 0x3) {
+            RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
+            return;
+        }
+        this.memory[addr >> 2] = val;
+    }
+
+
     function store_word_to_mem(addr, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         if (vmOn) { 
@@ -132,17 +172,16 @@ function CPU(memamt) {
         this.memory[addr >> 2] = val;
     }
 
-    function store_half_to_mem(addr, val) {
+    function store_half_to_mem(addr_reg, val) {
         var vmOn = ((this.priv_reg[PCR["CSR_STATUS"]["num"]] & SR["SR_VM"]) != 0x0);
         if (vmOn) { 
-            addr = translate(addr, 1);
+            addr = translate_new(addr_reg, 1);
             if (RISCV.excpTrigg) {
                 return;
             }
         } else {
-            addr = addr.getLowBitsUnsigned();
+            addr = RISCV.gen_reg_lo[addr_reg];
         }
-
 
         if (addr & 0x1) {
             RISCV.excpTrigg =  new RISCVTrap("Store Address Misaligned", addr);
@@ -332,7 +371,9 @@ function CPU(memamt) {
 
     this.reset_wall_clock = reset_wall_clock;
     this.store_double_to_mem = store_double_to_mem;
+    this.store_double_to_mem_new = store_double_to_mem_new;
     this.store_word_to_mem = store_word_to_mem;
+    this.store_word_to_mem_new = store_word_to_mem_new;
     this.store_half_to_mem = store_half_to_mem;
     this.store_byte_to_mem = store_byte_to_mem;
     this.load_double_from_mem = load_double_from_mem;
