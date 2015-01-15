@@ -12,17 +12,17 @@ function instRunner() {
             }
             // trap handling
             if (RISCV.excpTrigg) {
-                if (RISCV.excpTrigg.message === "Floating-Point Disabled") {
+/*                if (RISCV.excpTrigg.message === "Floating-Point Disabled") {
                     // do nothing
                     //console.log("ignoring FP instruction at: " + stringIntHex(RISCV.pc));
                     RISCV.pc += 4;
                     RISCV.excpTrigg = undefined;
-                } else {
+                } else {*/
                     //console.log("HANDLING TRAP: " + e.message);
                     var e = RISCV.excpTrigg;
                     RISCV.excpTrigg = undefined;
                     handle_trap(e);
-                }
+//                }
             } 
 }
 

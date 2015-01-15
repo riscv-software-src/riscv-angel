@@ -1019,7 +1019,8 @@ function runInstruction(raw) { //, RISCV) {
                         case 0x1:
                             var timm = inst.get_CSR_imm();
                             if (timm == 0x3 || timm == 0x2 || timm == 0x1) {
-                                RISCV.excpTrigg =  new RISCVTrap("Floating-Point Disabled");
+//                                RISCV.excpTrigg =  new RISCVTrap("Floating-Point Disabled");
+                                RISCV.pc += 4;
                                 return;
                             }
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
@@ -1052,7 +1053,8 @@ function runInstruction(raw) { //, RISCV) {
 
                             var timm = inst.get_CSR_imm();
                             if ((timm == 0x3 || timm == 0x2 || timm == 0x1) && (inst.get_rs1() == 0x0)) {
-                                RISCV.excpTrigg = new RISCVTrap("Floating-Point Disabled");
+//                                RISCV.excpTrigg = new RISCVTrap("Floating-Point Disabled");
+                                RISCV.pc += 4;
                                 return;
                             }
                             var temp = RISCV.priv_reg[inst.get_CSR_imm()];
@@ -1867,8 +1869,8 @@ function runInstruction(raw) { //, RISCV) {
         case 0x4B:
         case 0x4F:
         case 0x53:
-            RISCV.excpTrigg = new RISCVTrap("Floating-Point Disabled");
-            return;
+            //RISCV.excpTrigg = new RISCVTrap("Floating-Point Disabled");
+            RISCV.pc += 4;
             break;
 
         default:
@@ -1881,14 +1883,8 @@ function runInstruction(raw) { //, RISCV) {
 
 
     // force x0 (zero) to zero
-    RISCV.gen_reg[0] = Long.ZERO;
     RISCV.gen_reg_lo[0] = 0;
     RISCV.gen_reg_hi[0] = 0;
-
-//    for (var q = 0; q < 32; q++) {
-//        copy_old_to_new(q);
-//    }
-
 
 
     // finally, increment cycle counter, instret counter, count register:
