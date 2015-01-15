@@ -1805,73 +1805,44 @@ function runInstruction(raw) { //, RISCV) {
 
                 // LR.W
                 case 0x12:
-
-                    copy_new_to_old(inst.get_rs1());
-
-                    // This acts just like a lw in this implementation (no need for sync)
-                    // (except there's no immediate)
-                    var fetch = signExtLT32_64(RISCV.load_word_from_mem(RISCV.gen_reg[inst.get_rs1()]));
+                    var fetch = RISCV.load_word_from_mem_new(inst.get_rs1());
                     if (RISCV.excpTrigg) {
                         return;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = fetch;
-                    copy_old_to_new(inst.get_rd());
-
+                    RISCV.gen_reg_lo[inst.get_rd()] = fetch;
+                    RISCV.gen_reg_hi[inst.get_rd()] = fetch >> 31;
                     RISCV.pc += 4;
                     break;
 
                 // LR.D
                 case 0x13:
-
-                    copy_new_to_old(inst.get_rs1());
-
-                    // This acts just like a ld in this implementation (no need for sync)
-                    // (except there's no immediate)
-                    var fetch = RISCV.load_double_from_mem(RISCV.gen_reg[inst.get_rs1()]);
+                    RISCV.load_double_from_mem_new(inst.get_rs1(), inst.get_rd()); // unlike the others, this fn sets the dest reg directly
                     if (RISCV.excpTrigg) {
                         return;
                     }
-                    RISCV.gen_reg[inst.get_rd()] = fetch;
-                    copy_old_to_new(inst.get_rd());
-
                     RISCV.pc += 4;
                     break;
 
                 // SC.W
                 case 0x1A:
-
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-
-                    // this acts just like a sd in this implementation, but it will
-                    // always set the check register to 0 (indicating load success)
-                    RISCV.store_word_to_mem(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()].getLowBits());
+                    RISCV.store_word_to_mem_new(inst.get_rs1(), RISCV.gen_reg_lo[inst.get_rs2()]);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-                    RISCV.gen_reg[inst.get_rd()] = Long.ZERO; // indicate success
-                    copy_old_to_new(inst.get_rd());
+                    RISCV.gen_reg_lo[inst.get_rd()] = 0; // indicate success
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0; // indicate success
 
                     RISCV.pc += 4;
                     break;
 
                 // SC.D
                 case 0x1B:
-
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-
-                    // this acts just like a sd in this implementation, but it will
-                    // always set the check register to 0 (indicating load success)
-                    RISCV.store_double_to_mem(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()]);
+                    RISCV.store_double_to_mem_new(inst.get_rs1(), RISCV.gen_reg_lo[inst.get_rs2()], RISCV.gen_reg_hi[inst.get_rs2()]);
                     if (RISCV.excpTrigg) {
                         return;
                     }
-
-                    RISCV.gen_reg[inst.get_rd()] = Long.ZERO; // indicate success
-                    copy_old_to_new(inst.get_rd());
-
+                    RISCV.gen_reg_lo[inst.get_rd()] = 0; // indicate success
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0; // indicate success
                     RISCV.pc += 4;
                     break;
 
