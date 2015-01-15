@@ -636,18 +636,15 @@ function runInstruction(raw) { //, RISCV) {
 
         // L-TYPE (AUIPC) - opcode: 0b0010111
         case 0x17:
-            RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(inst.get_U_imm() + (RISCV.pc & 0xFFFFF000));
-            if ((RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned() & 0xFF000000) == 0x55000000) {
-                RISCV.gen_reg[inst.get_rd()] = new Long(RISCV.gen_reg[inst.get_rd()].getLowBitsUnsigned(), 0x155);
-            }
-            copy_old_to_new(inst.get_rd());
+            RISCV.gen_reg_lo[inst.get_rd()] = inst.get_U_imm() + (RISCV.pc & 0xFFFFF000);
+            RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
             RISCV.pc += 4;
             break;
 
         // J-TYPE (JAL) - opcode: 0b1101111
         case 0x6F:
-            RISCV.gen_reg[inst.get_rd()] = signExtLT32_64(RISCV.pc + 4);
-            copy_old_to_new(inst.get_rd());
+            RISCV.gen_reg_lo[inst.get_rd()] = RISCV.pc + 4;
+            RISCV.gen_reg_hi[inst.get_rd()] = RISCV.gen_reg_lo[inst.get_rd()] >> 31;
             RISCV.pc = (RISCV.pc|0) + inst.get_J_imm();
             break;
 
