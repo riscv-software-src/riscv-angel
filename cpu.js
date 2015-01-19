@@ -49,8 +49,8 @@ function CPU(memamt) {
 
 
     // registers 32 and 33 are implementation scratch space, not part of the ISA
-    this.gen_reg_lo = new Uint32Array(34); // new regfile lo bits
-    this.gen_reg_hi = new Uint32Array(34); // new regfile hi bits
+    this.gen_reg_lo = new Uint32Array(36); // new regfile lo bits
+    this.gen_reg_hi = new Uint32Array(36); // new regfile hi bits
 
 
     // privileged control registers

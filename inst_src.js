@@ -100,23 +100,6 @@ function signExtLT32_64(quantity) {
     return new Long(quantity|0, quantity >> 31);
 }
 
-
-// sign extend a < 32 bit number to 64 bits based on bit
-function signExtLT32_64_v(quantity, bit) {
-    // bits numbered 31, 30, .... 2, 1, 0
-    bitval = ((quantity|0) >> bit) & 0x00000001;
-    if (bitval === 0) {
-        return new Long(quantity|0, 0x00000000);
-    } else if (bitval === 1) {
-        mask = 0x80000000;
-        mask = mask >> (31-bit) 
-        return new Long((quantity | mask), 0xFFFFFFFF);
-    } else {
-        throw new RISCVError("ERR in signext");
-    }
-}
-
-
 function copy_new_to_old(regno) {
     RISCV.gen_reg[regno] = new Long(RISCV.gen_reg_lo[regno], RISCV.gen_reg_hi[regno]);
 }
@@ -152,6 +135,32 @@ function do_sixty_four_add(inreg1, inreg2, outreg) {
 function imm_to_temp(val32, scratchno) {
     RISCV.gen_reg_lo[scratchno] = val32;
     RISCV.gen_reg_hi[scratchno] = val32 >> 31;
+}
+
+
+function compare_longs(regno1, regno2) {
+    if (RISCV.gen_reg_lo[regno1] == RISCV.gen_reg_lo[regno2] && RISCV.gen_reg_hi[regno1] == RISCV.gen_reg_hi[regno2]) {
+        return 0;
+    } 
+    var regno1_n = RISCV.gen_reg_hi[regno1] & 0x80000000; 
+    var regno2_n = RISCV.gen_reg_hi[regno2] & 0x80000000;   
+    if (regno1_n && !regno2_n) {
+        return -1;
+    } else if (!regno1_n && regno2_n) {
+        return 1;
+    } else {
+        RISCV.gen_reg_lo[34] = ~RISCV.gen_reg_lo[regno2];
+        RISCV.gen_reg_hi[34] = ~RISCV.gen_reg_hi[regno2];
+        RISCV.gen_reg_lo[35] = 1;
+        RISCV.gen_reg_hi[35] = 0;
+        do_sixty_four_add(34, 35, 35);
+        do_sixty_four_add(regno1, 35, 34);
+        if (RISCV.gen_reg_hi[34] & 0x80000000) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
 }
 
 
@@ -192,13 +201,14 @@ function runInstruction(raw) { //, RISCV) {
 
                 // SLTI 
                 case 0x2:
-                    copy_new_to_old(inst.get_rs1());
-                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(signExtLT32_64(inst.get_I_imm()))) {
-                        RISCV.gen_reg[inst.get_rd()] = Long.ONE;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
+                    RISCV.gen_reg_lo[32] = inst.get_I_imm();
+                    RISCV.gen_reg_hi[32] = RISCV.gen_reg_lo[32] >> 31;
+                    if (0 > compare_longs(inst.get_rs1(), 32)) {
+                        RISCV.gen_reg_lo[inst.get_rd()] = 1;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
+                        RISCV.gen_reg_lo[inst.get_rd()] = 0;
                     }
-                    copy_old_to_new(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
@@ -257,8 +267,6 @@ function runInstruction(raw) { //, RISCV) {
             }
             break;
 
-// ============================================================ FULLY CONVERTED TO HERE
-
         // R-TYPE, opcode: 0b0110011
         case 0x33:
             var funct10 = (inst.get_funct7() << 3) | inst.get_funct3();
@@ -293,14 +301,12 @@ function runInstruction(raw) { //, RISCV) {
 
                 // SLT
                 case 0x2:
-                    copy_new_to_old(inst.get_rs1());
-                    copy_new_to_old(inst.get_rs2());
-                    if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])) {
-                        RISCV.gen_reg[inst.get_rd()] = Long.ONE;
+                    RISCV.gen_reg_hi[inst.get_rd()] = 0;
+                    if (0 > compare_longs(inst.get_rs1(), inst.get_rs2())) {
+                        RISCV.gen_reg_lo[inst.get_rd()] = 1;
                     } else {
-                        RISCV.gen_reg[inst.get_rd()] = Long.ZERO;
+                        RISCV.gen_reg_lo[inst.get_rd()] = 0;
                     }
-                    copy_old_to_new(inst.get_rd());
                     RISCV.pc += 4;
                     break;
 
