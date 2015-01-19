@@ -651,15 +651,12 @@ function runInstruction(raw) { //, RISCV) {
         // B-TYPE (Branches) - opcode: 0b1100011
         case 0x63:
 
-            copy_new_to_old(inst.get_rs1());
-            copy_new_to_old(inst.get_rs2());
-
             var funct3 = inst.get_funct3();
             switch(funct3) {
 
                 // BEQ
                 case 0x0:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).equals(RISCV.gen_reg[inst.get_rs2()])) {
+                    if ((RISCV.gen_reg_lo[inst.get_rs1()] == RISCV.gen_reg_lo[inst.get_rs2()]) && (RISCV.gen_reg_hi[inst.get_rs1()] == RISCV.gen_reg_hi[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + inst.get_B_imm();
                     } else {
                         RISCV.pc += 4;
@@ -668,7 +665,7 @@ function runInstruction(raw) { //, RISCV) {
 
                 // BNE
                 case 0x1:
-                    if ((RISCV.gen_reg[inst.get_rs1()]).notEquals(RISCV.gen_reg[inst.get_rs2()])) {
+                    if ((RISCV.gen_reg_lo[inst.get_rs1()] != RISCV.gen_reg_lo[inst.get_rs2()]) || (RISCV.gen_reg_hi[inst.get_rs1()] != RISCV.gen_reg_hi[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + inst.get_B_imm();
                     } else {
                         RISCV.pc += 4;
@@ -677,6 +674,10 @@ function runInstruction(raw) { //, RISCV) {
 
                 // BLT
                 case 0x4:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
+
+
                     if ((RISCV.gen_reg[inst.get_rs1()]).lessThan(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + inst.get_B_imm();
                     } else {
@@ -686,6 +687,10 @@ function runInstruction(raw) { //, RISCV) {
 
                 // BGE
                 case 0x5:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
+
+
                     if ((RISCV.gen_reg[inst.get_rs1()]).greaterThanOrEqual(RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + inst.get_B_imm();
                     } else {
@@ -695,6 +700,10 @@ function runInstruction(raw) { //, RISCV) {
 
                 // BLTU
                 case 0x6:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
+
+
                     if (long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + inst.get_B_imm();
                     } else {
@@ -704,6 +713,10 @@ function runInstruction(raw) { //, RISCV) {
 
                 // BGEU
                 case 0x7:
+            copy_new_to_old(inst.get_rs1());
+            copy_new_to_old(inst.get_rs2());
+
+
                     if (!long_less_than_unsigned(RISCV.gen_reg[inst.get_rs1()], RISCV.gen_reg[inst.get_rs2()])) {
                         RISCV.pc = (RISCV.pc|0) + inst.get_B_imm();
                     } else {
