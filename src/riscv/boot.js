@@ -7,7 +7,7 @@ term = new Terminal({
 
 function runWorker() {
   myWorker = new Worker('webworker.js');
-  myWorker.onmessage = function (oEvent) {
+  myWorker.onmessage = function(oEvent) {
     if (oEvent.data.type == 't') {
       // handle term event
       //            write_to_term(oEvent.data.d);
@@ -19,7 +19,7 @@ function runWorker() {
 function prepTerm() {
   term.open(document.getElementById('consoleBox'));
   term.handler = function a(indata2) {
-    myWorker.postMessage({ type: 'u', inp: indata2 });
+    myWorker.postMessage({type: 'u', inp: indata2});
   };
 }
 
