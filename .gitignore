@@ -3,3 +3,6 @@ compileserver/binaries/*
 compileserver/gccresults/*
 compileserver/objdumpresults/*
 src/riscv/inst.js
+
+# NPM
+node_modules/
