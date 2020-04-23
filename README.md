@@ -19,3 +19,17 @@ npm run dev
 ```
 
 This should open your browser containing the project. Any changes you make in the code will automatically reload the browser.
+
+## Issues
+
+If you have problems running the development envirornment and get a message that says:
+
+> http://0.0.0.0:8080 is already in use. Trying another port.
+
+If you're on a Debian-based machine, you can run
+
+```
+npm run kill:8080
+```
+
+This will kill the process listening on port 8080.
