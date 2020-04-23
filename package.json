@@ -7,7 +7,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "dev": "live-server",
+    "dev": "make && live-server",
+    "kill:8080": "sudo kill -9 `sudo lsof -t -i:8080`",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
