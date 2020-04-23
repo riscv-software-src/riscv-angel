@@ -22,7 +22,7 @@ This should open your browser containing the project. Any changes you make in th
 
 ## Code style
 
-This project is using [ESLint](https://eslint.org/) to detect code problems and enforce code style.
+This project is using [ESLint](https://eslint.org/) to enforce good style.
 
 To see style errors for a particular file, run:
 
