@@ -55,30 +55,12 @@ function check_HTIF() {
                     var toWrite = "";
                 }
 
-/*                for (var i = 0; i < toWrite.length; i++) {
-                    if (((addr.getLowBits() + i) & 0x3) == 0x0) {
-                        RISCV.memory[(addr.getLowBits() + i) >> 2] = 0x0;
-                    }
-                    RISCV.memory[(addr.getLowBits() + i) >> 2] |= (toWrite.charCodeAt(i) & 0xFF) << ((i & 0x3) << 3);
-                }
-                // null term if null term would go in new word
-                if (((addr.getLowBits() + toWrite.length) & 0x3) == 0x0) {
-                    RISCV.memory[(addr.getLowBits() + toWrite.length) >> 2] &= 0xFFFFFF00;
-                }
-*/
                 for (var i = 0; i < toWrite.length; i++) {
                     RISCV.memory[(addr.getLowBits() + i) >> 2] &= ~((0xFF) << ((i & 0x3) << 3));
                     RISCV.memory[(addr.getLowBits() + i) >> 2] |= (toWrite.charCodeAt(i) & 0xFF) << ((i & 0x3) << 3);
                 }
                 // null term if null term would go in new word
                 RISCV.memory[(addr.getLowBits() + toWrite.length) >> 2] &= ~((0xFF) << (((addr.getLowBits() + toWrite.length) & 0x3) << 3));
-
-
-
-/*                for (var i = 0; i < toWrite.length; i++) {
-                    RISCV.memory[addr.getLowBits() + i] = toWrite.charCodeAt(i) & 0xFF;
-                }
-                RISCV.memory[addr.getLowBits() + toWrite.length] = 0x00;*/
 
                 RISCV.priv_reg[PCR["CSR_FROMHOST"]["num"]] = Long.ONE;
 
@@ -100,7 +82,6 @@ function signExtLT32_64(quantity) {
     return new Long(quantity|0, quantity >> 31);
 }
 
-
 // sign extend a < 32 bit number to 64 bits based on bit
 function signExtLT32_64_v(quantity, bit) {
     // bits numbered 31, 30, .... 2, 1, 0
@@ -116,16 +97,11 @@ function signExtLT32_64_v(quantity, bit) {
     }
 }
 
-
 // Takes instruction obj and CPU obj as args, performs computation on given CPU
 function runInstruction(raw) { //, RISCV) {
-    // force x0 (zero) to zero
-
-//    RISCV.gen_reg[0] = Long.ZERO;
     var op = inst.get_opcode();
 
     switch(op) {
-    
         // I-TYPE, opcode: 0b0010011
         case 0x13:
             var funct3 = inst.get_funct3();
@@ -197,7 +173,6 @@ function runInstruction(raw) { //, RISCV) {
                 default:
                     throw new RISCVTrap("Illegal Instruction");
                     break;
-
             }
             break;
 
@@ -206,7 +181,6 @@ function runInstruction(raw) { //, RISCV) {
             var funct10 = (inst.get_funct7() << 3) | inst.get_funct3();
 
             switch(funct10) {
-
                 // ADD
                 case 0x0:
                     RISCV.gen_reg[inst.get_rd()] = (RISCV.gen_reg[inst.get_rs1()]).add(RISCV.gen_reg[inst.get_rs2()]);

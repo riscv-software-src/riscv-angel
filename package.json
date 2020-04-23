@@ -2,12 +2,12 @@
   "name": "riscv-angel-extended",
   "version": "1.0.0",
   "description": "riscv-angel-extended",
-  "main": "cpu.js",
+  "main": "src/riscv/cpu.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "dev": "make && live-server",
+    "dev": "bash scripts/instmacros.sh && live-server",
     "kill:8080": "sudo kill -9 `sudo lsof -t -i:8080`",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

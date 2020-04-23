@@ -1,4 +1,0 @@
-
-
-all:
-	bash instmacros.sh

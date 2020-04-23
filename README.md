@@ -20,6 +20,16 @@ npm run dev
 
 This should open your browser containing the project. Any changes you make in the code will automatically reload the browser.
 
+## Project layout
+
+### JavaScript
+
+Most of the files that were included with the original project have been moved to `src/riscv/`.
+
+### CSS
+
+Stylesheets are located in `styles/`.
+
 ## Issues
 
 If you have problems running the development envirornment and get a message that says:
