@@ -1,20 +1,22 @@
-riscv-angel
+riscv-angel-extended
 =====
 
-ANGEL is a Javascript RISC-V ISA (RV64) Simulator that runs riscv-linux with BusyBox.
+This project is an extension of [riscv-angel](https://github.com/riscv/riscv-angel) containing additional UI features like showing the internal state of the OS and CPU in real time.
 
-Check out the demo running at: https://riscv.org/software-tools/riscv-angel/
+## Setup
 
-## *NOTE:* 
+Install dependencies with 
 
-ANGEL is not under active development - it implements old draft versions of the RISC-V specs (~late 2014)
+```
+npm install
+```
 
-## Building/Running locally
+From the project root, run:
 
-Run `make`, make sure you have GNU sed.
+```
+npm run dev
+```
 
-Start a webserver in the angel directory, e.g.
+This should open your browser and running the project. Any changes you make in the code will automatically reload the browser.
 
-    python -m SimpleHTTPServer 8000
-    
-Visit localhost:8000/run.html in your browser.
+

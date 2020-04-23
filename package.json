@@ -1,0 +1,27 @@
+{
+  "name": "riscv-angel-extended",
+  "version": "1.0.0",
+  "description": "riscv-angel-extended",
+  "main": "cpu.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "dev": "live-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swkeever/riscv-angel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/swkeever/riscv-angel/issues"
+  },
+  "homepage": "https://github.com/swkeever/riscv-angel#readme",
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
