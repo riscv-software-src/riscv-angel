@@ -8,17 +8,40 @@ First, make sure you have [NPM](https://www.npmjs.com/get-npm) installed.
 
 Once NPM is installed, you can install the project dependencies with:
 
-```
+```bash
 npm install
 ```
 
 Once complete, navigate to the project root and run:
 
-```
+```bash
 npm run dev
 ```
 
 This should open your browser containing the project. Any changes you make in the code will automatically reload the browser.
+
+## Code style
+
+This project is using [ESLint](https://eslint.org/) to detect code problems and enforce code style.
+
+To see style errors for a particular file, run:
+
+```bash
+npm run lint <file.js>
+```
+
+To see style errors for all files, run:
+
+```bash
+npm run lint:all
+```
+
+Additionally, you can have the linter attempt to correct style issues with the following two commands:
+
+```bash
+npm run lint:fix <file.js> # fixes individual js files
+npm run lint:fix-all # fixes all js files
+```
 
 ## Project layout
 
@@ -38,7 +61,7 @@ If you have problems running the development envirornment and get a message that
 
 If you're on a Debian-based machine, you can run
 
-```
+```bash
 npm run kill:8080
 ```
 
