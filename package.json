@@ -2,30 +2,33 @@
   "name": "riscv-angel-extended",
   "version": "1.0.0",
   "description": "riscv-angel-extended",
-  "main": "src/riscv/cpu.js",
+  "main": "src/index.js",
   "directories": {
     "lib": "lib"
   },
   "scripts": {
-    "dev": "bash scripts/instmacros.sh && live-server",
+    "start": "bash scripts/instmacros.sh && react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "reinstall": "rm -rf node_modules && npm install",
     "lint": "./node_modules/.bin/eslint --no-error-on-unmatched-pattern",
     "lint:all": "./node_modules/.bin/eslint --no-error-on-unmatched-pattern src",
     "lint:fix": "./node_modules/.bin/eslint --no-error-on-unmatched-pattern --fix",
     "lint:fix-all": "./node_modules/.bin/eslint --no-error-on-unmatched-pattern --fix src",
-    "kill:8080": "sudo kill -9 `sudo lsof -t -i:8080`",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "kill:8080": "sudo kill -9 `sudo lsof -t -i:8080`"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/swkeever/riscv-angel.git"
+    "url": "git+https://github.com/swkeever/riscv-angel-extended.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/swkeever/riscv-angel/issues"
+    "url": "https://github.com/swkeever/riscv-angel-extended/issues"
   },
-  "homepage": "https://github.com/swkeever/riscv-angel#readme",
+  "homepage": "",
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
@@ -33,6 +36,22 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^2.5.1",
-    "live-server": "^1.2.1"
+    "react-scripts": "^3.4.1"
+  },
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

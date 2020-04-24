@@ -12,10 +12,10 @@ Once NPM is installed, you can install the project dependencies with:
 npm install
 ```
 
-Once complete, navigate to the project root and run:
+The project has been configured to work like [create-react-app](https://reactjs.org/docs/create-a-new-react-app.html). You can start a development server with:
 
 ```bash
-npm run dev
+npm run start
 ```
 
 This should open your browser containing the project. Any changes you make in the code will automatically reload the browser.
@@ -42,27 +42,3 @@ Additionally, you can have the linter attempt to correct style issues with the f
 npm run lint:fix <file.js> # fixes individual js files
 npm run lint:fix-all # fixes all js files
 ```
-
-## Project layout
-
-### JavaScript
-
-Most of the files that were included with the original project have been moved to `src/riscv/`.
-
-### CSS
-
-Stylesheets are located in `styles/`.
-
-## Issues
-
-If you have problems running the development envirornment and get a message that says:
-
-> http://0.0.0.0:8080 is already in use. Trying another port.
-
-If you're on a Debian-based machine, you can run
-
-```bash
-npm run kill:8080
-```
-
-This will kill the process listening on port 8080.

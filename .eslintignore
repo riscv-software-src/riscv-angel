@@ -1,5 +1,1 @@
-src/riscv/
-lib/
-node_modules/
-devices/
-webworker.js
+public/
