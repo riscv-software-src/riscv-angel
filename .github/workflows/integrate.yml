@@ -8,4 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ESLint
-        run: npm run lint:fix-all
+        run: npm run lint:all
+        
