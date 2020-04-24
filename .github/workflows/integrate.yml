@@ -1,0 +1,11 @@
+name: Node Continuous Integration
+
+on: [push]
+
+jobs:
+  lint:
+    name: Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: ESLint
+        run: npm run lint:fix-all
