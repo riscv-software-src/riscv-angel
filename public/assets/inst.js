@@ -4,6 +4,8 @@
 //# DO NOT MODIFY THIS FILE, CHANGES WILL BE OVERWRITTEN                         #
 //# DO NOT MODIFY THIS FILE, CHANGES WILL BE OVERWRITTEN                         #
 //################################################################################
+var RISCV;
+
 function check_HTIF() {
     var toHostVal = RISCV.priv_reg[PCR["CSR_TOHOST"]["num"]];
     // check toHost, output to JS console, clear it
