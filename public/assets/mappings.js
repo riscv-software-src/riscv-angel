@@ -7,6 +7,8 @@ function CONSTS() {
     this.EXEC = 2;
 }
 
+var RISCV;
+
 // instantiate a copy
 CONSTS = new CONSTS();
 
