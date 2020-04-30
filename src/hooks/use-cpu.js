@@ -18,7 +18,4 @@ function useCPU() {
   return cpu;
 }
 
-export {
-  useCPU,
-  useState,
-};
+export default useCPU;
