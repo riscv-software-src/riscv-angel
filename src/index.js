@@ -33,41 +33,16 @@ class Category extends React.Component {
 }
 
 const RegisterPanel = (props) => {
-  const rs = props.registers.map((reg) => <li>{reg.low_}</li>);
+  const rs = props.registers.map((reg, i) => <li>{"x" + i + ": "+ reg.low_}</li>);
   return <div>
-    <Category registers={rs} name={"Pointers"}/>
-    <Category> Temporary</Category>
-    <Category> Callee-saved</Category>
-    <Category> Arguments </Category>
+    <Category registers={rs.slice(0, 5)} name={"Pointers"}/>
+    <Category registers={rs.slice(5, 8).concat(rs.slice(28, 32))} name={"Temporary"}> Temporary</Category>
+    <Category registers={rs.slice(8, 10).concat(rs.slice(18, 28))} name={"Callee-saved"}> Callee-saved</Category>
+    <Category registers={rs.slice(10, 18)} name={"Arguments"}> Arguments </Category>
   </div>
 }
 
 const Registers = (props) => {
-  return <div>
-    {props.registers}
-  </div>
-}
-
-const showRegisters = (registers) => {
-  console.log("in showRegisters");
-  return <div>
-    <p> does this work?</p>
-  </div>
-}
-
-const RegisterMenu = (props) => {
-  return <div>
-    <button onClick={() => showRegisters(props.registers[0])}> Pointers </button>
-    <button>Temporary Registers</button>
-    <button>Callee-saved Registers</button>
-    <button>Argument Registers</button>
-  </div>
-}
-
-
-const RegisterBoard = (props) => {
-  //.map((reg) => <li>{reg.low_}</li>);
-
   return <div>
     {props.registers}
   </div>
@@ -83,7 +58,7 @@ const App = () => {
 
   console.log(cpu);
 
-  const rs = cpu.registers.map((reg) => <li>{reg.low_}</li>);
+  const rs = cpu.registers.map((reg, i) => <li>{"x" + i + ": "+ reg.low_}</li>);
   console.log(rs);
 
   return (
