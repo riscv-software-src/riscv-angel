@@ -1,5 +1,10 @@
 # riscv-angel-extended
 
+![Angel statue](public/assets/images/statue.jpg)
+
+*Photo by [Simon Birt](https://unsplash.com/@simonbirt).*
+
+
 This project is an extension of [riscv-angel](https://github.com/riscv/riscv-angel) containing additional UI features like showing the internal state of the OS and CPU in real time.
 
 ## Setup
