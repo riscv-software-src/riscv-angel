@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import useCPU from './hooks/use-cpu';
+import RegisterPanel from './components/Registers';
+
 
 const App = () => {
   const cpu = useCPU();
@@ -11,14 +13,10 @@ const App = () => {
 
   console.log(cpu);
 
-  const rs = cpu.registers.map((reg) => <li>{reg.low_}</li>);
-
   return (
     <>
       <h1>hello world</h1>
-      <ul>
-        {rs}
-      </ul>
+      <RegisterPanel registers={cpu.registers} />
     </>
   );
 };
