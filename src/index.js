@@ -1,35 +1,64 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import useCPU from './hooks/use-cpu';
+// import { useState } from 'react';
+import { useCPU, useState } from './hooks/use-cpu';
 
-class Category extends React.Component {
-  constructor({ registers, name }) {
-    super({ registers, name });
-    this.state = {
-      showComponent: false,
-    };
-    this._onButtonClick = this._onButtonClick.bind(this);
-    this.name = name;
-    this.registers = registers;
-  }
+// class Category extends React.Component {
+//   constructor({ registers, name }) {
+//     super({ registers, name });
+//     this.state = {
+//       showComponent: false,
+//     };
+//     this._onButtonClick = this._onButtonClick.bind(this);
+//     this.name = name;
+//     this.registers = registers;
+//   }
 
-  _onButtonClick() {
-    this.setState((prevState) => ({ showComponent: !prevState.showComponent }));
-  }
+//   _onButtonClick() {
+//     this.setState((prevState) => ({ showComponent: !prevState.showComponent }));
+//   }
 
-  render() {
-    const { showComponent } = this.state;
+//   render() {
+//     const { showComponent } = this.state;
+//     return (
+//       <div>
+//         <button type="submit" onClick={this._onButtonClick}>{this.name}</button>
+//         {showComponent
+//           ? <Registers registers={this.registers} />
+//           : null}
+//       </div>
+//     );
+//   }
+// }
+
+const Category = ({ registers, name }) => {
+  const [showButton, setShowButton] = useState(false);
+
+  const toggleButton = () => {
+    // console.log("toggle", name,registers);
+    setShowButton(!showButton);
+  };
+
+  if (!showButton) {
     return (
       <div>
-        <button type="submit" onClick={this._onButtonClick}>{this.name}</button>
-        {showComponent
-          ? <Registers registers={this.registers} />
-          : null}
+        <button type="submit" onClick={toggleButton}>
+          click me
+        </button>
       </div>
     );
   }
-}
+  return (
+    <div>
+      <button type="submit" onClick={() => toggleButton(registers)}>
+        click me
+      </button>
+      {registers}
+      {name}
+    </div>
+  );
+};
 
 Category.propTypes = {
   registers: PropTypes.arrayOf.isRequired,
@@ -55,6 +84,10 @@ const RegisterPanel = ({ registers }) => {
       <Category registers={rs.slice(5, 8).concat(rs.slice(28, 32))} name="Temporary" />
       <Category registers={rs.slice(8, 10).concat(rs.slice(18, 28))} name="Callee-saved" />
       <Category registers={rs.slice(10, 18)} name="Arguments" />
+      {/* <Category registers={rs} name="Pointers" />
+      <Category registers={rs} name="Temporary" />
+      <Category registers={rs} name="Callee-saved" />
+      <Category registers={rs} name="Arguments" /> */}
     </div>
   );
 };
