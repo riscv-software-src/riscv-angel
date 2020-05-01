@@ -104,7 +104,7 @@
   The goal of our project is to create a means of letting a user not only use an OS,
   but to allow a user to see what is going on inside the OS and CPU.
   To this end, our project aims to maximize availability to users by
-  providing a browser-based interface that lets the user visit a webpage and 
+  providing a browser-based interface that lets the user visit a webpage and
   visualizing an OS from the moment he or she visits the page.
 \end{abstract}
 
@@ -160,7 +160,7 @@ We are having some trouble figuring out what exactly would be useful data to sho
 One of the challenges for the team was facing ambiguity in this project.
 It was difficult to interpret exactly what needed to be done.
 
-To facilitate this problem and make development easier, 
+To facilitate this problem and make development easier,
 we started approaching the project with an Agile workflow.
 We are using GitHub's Kanban board functionality to track issues and milestones.
 We hold weekly stand-ups to find out
@@ -195,15 +195,15 @@ in order to run the emulator. The legacy code accomplishes this by spawning a wo
 that handles all the emulation tasks. The main thread interacts with this worker thread via
 message passing.
 
-This existing framework is most likely not going to work in our React app. 
+This existing framework is most likely not going to work in our React app.
 To use the existing code, we would
 need to fetch the OS/CPU state via message passing. But we want our application to update in real
 time as the user uses the OS. Thus, the only solution we see is polling the worker thread and
 asking it for the most up-to-date view of CPU state. This strategy bogs down the application
 and will not be a strategy that we can move forward with long term.
 
-We will need to do work to port some of the legacy code into the React scope. This way, when 
-the OS is being used, React can know about the changes in state in real-time. 
+We will need to do work to port some of the legacy code into the React scope. This way, when
+the OS is being used, React can know about the changes in state in real-time.
 We think this refactor will increase performance substantially and will be necessary
 if we want this application to be usable.
 
