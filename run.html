@@ -51,16 +51,21 @@
 <script>
 function runWorker() {
     var fileList = document.getElementById("file-selector");
-    const filesize = fileList.files.item(0).size;
-    const fsizegb = Math.round((filesize / (1024 * 1024)));
-    if (fsizegb > 3 ) {
-        if (!(confirm("File too Big!! Continue?"))) {
-            window.location.reload();
+    var file = fileList.files;
+    if(file.length != 0) {
+        var fileSize = file[0].size - 1;
+        var fsizegb = Math.round((fileSize / (1024 * 1024)));
+        if (fsizegb > 3 ) {
+            if (!(confirm("File too Big!! Size greater that 3Gb Continue?"))) {
+              window.location.reload();
+            }
         }
     }
     $('#bootButton').attr('disabled', true);
     $('#bootButton').html("Running...");
     $('#bootButton').prop("onclick", null);
+    $('#file-selector').attr('disabled', true);
+    $('#file-selector').prop("onclick", null);
     myWorker = new Worker("webworker.js");
     myWorker.onmessage = function(oEvent) {
         if (oEvent.data.type == "t") {
@@ -82,22 +87,46 @@ function runWorker() {
             document.getElementById("mipsCount").innerHTML = oEvent.data.d;
         }
     };
-    var reader = new FileReader();
-    var arrayBuffer = null;
-    reader.onload = function(e){
-        var arrayBuffer = reader.result;
-        //console.log(arrayBuffer);
-        //Update progress
-        postMessage({"type": "p", "d": e.loaded / e.total});
-        myWorker.postMessage({"type": "f", "inp": arrayBuffer});
+    var binaryBuffer;
+    var offset = 0;
+    const CHUNK_SIZE = 64 * 4 * 1024; // Chunk multiple of 4K
+    var ReadFunction = function(e) {
+        if (e.target.error == null) {
+
+            if(offset == 0) {
+                binaryBuffer = e.target.result;
+            } else {
+                binaryBuffer = binaryBuffer.concat( e.target.result);
+            }
+            offset += e.target.result.length;
+
+            //Update the prog bar
+            document.getElementById("bar").style.width = ((offset/fileSize)*100).toString() + "%";
+
+            if (offset >= fileSize) {
+                console.log("Done reading file");
+                myWorker.postMessage({"type": "f", "inp": binaryBuffer});
+                return;
+            }
+            ReadImageFile(offset, file);
+        } else {
+            console.error("File read error!!: " + e.target.error.code);
+        }
     }
-    reader.onerror = function(e) { 
-        console.error("File read error!!: " + e.target.error.code);
-    };
+    function ReadImageFile(offset, _file) {
+        var fr = new FileReader();
+        var start = offset;
+        //var end =  offset + CHUNK_SIZE;
+        var end = Math.min((offset + CHUNK_SIZE), _file[0].size);
+        var slice = _file[0].slice(start, end);
+        fr.onload = ReadFunction;
+        fr.readAsBinaryString(slice);
+    }
+
     if (fileList.files.length == 0) {
-                myWorker.postMessage({"type": "f", "inp": fileList.value});
+        myWorker.postMessage({"type": "f", "inp": fileList.value});
     } else {
-                reader.readAsBinaryString(fileList.files[0]);
+        ReadImageFile(offset, file);
     }
 }
 </script>
