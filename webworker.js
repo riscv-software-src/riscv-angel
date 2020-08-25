@@ -32,17 +32,28 @@ self.addEventListener("message", function (oEvent) {
             }
         }
         elfRunNextInst();
+    } else if (oEvent.data.type == "f") {
+        filesList = oEvent.data.inp;
+        runCodeC(filesList);
     }
 }, false);
 
+function runNer(input) {
+    //We do not execute untill we have a file selected
+    console.log('In runner');
+}
 function runCodeC(userIn) {
     //compilestat = document.getElementById("compilestatus");
     //compilestat.innerHTML = "Compile Status: Compiling, waiting for server response.";
-    filesList = ["lib/riscv_compiled/vmlinux" ];
-
-    handle_file_continue(filesList);
-
-    RISCV = new CPU();
+    if (userIn.length == 0) {
+        filesList = ["lib/riscv_compiled/vmlinux" ];
+        handle_file_continue(filesList);
+        RISCV = new CPU();
+    } else {
+        filesList = ["lib/riscv_compiled/vmlinux" ];
+        RISCV = new CPU();
+        chainedFileLoader(userIn, 'vmlinux', filesList.slice(1, filesList.length)); 
+    }
 }
 
 function handle_file_continue(filesList) {
@@ -57,4 +68,4 @@ function handle_file_continue(filesList) {
     GetBinaryFile(filesList[0], chainedFileLoader, filesList.slice(1, filesList.length));
 }
 
-runCodeC();
+runNer();

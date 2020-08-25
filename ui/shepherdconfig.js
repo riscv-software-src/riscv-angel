@@ -14,7 +14,7 @@
     });
     shepherd.addStep('welcome', {
       title: '<strong>Welcome to ANGEL!</strong>',
-      text: ['ANGEL is a JavaScript simulator for the <a href="http://riscv.org">RISC-V architecture</a> <br>that boots <a href="http://github.com/ucb-bar/riscv-linux">Linux</a> inside your browser.', 'Click "Learn More" for a tour or hit "Close & Boot Linux" to <br> use ANGEL immediately'],
+      text: ['ANGEL is a JavaScript simulator for the <a href="http://riscv.org">RISC-V architecture</a> <br>that boots <a href="http://github.com/ucb-bar/riscv-linux">Linux</a> inside your browser.', 'Click "Learn More" for a tour or hit "Close & Boot Linux" to <br> use ANGEL immediately', 'PS: You can use your own boot file by selecting a file in the dialogue box below.' ],
       attachTo: '#ANGELtitle bottom',
       classes: 'shepherd shepherd-open shepherd-theme-arrows shepherd-transparent-text',
       buttons: [

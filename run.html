@@ -50,9 +50,22 @@
 <!-- angel functions -->
 <script>
 function runWorker() {
+    var fileList = document.getElementById("file-selector");
+    var file = fileList.files;
+    if(file.length != 0) {
+        var fileSize = file[0].size - 1;
+        var fsizegb = Math.round((fileSize / (1024 * 1024)));
+        if (fsizegb > 3 ) {
+            if (!(confirm("File too Big!! Size greater that 3Gb Continue?"))) {
+              window.location.reload();
+            }
+        }
+    }
     $('#bootButton').attr('disabled', true);
     $('#bootButton').html("Running...");
     $('#bootButton').prop("onclick", null);
+    $('#file-selector').attr('disabled', true);
+    $('#file-selector').prop("onclick", null);
     myWorker = new Worker("webworker.js");
     myWorker.onmessage = function(oEvent) {
         if (oEvent.data.type == "t") {
@@ -74,6 +87,47 @@ function runWorker() {
             document.getElementById("mipsCount").innerHTML = oEvent.data.d;
         }
     };
+    var binaryBuffer;
+    var offset = 0;
+    const CHUNK_SIZE = 64 * 4 * 1024; // Chunk multiple of 4K
+    var ReadFunction = function(e) {
+        if (e.target.error == null) {
+
+            if(offset == 0) {
+                binaryBuffer = e.target.result;
+            } else {
+                binaryBuffer = binaryBuffer.concat( e.target.result);
+            }
+            offset += e.target.result.length;
+
+            //Update the prog bar
+            document.getElementById("bar").style.width = ((offset/fileSize)*100).toString() + "%";
+
+            if (offset >= fileSize) {
+                console.log("Done reading file");
+                myWorker.postMessage({"type": "f", "inp": binaryBuffer});
+                return;
+            }
+            ReadImageFile(offset, file);
+        } else {
+            console.error("File read error!!: " + e.target.error.code);
+        }
+    }
+    function ReadImageFile(offset, _file) {
+        var fr = new FileReader();
+        var start = offset;
+        //var end =  offset + CHUNK_SIZE;
+        var end = Math.min((offset + CHUNK_SIZE), _file[0].size);
+        var slice = _file[0].slice(start, end);
+        fr.onload = ReadFunction;
+        fr.readAsBinaryString(slice);
+    }
+
+    if (fileList.files.length == 0) {
+        myWorker.postMessage({"type": "f", "inp": fileList.value});
+    } else {
+        ReadImageFile(offset, file);
+    }
 }
 </script>
 </head>
@@ -404,6 +458,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
     </div>
 
 </div>
+    <!-- Select boot file. -->
+    <input type="file" id="file-selector" single>
+    <div class="col-20 mx-auto col-md-8 message-container text-left p-3">
+       <h4 class="text-capitalize">Enter the Image File</h4>
+    </div>
 </body>
 
 <!-- misc end-of-page scripts -->
